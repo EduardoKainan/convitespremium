@@ -9,9 +9,18 @@ export interface ThemeConfig {
   fontBody: string;
 }
 
-export type DecorationType = 'none' | 'floral' | 'geometric' | 'stars' | 'elegant' | 'butterflies' | 'delicate-flowers' | '3d-rings' | '3d-diamonds' | '3d-spheres' | '3d-ribbons' | '3d-crystals' | '3d-confetti' | '3d-pyramids' | '3d-dodecahedrons';
+export type OrnamentPackId = 'none' | 'pearls-premium' | 'rings-metallic' | 'crystals-elegant' | 'floral-2d' | 'geometric-2d' | 'stars-2d' | 'elegant-2d' | 'butterflies-2d' | 'delicate-flowers-2d';
+export type OccasionPresetId = 'wedding-classic' | 'wedding-modern' | 'sweet-16' | 'baby-shower' | 'birthday-luxe' | 'custom';
 
 export type PageBackground = 'solid' | 'paper' | 'marble' | 'floral-light' | 'floral-dark' | 'geometric' | 'stars';
+
+export interface OrnamentConfig {
+  packId: OrnamentPackId;
+  intensity: number; // 0 to 1
+  delicacy: number; // 0 to 1 (affects scale/thickness)
+  quantity: number; // 0 to 1
+  movement: number; // 0 to 1 (animation speed)
+}
 
 export interface InvitationData {
   category: string;
@@ -26,10 +35,17 @@ export interface InvitationData {
   dressCode: string;
   rsvpLink: string;
   finalMessage: string;
-  decorationType?: DecorationType;
+  
+  // Legacy fields for backward compatibility during transition
+  decorationType?: string;
   decorationScale?: number;
   decorationOffsetX?: number;
   decorationOffsetY?: number;
+
+  // New premium fields
+  occasionPresetId?: OccasionPresetId;
+  ornamentConfig?: OrnamentConfig;
+  
   pageBackground?: PageBackground;
   theme: ThemeConfig;
   images: {

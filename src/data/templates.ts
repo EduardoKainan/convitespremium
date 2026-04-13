@@ -19,7 +19,7 @@ export const templates: Template[] = [
       dressCode: 'Passeio Completo. Sua elegância é fundamental para o brilho da nossa festa.',
       rsvpLink: 'https://wa.me/5511999999999?text=Olá!%20Gostaria%20de%20confirmar%20minha%20presença%20nos%2015%20anos%20da%20Letícia!',
       finalMessage: 'Meu coração transborda gratidão por viver esse momento ao lado de quem amo.',
-      decorationType: 'elegant',
+      decorationType: 'elegant', ornamentConfig: { packId: 'none', intensity: 0, delicacy: 0, quantity: 0, movement: 0 },
       theme: {
         primary: '#D4AF37',
         secondary: '#F3E5AB',

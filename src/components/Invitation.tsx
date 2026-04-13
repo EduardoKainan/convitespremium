@@ -3,7 +3,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
 import { MapPin, Clock, Calendar, Music, Pause, Play, Heart, Navigation, Info, MessageCircle, MousePointerClick, GlassWater, Volume2, VolumeX } from 'lucide-react';
 import { InvitationData } from '../types';
 import Decorations from './Decorations';
-import ThreeDecorations from './ThreeDecorations';
+import OrnamentCanvas from './ornaments/OrnamentCanvas';
 
 const Reveal = ({ children, delay = 0, direction = 'up' }: { children: React.ReactNode, delay?: number, direction?: 'up' | 'down' | 'left' | 'right' }) => {
   const y = direction === 'up' ? 50 : direction === 'down' ? -50 : 0;
@@ -41,18 +41,18 @@ const BackgroundOverlay = ({ type, color }: { type?: string, color: string }) =>
   
   switch (type) {
     case 'geometric':
-      pattern = <path d="M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v20h2v2H20v-1.5zM0 20h2v20H0V20zm4 0h2v20H4V20zm4 0h2v20H8V20zm4 0h2v20h-2V20zm4 0h2v20h-2V20zm4 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2z" fill={color} fillOpacity="0.05" fillRule="evenodd"/>;
+      pattern = <path d="M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v20h2v2H20v-1.5zM0 20h2v20H0V20zm4 0h2v20H4V20zm4 0h2v20H8V20zm4 0h2v20h-2V20zm4 0h2v20h-2V20zm4 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2z" fill={color} fillOpacity="0.15" fillRule="evenodd"/>;
       break;
     case 'stars':
-      pattern = <path d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z" fill={color} fillOpacity="0.08" fillRule="evenodd"/>;
+      pattern = <path d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z" fill={color} fillOpacity="0.2" fillRule="evenodd"/>;
       break;
     case 'floral-light':
     case 'floral-dark':
-      pattern = <path d="M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z" fill={color} fillOpacity={type === 'floral-dark' ? "0.15" : "0.08"} fillRule="evenodd"/>;
+      pattern = <path d="M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z" fill={color} fillOpacity={type === 'floral-dark' ? "0.25" : "0.15"} fillRule="evenodd"/>;
       break;
     case 'marble':
       return (
-        <div className="absolute inset-0 pointer-events-none z-0 opacity-20 mix-blend-multiply">
+        <div className="absolute inset-0 pointer-events-none z-0 opacity-40 mix-blend-multiply">
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
             <filter id="marble">
               <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="3" result="noise"/>
@@ -199,8 +199,8 @@ export default function Invitation({ data }: { data: InvitationData }) {
         <BackgroundOverlay type={data.pageBackground} color={data.theme.primary} />
         
         {/* Premium Decorations */}
-        <Decorations type={data.decorationType} color={data.theme.primary} scale={data.decorationScale} offsetX={data.decorationOffsetX} offsetY={data.decorationOffsetY} />
-        <ThreeDecorations type={data.decorationType} color={data.theme.primary} scale={data.decorationScale} offsetX={data.decorationOffsetX} offsetY={data.decorationOffsetY} />
+        <Decorations type={data.decorationType as any} color={data.theme.primary} scale={data.decorationScale} offsetX={data.decorationOffsetX} offsetY={data.decorationOffsetY} />
+        {data.ornamentConfig && <OrnamentCanvas config={data.ornamentConfig} color={data.theme.primary} />}
 
         {/* Floating Controls */}
         <div className="fixed inset-0 pointer-events-none z-40 flex justify-center">
