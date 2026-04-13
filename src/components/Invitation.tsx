@@ -254,17 +254,6 @@ export default function Invitation({ data }: { data: InvitationData }) {
               <h2 className="text-xl mb-12 leading-relaxed" style={{ fontFamily: 'var(--font-title)', color: data.theme.text }}>
                 {data.message}
               </h2>
-
-              {/* Debutante Image */}
-              <div className="relative w-full max-w-[260px] mx-auto mb-20">
-                <div className="relative aspect-[4/5] rounded-t-full rounded-b-2xl overflow-hidden shadow-2xl" style={{ border: `4px solid ${data.theme.primary}30` }}>
-                  <img src={data.images.hero} alt="Debutante" className="w-full h-full object-cover" />
-                </div>
-                {/* Floral Decoration */}
-                <div className="absolute -bottom-10 -right-10 z-10 w-48 h-48 opacity-90 pointer-events-none">
-                  <img src="https://cdn.pixabay.com/photo/2017/08/08/00/12/flower-2609951_1280.png" alt="Floral" className="w-full h-full object-contain drop-shadow-lg" style={{ transform: 'scaleX(-1)' }} />
-                </div>
-              </div>
               
               {/* Date/Time Arch */}
               <div className="relative w-64 h-96 mx-auto mb-16 rounded-t-full shadow-xl overflow-hidden flex flex-col items-center justify-center" style={{ backgroundColor: data.theme.primary }}>
