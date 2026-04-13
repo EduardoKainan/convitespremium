@@ -284,7 +284,13 @@ export default function Editor() {
                 </optgroup>
                 <optgroup label="3D Premium">
                   <option value="3d-rings">Anéis 3D Flutuantes</option>
-                  <option value="3d-diamonds">Cristais/Diamantes 3D</option>
+                  <option value="3d-diamonds">Diamantes 3D</option>
+                  <option value="3d-spheres">Pérolas/Esferas 3D</option>
+                  <option value="3d-ribbons">Fitas/Laços 3D</option>
+                  <option value="3d-crystals">Cristais 3D</option>
+                  <option value="3d-confetti">Confetes Metálicos 3D</option>
+                  <option value="3d-pyramids">Pirâmides Modernas 3D</option>
+                  <option value="3d-dodecahedrons">Polígonos Elegantes 3D</option>
                 </optgroup>
               </select>
             </div>
@@ -303,6 +309,40 @@ export default function Editor() {
                   className="w-full"
                 />
                 <span className="text-xs text-gray-500 w-8">{Math.round((data.decorationScale || 1) * 100)}%</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Posição Horizontal (X)</label>
+              <div className="flex items-center gap-4 mt-1">
+                <input 
+                  type="range" 
+                  name="decorationOffsetX" 
+                  min="-200" 
+                  max="200" 
+                  step="1" 
+                  value={data.decorationOffsetX || 0} 
+                  onChange={(e) => handleChange({ target: { name: 'decorationOffsetX', value: parseInt(e.target.value) } } as any)} 
+                  className="w-full"
+                />
+                <span className="text-xs text-gray-500 w-8">{data.decorationOffsetX || 0}px</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Posição Vertical (Y)</label>
+              <div className="flex items-center gap-4 mt-1">
+                <input 
+                  type="range" 
+                  name="decorationOffsetY" 
+                  min="-200" 
+                  max="200" 
+                  step="1" 
+                  value={data.decorationOffsetY || 0} 
+                  onChange={(e) => handleChange({ target: { name: 'decorationOffsetY', value: parseInt(e.target.value) } } as any)} 
+                  className="w-full"
+                />
+                <span className="text-xs text-gray-500 w-8">{data.decorationOffsetY || 0}px</span>
               </div>
             </div>
 

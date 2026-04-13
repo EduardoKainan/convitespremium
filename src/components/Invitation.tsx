@@ -21,52 +21,65 @@ const Reveal = ({ children, delay = 0, direction = 'up' }: { children: React.Rea
   );
 };
 
-const BackgroundOverlay = ({ type }: { type?: string }) => {
+const BackgroundOverlay = ({ type, color }: { type?: string, color: string }) => {
   if (!type || type === 'solid') return null;
-  
-  let url = '';
-  let opacity = 0.3;
-  let mixBlendMode: any = 'multiply';
 
-  switch (type) {
-    case 'paper':
-      url = 'https://www.transparenttextures.com/patterns/paper-fibers.png';
-      opacity = 0.4;
-      break;
-    case 'marble':
-      url = 'https://www.transparenttextures.com/patterns/white-marble.png';
-      opacity = 0.5;
-      break;
-    case 'floral-light':
-      url = 'https://www.transparenttextures.com/patterns/floral-texture.png';
-      opacity = 0.3;
-      break;
-    case 'floral-dark':
-      url = 'https://www.transparenttextures.com/patterns/floral-texture.png';
-      mixBlendMode = 'color-dodge';
-      opacity = 0.15;
-      break;
-    case 'geometric':
-      url = 'https://www.transparenttextures.com/patterns/cubes.png';
-      opacity = 0.15;
-      break;
-    case 'stars':
-      url = 'https://www.transparenttextures.com/patterns/stardust.png';
-      mixBlendMode = 'screen';
-      opacity = 0.5;
-      break;
+  if (type === 'paper') {
+    return (
+      <div className="absolute inset-0 pointer-events-none z-0 opacity-30 mix-blend-overlay">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <filter id="noise">
+            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/>
+          </filter>
+          <rect width="100%" height="100%" filter="url(#noise)" />
+        </svg>
+      </div>
+    );
   }
 
-  return (
-    <div 
-      className="absolute inset-0 pointer-events-none z-0"
-      style={{
-        backgroundImage: `url("${url}")`,
-        opacity,
-        mixBlendMode
-      }}
-    />
-  );
+  let pattern = null;
+  
+  switch (type) {
+    case 'geometric':
+      pattern = <path d="M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v20h2v2H20v-1.5zM0 20h2v20H0V20zm4 0h2v20H4V20zm4 0h2v20H8V20zm4 0h2v20h-2V20zm4 0h2v20h-2V20zm4 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2z" fill={color} fillOpacity="0.05" fillRule="evenodd"/>;
+      break;
+    case 'stars':
+      pattern = <path d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z" fill={color} fillOpacity="0.08" fillRule="evenodd"/>;
+      break;
+    case 'floral-light':
+    case 'floral-dark':
+      pattern = <path d="M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z" fill={color} fillOpacity={type === 'floral-dark' ? "0.15" : "0.08"} fillRule="evenodd"/>;
+      break;
+    case 'marble':
+      return (
+        <div className="absolute inset-0 pointer-events-none z-0 opacity-20 mix-blend-multiply">
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <filter id="marble">
+              <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="3" result="noise"/>
+              <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 3 -1" in="noise" result="coloredNoise"/>
+            </filter>
+            <rect width="100%" height="100%" filter="url(#marble)" />
+          </svg>
+        </div>
+      );
+  }
+
+  if (pattern) {
+    return (
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id={`pattern-${type}`} x="0" y="0" width={type === 'geometric' ? 40 : 60} height={type === 'geometric' ? 40 : 60} patternUnits="userSpaceOnUse">
+              {pattern}
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill={`url(#pattern-${type})`} />
+        </svg>
+      </div>
+    );
+  }
+
+  return null;
 };
 
 const Countdown = ({ targetDateStr, color }: { targetDateStr: string, color: string }) => {
@@ -174,7 +187,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
       className="w-full h-full min-h-screen flex justify-center selection:bg-black/10 relative overflow-hidden"
       style={{ ...customStyles, backgroundColor: 'var(--color-bg)', fontFamily: 'var(--font-body)', color: 'var(--color-text)' }}
     >
-      <BackgroundOverlay type={data.pageBackground} />
+      <BackgroundOverlay type={data.pageBackground} color={data.theme.primary} />
 
       {/* Audio Element */}
       <audio ref={audioRef} loop>
@@ -183,11 +196,11 @@ export default function Invitation({ data }: { data: InvitationData }) {
 
       {/* Mobile Container */}
       <div className="w-full max-w-md relative shadow-2xl overflow-x-hidden flex flex-col" style={{ backgroundColor: 'var(--color-surface)' }}>
-        <BackgroundOverlay type={data.pageBackground} />
+        <BackgroundOverlay type={data.pageBackground} color={data.theme.primary} />
         
         {/* Premium Decorations */}
-        <Decorations type={data.decorationType} color={data.theme.primary} scale={data.decorationScale} />
-        <ThreeDecorations type={data.decorationType} color={data.theme.primary} scale={data.decorationScale} />
+        <Decorations type={data.decorationType} color={data.theme.primary} scale={data.decorationScale} offsetX={data.decorationOffsetX} offsetY={data.decorationOffsetY} />
+        <ThreeDecorations type={data.decorationType} color={data.theme.primary} scale={data.decorationScale} offsetX={data.decorationOffsetX} offsetY={data.decorationOffsetY} />
 
         {/* Floating Controls */}
         <div className="fixed inset-0 pointer-events-none z-40 flex justify-center">
@@ -222,7 +235,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
               className="absolute inset-0 z-50 flex flex-col items-center overflow-y-auto overflow-x-hidden no-scrollbar"
               style={{ backgroundColor: data.theme.surface }}
             >
-              <BackgroundOverlay type={data.pageBackground} />
+              <BackgroundOverlay type={data.pageBackground} color={data.theme.primary} />
               
               {/* Corner Flourishes (Brochuras) */}
               <div className="absolute top-6 left-6 z-30 w-16 h-16 opacity-60 pointer-events-none">
@@ -451,7 +464,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
 
           {/* Dress Code Section */}
           <div className="py-20 px-8 text-center relative z-10" style={{ backgroundColor: data.theme.background, color: data.theme.surface }}>
-            <BackgroundOverlay type={data.pageBackground} />
+            <BackgroundOverlay type={data.pageBackground} color={data.theme.primary} />
             <Reveal direction="up">
               <h2 className="text-3xl mb-8" style={{ fontFamily: 'var(--font-title)', color: data.theme.primary }}>Dress Code</h2>
               <div className="flex justify-center mb-6">

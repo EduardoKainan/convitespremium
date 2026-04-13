@@ -9,7 +9,7 @@ export interface ThemeConfig {
   fontBody: string;
 }
 
-export type DecorationType = 'none' | 'floral' | 'geometric' | 'stars' | 'elegant' | 'butterflies' | 'delicate-flowers' | '3d-rings' | '3d-diamonds';
+export type DecorationType = 'none' | 'floral' | 'geometric' | 'stars' | 'elegant' | 'butterflies' | 'delicate-flowers' | '3d-rings' | '3d-diamonds' | '3d-spheres' | '3d-ribbons' | '3d-crystals' | '3d-confetti' | '3d-pyramids' | '3d-dodecahedrons';
 
 export type PageBackground = 'solid' | 'paper' | 'marble' | 'floral-light' | 'floral-dark' | 'geometric' | 'stars';
 
@@ -28,6 +28,8 @@ export interface InvitationData {
   finalMessage: string;
   decorationType?: DecorationType;
   decorationScale?: number;
+  decorationOffsetX?: number;
+  decorationOffsetY?: number;
   pageBackground?: PageBackground;
   theme: ThemeConfig;
   images: {

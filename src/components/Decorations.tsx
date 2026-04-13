@@ -5,9 +5,11 @@ interface Props {
   type?: DecorationType;
   color: string;
   scale?: number;
+  offsetX?: number;
+  offsetY?: number;
 }
 
-export default function Decorations({ type = 'none', color, scale = 1 }: Props) {
+export default function Decorations({ type = 'none', color, scale = 1, offsetX = 0, offsetY = 0 }: Props) {
   if (type === 'none' || !type || type === '3d-rings' || type === '3d-diamonds') return null;
 
   const Corner = ({ className, children }: { className: string, children: React.ReactNode }) => {
@@ -17,7 +19,7 @@ export default function Decorations({ type = 'none', color, scale = 1 }: Props) 
     
     return (
       <div className={`absolute ${className} pointer-events-none z-50 opacity-70 transition-colors duration-500`} style={{ color }}>
-        <div style={{ transform: `scale(${scale})`, transformOrigin: origin, transition: 'transform 0.3s ease' }}>
+        <div style={{ transform: `scale(${scale}) translate(${isLeft ? offsetX : -offsetX}px, ${isTop ? offsetY : -offsetY}px)`, transformOrigin: origin, transition: 'transform 0.3s ease' }}>
           {children}
         </div>
       </div>
