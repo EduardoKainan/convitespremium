@@ -1,0 +1,74 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: invitations
+    // Document ID: [custom-short-id]
+    // Fields:
+    //   - id: string (required) - The custom short ID for the invitation
+    //   - ownerUid: string (required) - The UID of the user who created the invitation
+    //   - data: map (required) - The invitation data
+    //   - createdAt: timestamp (required) - When the invitation was created
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+       return request.auth != null;
+    }
+    
+    function isDocOwner() {
+       return isAuthenticated() && request.auth.uid == resource.data.ownerUid;
+    }
+    
+    function uidUnchanged() {
+       return !('ownerUid' in request.resource.data) ||
+         request.resource.data.ownerUid == request.auth.uid;
+    }
+    
+    function uidNotModified() {
+       return !('ownerUid' in request.resource.data) ||
+         request.resource.data.ownerUid == resource.data.ownerUid;
+    }
+    
+    function hasRequiredFields(fields) {
+       return request.resource.data.keys().hasAll(fields);
+    }
+    
+    function isValidInvitation(data) {
+      return hasRequiredFields(['id', 'ownerUid', 'data', 'createdAt']) &&
+             data.id is string && data.id.size() > 0 && data.id.size() <= 100 &&
+             data.ownerUid is string && data.ownerUid.size() > 0 &&
+             data.data is map &&
+             data.createdAt is timestamp;
+    }
+
+    match /invitations/{inviteId} {
+      // Anyone can read an invitation to view it
+      allow read: if true;
+      
+      // Only authenticated users can create, and they must set themselves as the owner
+      allow create: if isAuthenticated() && 
+                    isValidInvitation(request.resource.data) && 
+                    request.resource.data.ownerUid == request.auth.uid &&
+                    request.resource.data.id == inviteId;
+                    
+      // Only the owner can update
+      allow update: if isDocOwner() && 
+                    isValidInvitation(request.resource.data) && 
+                    uidNotModified() &&
+                    request.resource.data.id == resource.data.id &&
+                    request.resource.data.createdAt == resource.data.createdAt;
+                    
+      // Only the owner can delete
+      allow delete: if isDocOwner();
+    }
+  }
+}

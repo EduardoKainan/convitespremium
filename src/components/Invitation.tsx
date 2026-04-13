@@ -2,17 +2,23 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
 import { MapPin, Clock, Calendar, Music, Pause, Play, Heart, Navigation, Info, MessageCircle, MousePointerClick, GlassWater } from 'lucide-react';
 import { InvitationData } from '../types';
+import Decorations from './Decorations';
 
-const Reveal = ({ children, delay = 0 }: { children: React.ReactNode, delay?: number }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 40 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-50px" }}
-    transition={{ duration: 0.8, delay, ease: [0.21, 0.47, 0.32, 0.98] }}
-  >
-    {children}
-  </motion.div>
-);
+const Reveal = ({ children, delay = 0, direction = 'up' }: { children: React.ReactNode, delay?: number, direction?: 'up' | 'down' | 'left' | 'right' }) => {
+  const y = direction === 'up' ? 50 : direction === 'down' ? -50 : 0;
+  const x = direction === 'left' ? 50 : direction === 'right' ? -50 : 0;
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y, x, filter: 'blur(8px)' }}
+      whileInView={{ opacity: 1, y: 0, x: 0, filter: 'blur(0px)' }}
+      viewport={{ once: true, margin: "-10%" }}
+      transition={{ duration: 1, delay, ease: [0.25, 0.1, 0.25, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 const Countdown = ({ targetDateStr, color }: { targetDateStr: string, color: string }) => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -113,6 +119,9 @@ export default function Invitation({ data }: { data: InvitationData }) {
 
       {/* Mobile Container */}
       <div className="w-full max-w-md relative shadow-2xl overflow-x-hidden flex flex-col" style={{ backgroundColor: 'var(--color-surface)' }}>
+        
+        {/* Premium Decorations */}
+        <Decorations type={data.decorationType} color={data.theme.primary} />
 
         {/* Floating Controls */}
         <div className="fixed inset-0 pointer-events-none z-40 flex justify-center">
@@ -176,11 +185,6 @@ export default function Invitation({ data }: { data: InvitationData }) {
                   </button>
                   <span className="text-[10px] mt-2 font-serif italic font-medium" style={{ color: data.theme.primary }}>Tocar música</span>
                 </div>
-
-                {/* Floral Decoration Right */}
-                <div className="absolute -bottom-8 -right-8 z-20 w-48 h-48 opacity-90 pointer-events-none">
-                  <img src="https://cdn.pixabay.com/photo/2017/08/08/00/12/flower-2609951_1280.png" alt="Floral" className="w-full h-full object-contain drop-shadow-lg" style={{ transform: 'scaleX(-1)' }} />
-                </div>
               </div>
 
               {/* Center Title (Name + Heart + Category) */}
@@ -230,11 +234,6 @@ export default function Invitation({ data }: { data: InvitationData }) {
                   {data.message}
                 </p>
               </div>
-
-              {/* Floral Decoration Bottom Left */}
-              <div className="absolute bottom-0 left-0 z-10 w-40 h-40 opacity-80 pointer-events-none">
-                <img src="https://cdn.pixabay.com/photo/2017/08/08/00/12/flower-2609951_1280.png" alt="Floral" className="w-full h-full object-contain drop-shadow-lg" />
-              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -250,20 +249,17 @@ export default function Invitation({ data }: { data: InvitationData }) {
 
           {/* Inside Header */}
           <div className="pt-12 pb-12 px-8 text-center relative z-10" style={{ backgroundColor: data.theme.surface }}>
-            <Reveal>
+            <Reveal direction="up">
               <h2 className="text-xl mb-12 leading-relaxed" style={{ fontFamily: 'var(--font-title)', color: data.theme.text }}>
                 {data.message}
               </h2>
+            </Reveal>
               
+            <Reveal direction="up" delay={0.2}>
               {/* Date/Time Arch */}
               <div className="relative w-64 h-96 mx-auto mb-16 rounded-t-full shadow-xl overflow-hidden flex flex-col items-center justify-center" style={{ backgroundColor: data.theme.primary }}>
                 {/* Texture */}
                 <div className="absolute inset-0 opacity-20 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/paper-fibers.png')]"></div>
-                
-                {/* Butterfly Decoration */}
-                <div className="absolute top-8 left-6 w-16 h-16 opacity-80">
-                  <img src="https://cdn.pixabay.com/photo/2016/11/14/03/46/butterfly-1822513_1280.png" alt="Butterfly" className="w-full h-full object-contain drop-shadow-md" style={{ filter: 'hue-rotate(180deg)' }} />
-                </div>
 
                 <div className="relative z-10 flex flex-col items-center text-white drop-shadow-md">
                   <span className="text-8xl font-bold leading-none" style={{ fontFamily: 'var(--font-title)' }}>
@@ -282,25 +278,20 @@ export default function Invitation({ data }: { data: InvitationData }) {
                     {data.time}
                   </span>
                 </div>
-
-                {/* Floral Decoration Bottom Left of Arch */}
-                <div className="absolute bottom-0 -left-6 z-10 w-32 h-32 opacity-90 pointer-events-none">
-                  <img src="https://cdn.pixabay.com/photo/2017/08/08/00/12/flower-2609951_1280.png" alt="Floral" className="w-full h-full object-contain drop-shadow-lg" />
-                </div>
               </div>
             </Reveal>
           </div>
 
           {/* Info Section */}
           <div className="py-12 px-8 text-center relative z-10" style={{ backgroundColor: data.theme.surface }}>
-            <Reveal>
+            <Reveal direction="up">
               <Countdown targetDateStr={data.date} color={data.theme.primary} />
             </Reveal>
           </div>
 
           {/* Interactive Section */}
           <div className="py-20 px-8 text-center relative z-10" style={{ backgroundColor: data.theme.surface }}>
-            <Reveal>
+            <Reveal direction="up">
               <div className="mb-16">
                 <h2 className="text-2xl tracking-widest uppercase mb-4" style={{ fontFamily: 'var(--font-title)', color: data.theme.text }}>
                   Clique para
@@ -309,7 +300,9 @@ export default function Invitation({ data }: { data: InvitationData }) {
                   Interagir
                 </h3>
               </div>
+            </Reveal>
 
+            <Reveal direction="up" delay={0.2}>
               {/* Interactive Buttons Layout */}
               <div className="relative h-72 w-full max-w-sm mx-auto mb-12">
                 {/* RSVP Button (Top Left) */}
@@ -319,15 +312,13 @@ export default function Invitation({ data }: { data: InvitationData }) {
                   rel="noopener noreferrer"
                   className="absolute top-0 left-4 flex flex-col items-center group hover:scale-105 transition-transform"
                 >
-                  <div className="w-24 h-24 flex items-center justify-center mb-2">
-                    <Heart size={72} fill={data.theme.primary} strokeWidth={0} className="drop-shadow-lg" />
+                  <div className="w-24 h-24 flex items-center justify-center mb-4">
+                    <Heart size={64} fill={data.theme.primary} strokeWidth={0} className="drop-shadow-lg" />
                   </div>
-                  <svg viewBox="0 0 100 50" className="w-32 h-16 absolute -bottom-8">
-                    <path id="curve1" d="M 10 40 Q 50 10 90 40" fill="transparent" />
-                    <text width="100" className="text-[11px] font-bold uppercase tracking-wider" style={{ fill: data.theme.primary }}>
-                      <textPath href="#curve1" startOffset="50%" textAnchor="middle">Confirmar Presença</textPath>
-                    </text>
-                  </svg>
+                  <div className="text-center">
+                    <span className="block text-xs font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Confirmar</span>
+                    <span className="block text-xs font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Presença</span>
+                  </div>
                 </a>
 
                 {/* Location Button (Bottom Right) */}
@@ -337,15 +328,13 @@ export default function Invitation({ data }: { data: InvitationData }) {
                   rel="noopener noreferrer"
                   className="absolute bottom-0 right-4 flex flex-col items-center group hover:scale-105 transition-transform"
                 >
-                  <div className="w-24 h-24 flex items-center justify-center mb-2">
-                    <GlassWater size={72} fill={data.theme.primary} strokeWidth={0} className="drop-shadow-lg" />
+                  <div className="w-24 h-24 flex items-center justify-center mb-4">
+                    <MapPin size={64} fill={data.theme.primary} strokeWidth={0} className="drop-shadow-lg" />
                   </div>
-                  <svg viewBox="0 0 100 50" className="w-32 h-16 absolute -bottom-8">
-                    <path id="curve2" d="M 10 10 Q 50 40 90 10" fill="transparent" />
-                    <text width="100" className="text-[11px] font-bold uppercase tracking-wider" style={{ fill: data.theme.primary }}>
-                      <textPath href="#curve2" startOffset="50%" textAnchor="middle">Endereço Celebração</textPath>
-                    </text>
-                  </svg>
+                  <div className="text-center">
+                    <span className="block text-xs font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Local do</span>
+                    <span className="block text-xs font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Evento</span>
+                  </div>
                 </a>
                 
                 {/* Click Icon Bottom Center */}
@@ -358,7 +347,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
 
           {/* Dress Code Section */}
           <div className="py-20 px-8 text-center relative z-10" style={{ backgroundColor: data.theme.background, color: data.theme.surface }}>
-            <Reveal>
+            <Reveal direction="up">
               <h2 className="text-3xl mb-8" style={{ fontFamily: 'var(--font-title)', color: data.theme.primary }}>Dress Code</h2>
               <div className="flex justify-center mb-6">
                 <div 
@@ -376,13 +365,13 @@ export default function Invitation({ data }: { data: InvitationData }) {
 
           {/* Footer RSVP Section */}
           <div className="pt-10 pb-32 px-6 text-center relative z-10 flex flex-col items-center" style={{ backgroundColor: data.theme.surface, color: data.theme.text }}>
-            <Reveal>
+            <Reveal direction="up">
               <p className="text-lg leading-relaxed max-w-sm mx-auto mb-12" style={{ fontFamily: 'var(--font-title)' }}>
                 {data.finalMessage}
               </p>
             </Reveal>
 
-            <Reveal delay={0.2}>
+            <Reveal direction="up" delay={0.2}>
               <div className="relative w-full max-w-md mx-auto aspect-[3/4] mb-8">
                 {/* Top fade gradient */}
                 <div className="absolute top-0 inset-x-0 h-24 z-10" style={{ background: `linear-gradient(to bottom, ${data.theme.surface} 0%, transparent 100%)` }}></div>
@@ -395,11 +384,6 @@ export default function Invitation({ data }: { data: InvitationData }) {
                 
                 {/* Bottom fade gradient */}
                 <div className="absolute bottom-0 inset-x-0 h-32 z-10" style={{ background: `linear-gradient(to top, ${data.theme.surface} 0%, transparent 100%)` }}></div>
-
-                {/* Floral Decoration (Placeholder) */}
-                <div className="absolute -bottom-8 -left-4 z-20 w-40 h-40 opacity-90 pointer-events-none">
-                  <img src="https://cdn.pixabay.com/photo/2017/08/08/00/12/flower-2609951_1280.png" alt="Floral" className="w-full h-full object-contain drop-shadow-lg" />
-                </div>
 
                 {/* Espero por você Text */}
                 <div className="absolute bottom-4 right-4 z-20">

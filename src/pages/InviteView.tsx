@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Invitation from '../components/Invitation';
 import { InvitationData } from '../types';
+import LZString from 'lz-string';
 
 export default function InviteView() {
   const [searchParams] = useSearchParams();
@@ -12,10 +13,20 @@ export default function InviteView() {
     const encodedData = searchParams.get('d');
     if (encodedData) {
       try {
-        // Decode Base64 safely handling Unicode
-        const decodedString = decodeURIComponent(atob(encodedData));
-        const decodedData = JSON.parse(decodedString);
-        setData(decodedData);
+        // First try to decode with LZString (new format)
+        let decodedString = LZString.decompressFromEncodedURIComponent(encodedData);
+        
+        // Fallback for old base64 format if LZString fails
+        if (!decodedString) {
+          decodedString = decodeURIComponent(atob(encodedData));
+        }
+
+        if (decodedString) {
+          const decodedData = JSON.parse(decodedString);
+          setData(decodedData);
+        } else {
+          throw new Error("Failed to decompress");
+        }
       } catch (e) {
         console.error("Invalid invitation data", e);
         setError(true);

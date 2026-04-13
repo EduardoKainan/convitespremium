@@ -9,6 +9,8 @@ export interface ThemeConfig {
   fontBody: string;
 }
 
+export type DecorationType = 'none' | 'floral' | 'geometric' | 'stars' | 'elegant';
+
 export interface InvitationData {
   category: string;
   title: string;
@@ -22,6 +24,7 @@ export interface InvitationData {
   dressCode: string;
   rsvpLink: string;
   finalMessage: string;
+  decorationType?: DecorationType;
   theme: ThemeConfig;
   images: {
     cover: string;

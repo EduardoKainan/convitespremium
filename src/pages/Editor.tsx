@@ -3,7 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { templates } from '../data/templates';
 import { InvitationData } from '../types';
 import Invitation from '../components/Invitation';
-import { ArrowLeft, Share2, Smartphone, Copy, Check } from 'lucide-react';
+import { ArrowLeft, Share2, Smartphone, Copy, Check, Link as LinkIcon, LogIn, Loader2, Save } from 'lucide-react';
+import LZString from 'lz-string';
+import { auth, db } from '../firebase';
+import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User } from 'firebase/auth';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function Editor() {
   const { templateId } = useParams();
@@ -12,6 +16,20 @@ export default function Editor() {
   const [showModal, setShowModal] = useState(false);
   const [shareLink, setShareLink] = useState('');
   const [copied, setCopied] = useState(false);
+  
+  // Firebase Auth & Custom Link States
+  const [user, setUser] = useState<User | null>(null);
+  const [customPath, setCustomPath] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const template = templates.find(t => t.id === templateId);
@@ -46,12 +64,74 @@ export default function Editor() {
   };
 
   const handleShare = () => {
-    // Encode data to base64 to create a stateless shareable link
-    const encoded = btoa(encodeURIComponent(JSON.stringify(data)));
-    const link = `${window.location.origin}/invite?d=${encoded}`;
+    // Compress and encode data to create a stateless shareable link
+    const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(data));
+    const link = `${window.location.origin}/invite?d=${compressed}`;
     setShareLink(link);
     setShowModal(true);
     setCopied(false);
+    setSaveSuccess(false);
+    setSaveError('');
+  };
+
+  const handleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("Login failed", error);
+    }
+  };
+
+  const handleSaveCustomLink = async () => {
+    if (!user) return;
+    if (!customPath.trim()) {
+      setSaveError("Digite um nome para o link.");
+      return;
+    }
+
+    // Format path: lowercase, replace spaces with hyphens, remove special chars
+    const formattedPath = customPath
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
+
+    if (formattedPath.length < 3) {
+      setSaveError("O link deve ter pelo menos 3 caracteres.");
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveError('');
+    setSaveSuccess(false);
+
+    try {
+      const docRef = doc(db, 'invitations', formattedPath);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists() && docSnap.data().ownerUid !== user.uid) {
+        setSaveError("Este link já está em uso por outra pessoa. Escolha outro.");
+        setIsSaving(false);
+        return;
+      }
+
+      await setDoc(docRef, {
+        id: formattedPath,
+        ownerUid: user.uid,
+        data: data,
+        createdAt: serverTimestamp()
+      });
+
+      const newLink = `${window.location.origin}/c/${formattedPath}`;
+      setShareLink(newLink);
+      setSaveSuccess(true);
+    } catch (error) {
+      console.error("Error saving custom link:", error);
+      setSaveError("Erro ao salvar o link. Tente novamente.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const copyToClipboard = () => {
@@ -184,6 +264,22 @@ export default function Editor() {
                 </div>
               </div>
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Estilo de Decoração (Bordas)</label>
+              <select 
+                name="decorationType" 
+                value={data.decorationType || 'none'} 
+                onChange={handleChange} 
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border bg-white"
+              >
+                <option value="none">Sem decoração</option>
+                <option value="elegant">Elegante (Ramos/Arabescos)</option>
+                <option value="floral">Floral (Folhas)</option>
+                <option value="geometric">Geométrico (Art Deco)</option>
+                <option value="stars">Estrelas/Brilho</option>
+              </select>
+            </div>
           </div>
           
           <div className="pb-10"></div>
@@ -212,7 +308,7 @@ export default function Editor() {
       {/* Share Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
             <h3 className="text-xl font-bold text-gray-900 mb-2">Convite Pronto! 🎉</h3>
             <p className="text-gray-600 mb-6 text-sm">
               Seu convite foi gerado com sucesso. Copie o link abaixo e envie para seus convidados.
@@ -232,6 +328,55 @@ export default function Editor() {
               >
                 {copied ? <Check size={18} /> : <Copy size={18} />}
               </button>
+            </div>
+
+            <div className="border-t border-gray-200 pt-6 mb-6">
+              <h4 className="text-md font-semibold text-gray-800 mb-2 flex items-center">
+                <LinkIcon size={16} className="mr-2" />
+                Personalizar Link
+              </h4>
+              <p className="text-xs text-gray-500 mb-4">
+                Crie um link curto e amigável (ex: seusite.com/c/15-anos-julia).
+              </p>
+
+              {!user ? (
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+                  <p className="text-sm text-gray-600 mb-3">Faça login para criar links personalizados.</p>
+                  <button 
+                    onClick={handleLogin}
+                    className="w-full flex items-center justify-center bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors text-sm font-medium shadow-sm"
+                  >
+                    <LogIn size={16} className="mr-2" />
+                    Entrar com Google
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center bg-gray-50 border border-gray-300 rounded-md overflow-hidden focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
+                      <span className="px-3 text-gray-500 text-sm bg-gray-100 border-r border-gray-300">/c/</span>
+                      <input 
+                        type="text" 
+                        placeholder="meu-evento"
+                        value={customPath}
+                        onChange={(e) => setCustomPath(e.target.value)}
+                        className="flex-1 py-2 px-3 text-sm focus:outline-none bg-transparent"
+                      />
+                    </div>
+                    {saveError && <p className="text-xs text-red-600 mt-1">{saveError}</p>}
+                    {saveSuccess && <p className="text-xs text-green-600 mt-1">Link personalizado criado com sucesso!</p>}
+                  </div>
+                  
+                  <button 
+                    onClick={handleSaveCustomLink}
+                    disabled={isSaving || !customPath.trim()}
+                    className="w-full flex items-center justify-center bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSaving ? <Loader2 size={16} className="animate-spin mr-2" /> : <Save size={16} className="mr-2" />}
+                    Salvar Link Personalizado
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="flex justify-end">

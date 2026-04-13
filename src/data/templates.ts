@@ -19,6 +19,7 @@ export const templates: Template[] = [
       dressCode: 'Passeio Completo. Sua elegância é fundamental para o brilho da nossa festa.',
       rsvpLink: 'https://wa.me/5511999999999?text=Olá!%20Gostaria%20de%20confirmar%20minha%20presença%20nos%2015%20anos%20da%20Letícia!',
       finalMessage: 'Meu coração transborda gratidão por viver esse momento ao lado de quem amo.',
+      decorationType: 'elegant',
       theme: {
         primary: '#D4AF37',
         secondary: '#F3E5AB',
@@ -56,6 +57,7 @@ export const templates: Template[] = [
       dressCode: 'Esporte Fino. Recomendamos calçados confortáveis para gramado.',
       rsvpLink: 'https://wa.me/5511999999999?text=Olá!%20Confirmo%20minha%20presença%20no%20casamento%20de%20Ana%20e%20Rafael!',
       finalMessage: 'Mal podemos esperar para celebrar nosso amor com vocês!',
+      decorationType: 'floral',
       theme: {
         primary: '#6B8E23',
         secondary: '#E8F5E9',
@@ -93,6 +95,7 @@ export const templates: Template[] = [
       dressCode: 'Casual e confortável.',
       rsvpLink: 'https://wa.me/5511999999999?text=Olá!%20Estarei%20presente%20no%20Chá%20de%20Bebê%20do%20Miguel!',
       finalMessage: 'Sua presença é o melhor presente para nós!',
+      decorationType: 'stars',
       theme: {
         primary: '#87CEEB',
         secondary: '#FFB6C1',
@@ -130,6 +133,7 @@ export const templates: Template[] = [
       dressCode: 'Esporte Fino / Balada.',
       rsvpLink: 'https://wa.me/5511999999999?text=Opa!%20Tô%20dentro%20dos%2030%20da%20Carol!',
       finalMessage: 'Vamos brindar juntos a essa nova fase!',
+      decorationType: 'geometric',
       theme: {
         primary: '#FFD700',
         secondary: '#333333',
@@ -167,6 +171,7 @@ export const templates: Template[] = [
       dressCode: 'Roupas confortáveis para brincar muito.',
       rsvpLink: 'https://wa.me/5511999999999?text=Olá!%20Vamos%20sim%20no%20aniversário%20do%20Pedro!',
       finalMessage: 'Vai ser muito divertido ter você com a gente!',
+      decorationType: 'none',
       theme: {
         primary: '#FF8C00',
         secondary: '#32CD32',
@@ -204,6 +209,7 @@ export const templates: Template[] = [
       dressCode: 'Casual.',
       rsvpLink: 'https://wa.me/5511999999999?text=Que%20alegria!%20Iremos%20conhecer%20a%20Sofia!',
       finalMessage: 'Agradecemos todo o carinho e amor!',
+      decorationType: 'elegant',
       theme: {
         primary: '#DDA0DD',
         secondary: '#FFF0F5',
