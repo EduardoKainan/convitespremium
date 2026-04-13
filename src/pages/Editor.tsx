@@ -278,6 +278,8 @@ export default function Editor() {
                 <option value="floral">Floral (Folhas)</option>
                 <option value="geometric">Geométrico (Art Deco)</option>
                 <option value="stars">Estrelas/Brilho</option>
+                <option value="butterflies">Borboletas</option>
+                <option value="delicate-flowers">Flores Delicadas</option>
               </select>
             </div>
           </div>

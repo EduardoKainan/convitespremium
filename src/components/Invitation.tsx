@@ -77,6 +77,19 @@ export default function Invitation({ data }: { data: InvitationData }) {
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 1000], [0, 250]);
 
+  // Helper to convert Google Drive sharing links to direct download/stream links
+  const getDirectAudioUrl = (url: string) => {
+    if (!url) return url;
+    const driveRegex = /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/;
+    const match = url.match(driveRegex);
+    if (match && match[1]) {
+      return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+    }
+    return url;
+  };
+
+  const directMusicUrl = getDirectAudioUrl(data.musicUrl);
+
   const handleOpen = () => {
     setIsOpened(true);
     if (audioRef.current) {
@@ -114,7 +127,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
     >
       {/* Audio Element */}
       <audio ref={audioRef} loop>
-        <source src={data.musicUrl} type="audio/mpeg" />
+        <source src={directMusicUrl} />
       </audio>
 
       {/* Mobile Container */}
@@ -265,7 +278,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
                   <span className="text-8xl font-bold leading-none" style={{ fontFamily: 'var(--font-title)' }}>
                     {data.date.split('-')[2]}
                   </span>
-                  <span className="text-4xl -mt-4 mb-4" style={{ fontFamily: 'var(--font-script)' }}>
+                  <span className="text-4xl mt-2 mb-4" style={{ fontFamily: 'var(--font-script)' }}>
                     {new Date(data.date).toLocaleString('pt-BR', { month: 'long' })}
                   </span>
                   <span className="text-2xl font-medium tracking-widest mb-6" style={{ fontFamily: 'var(--font-title)' }}>

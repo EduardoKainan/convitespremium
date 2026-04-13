@@ -94,5 +94,50 @@ export default function Decorations({ type = 'none', color }: Props) {
     );
   }
 
+  // Butterflies
+  if (type === 'butterflies') {
+    const ButterflySVG = () => (
+      <svg className="w-20 h-20 md:w-28 md:h-28" viewBox="0 0 100 100" fill="currentColor">
+        <path d="M50,50 C40,30 10,10 5,40 C0,70 30,60 50,50 Z" opacity="0.8"/>
+        <path d="M50,50 C60,30 90,10 95,40 C100,70 70,60 50,50 Z" opacity="0.8"/>
+        <path d="M50,50 C45,70 20,90 15,75 C10,60 35,55 50,50 Z" opacity="0.6"/>
+        <path d="M50,50 C55,70 80,90 85,75 C90,60 65,55 50,50 Z" opacity="0.6"/>
+        <path d="M48,30 C48,30 45,15 40,10" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.5"/>
+        <path d="M52,30 C52,30 55,15 60,10" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.5"/>
+      </svg>
+    );
+    return (
+      <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+        <Corner className="top-4 left-4"><ButterflySVG /></Corner>
+        <Corner className="top-4 right-4 scale-x-[-1]"><ButterflySVG /></Corner>
+        <Corner className="bottom-4 left-4 scale-y-[-1]"><ButterflySVG /></Corner>
+        <Corner className="bottom-4 right-4 scale-x-[-1] scale-y-[-1]"><ButterflySVG /></Corner>
+      </div>
+    );
+  }
+
+  // Delicate Flowers
+  if (type === 'delicate-flowers') {
+    const DelicateFlowerSVG = () => (
+      <svg className="w-24 h-24 md:w-32 md:h-32" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M10,90 Q40,60 90,10" strokeOpacity="0.6"/>
+        <path d="M20,70 Q40,40 70,20" strokeOpacity="0.4"/>
+        <circle cx="90" cy="10" r="3" fill="currentColor" opacity="0.8"/>
+        <circle cx="70" cy="20" r="2" fill="currentColor" opacity="0.6"/>
+        <path d="M40,60 C30,50 20,55 25,65 C30,75 45,70 40,60 Z" fill="currentColor" stroke="none" opacity="0.5"/>
+        <path d="M60,40 C50,30 40,35 45,45 C50,55 65,50 60,40 Z" fill="currentColor" stroke="none" opacity="0.5"/>
+        <path d="M80,20 C75,10 65,15 70,25 C75,35 85,30 80,20 Z" fill="currentColor" stroke="none" opacity="0.5"/>
+      </svg>
+    );
+    return (
+      <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+        <Corner className="top-0 left-0"><DelicateFlowerSVG /></Corner>
+        <Corner className="top-0 right-0 scale-x-[-1]"><DelicateFlowerSVG /></Corner>
+        <Corner className="bottom-0 left-0 scale-y-[-1]"><DelicateFlowerSVG /></Corner>
+        <Corner className="bottom-0 right-0 scale-x-[-1] scale-y-[-1]"><DelicateFlowerSVG /></Corner>
+      </div>
+    );
+  }
+
   return null;
 }
