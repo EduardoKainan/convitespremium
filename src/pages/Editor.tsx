@@ -288,6 +288,41 @@ export default function Editor() {
                 </optgroup>
               </select>
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Tamanho da Decoração</label>
+              <div className="flex items-center gap-4 mt-1">
+                <input 
+                  type="range" 
+                  name="decorationScale" 
+                  min="0.5" 
+                  max="2" 
+                  step="0.1" 
+                  value={data.decorationScale || 1} 
+                  onChange={(e) => handleChange({ target: { name: 'decorationScale', value: parseFloat(e.target.value) } } as any)} 
+                  className="w-full"
+                />
+                <span className="text-xs text-gray-500 w-8">{Math.round((data.decorationScale || 1) * 100)}%</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Textura de Fundo</label>
+              <select 
+                name="pageBackground" 
+                value={data.pageBackground || 'solid'} 
+                onChange={handleChange} 
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border bg-white"
+              >
+                <option value="solid">Cor Sólida (Padrão)</option>
+                <option value="paper">Papel Texturizado</option>
+                <option value="marble">Mármore Elegante</option>
+                <option value="floral-light">Floral Claro</option>
+                <option value="floral-dark">Floral Escuro</option>
+                <option value="geometric">Geométrico</option>
+                <option value="stars">Estrelas/Galáxia</option>
+              </select>
+            </div>
           </div>
           
           <div className="pb-10"></div>

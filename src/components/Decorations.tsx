@@ -4,16 +4,25 @@ import { DecorationType } from '../types';
 interface Props {
   type?: DecorationType;
   color: string;
+  scale?: number;
 }
 
-export default function Decorations({ type = 'none', color }: Props) {
-  if (type === 'none' || !type) return null;
+export default function Decorations({ type = 'none', color, scale = 1 }: Props) {
+  if (type === 'none' || !type || type === '3d-rings' || type === '3d-diamonds') return null;
 
-  const Corner = ({ className, children }: { className: string, children: React.ReactNode }) => (
-    <div className={`absolute ${className} pointer-events-none z-50 opacity-70 transition-colors duration-500`} style={{ color }}>
-      {children}
-    </div>
-  );
+  const Corner = ({ className, children }: { className: string, children: React.ReactNode }) => {
+    const isTop = className.includes('top');
+    const isLeft = className.includes('left');
+    const origin = `${isTop ? 'top' : 'bottom'} ${isLeft ? 'left' : 'right'}`;
+    
+    return (
+      <div className={`absolute ${className} pointer-events-none z-50 opacity-70 transition-colors duration-500`} style={{ color }}>
+        <div style={{ transform: `scale(${scale})`, transformOrigin: origin, transition: 'transform 0.3s ease' }}>
+          {children}
+        </div>
+      </div>
+    );
+  };
 
   // Geometric (Art Deco)
   if (type === 'geometric') {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
-import { MapPin, Clock, Calendar, Music, Pause, Play, Heart, Navigation, Info, MessageCircle, MousePointerClick, GlassWater } from 'lucide-react';
+import { MapPin, Clock, Calendar, Music, Pause, Play, Heart, Navigation, Info, MessageCircle, MousePointerClick, GlassWater, Volume2, VolumeX } from 'lucide-react';
 import { InvitationData } from '../types';
 import Decorations from './Decorations';
 import ThreeDecorations from './ThreeDecorations';
@@ -18,6 +18,54 @@ const Reveal = ({ children, delay = 0, direction = 'up' }: { children: React.Rea
     >
       {children}
     </motion.div>
+  );
+};
+
+const BackgroundOverlay = ({ type }: { type?: string }) => {
+  if (!type || type === 'solid') return null;
+  
+  let url = '';
+  let opacity = 0.3;
+  let mixBlendMode: any = 'multiply';
+
+  switch (type) {
+    case 'paper':
+      url = 'https://www.transparenttextures.com/patterns/paper-fibers.png';
+      opacity = 0.4;
+      break;
+    case 'marble':
+      url = 'https://www.transparenttextures.com/patterns/white-marble.png';
+      opacity = 0.5;
+      break;
+    case 'floral-light':
+      url = 'https://www.transparenttextures.com/patterns/floral-texture.png';
+      opacity = 0.3;
+      break;
+    case 'floral-dark':
+      url = 'https://www.transparenttextures.com/patterns/floral-texture.png';
+      mixBlendMode = 'color-dodge';
+      opacity = 0.15;
+      break;
+    case 'geometric':
+      url = 'https://www.transparenttextures.com/patterns/cubes.png';
+      opacity = 0.15;
+      break;
+    case 'stars':
+      url = 'https://www.transparenttextures.com/patterns/stardust.png';
+      mixBlendMode = 'screen';
+      opacity = 0.5;
+      break;
+  }
+
+  return (
+    <div 
+      className="absolute inset-0 pointer-events-none z-0"
+      style={{
+        backgroundImage: `url("${url}")`,
+        opacity,
+        mixBlendMode
+      }}
+    />
   );
 };
 
@@ -126,6 +174,8 @@ export default function Invitation({ data }: { data: InvitationData }) {
       className="w-full h-full min-h-screen flex justify-center selection:bg-black/10 relative overflow-hidden"
       style={{ ...customStyles, backgroundColor: 'var(--color-bg)', fontFamily: 'var(--font-body)', color: 'var(--color-text)' }}
     >
+      <BackgroundOverlay type={data.pageBackground} />
+
       {/* Audio Element */}
       <audio ref={audioRef} loop>
         <source src={directMusicUrl} />
@@ -133,31 +183,31 @@ export default function Invitation({ data }: { data: InvitationData }) {
 
       {/* Mobile Container */}
       <div className="w-full max-w-md relative shadow-2xl overflow-x-hidden flex flex-col" style={{ backgroundColor: 'var(--color-surface)' }}>
+        <BackgroundOverlay type={data.pageBackground} />
         
         {/* Premium Decorations */}
-        <Decorations type={data.decorationType} color={data.theme.primary} />
-        <ThreeDecorations type={data.decorationType} color={data.theme.primary} />
+        <Decorations type={data.decorationType} color={data.theme.primary} scale={data.decorationScale} />
+        <ThreeDecorations type={data.decorationType} color={data.theme.primary} scale={data.decorationScale} />
 
         {/* Floating Controls */}
         <div className="fixed inset-0 pointer-events-none z-40 flex justify-center">
           <div className="w-full max-w-md relative pointer-events-none h-full">
-            {/* Play button moved to hero section */}
-
+            
             <AnimatePresence>
               {isOpened && (
-                <motion.a
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1 }}
-                  href={data.rsvpLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="absolute bottom-6 right-6 pointer-events-auto px-5 py-4 rounded-full shadow-xl flex items-center gap-2 font-bold hover:scale-105 transition-transform"
-                  style={{ backgroundColor: data.theme.primary, color: data.theme.background }}
-                >
-                  <MessageCircle size={20} />
-                  <span className="text-sm tracking-wide" style={{ fontFamily: 'var(--font-body)' }}>RSVP</span>
-                </motion.a>
+                <>
+                  {/* Global Mute/Unmute Button */}
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 1 }}
+                    onClick={(e) => { e.stopPropagation(); toggleAudio(); }}
+                    className="absolute bottom-6 left-6 pointer-events-auto w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-transform hover:scale-105 backdrop-blur-md"
+                    style={{ backgroundColor: `${data.theme.primary}cc`, color: data.theme.surface }}
+                  >
+                    {isPlaying ? <Volume2 size={24} /> : <VolumeX size={24} />}
+                  </motion.button>
+                </>
               )}
             </AnimatePresence>
           </div>
@@ -172,6 +222,8 @@ export default function Invitation({ data }: { data: InvitationData }) {
               className="absolute inset-0 z-50 flex flex-col items-center overflow-y-auto overflow-x-hidden no-scrollbar"
               style={{ backgroundColor: data.theme.surface }}
             >
+              <BackgroundOverlay type={data.pageBackground} />
+              
               {/* Corner Flourishes (Brochuras) */}
               <div className="absolute top-6 left-6 z-30 w-16 h-16 opacity-60 pointer-events-none">
                 <svg viewBox="0 0 100 100" fill="none" stroke={data.theme.primary} strokeWidth="2">
@@ -254,7 +306,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
         </AnimatePresence>
 
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden relative" style={{ backgroundColor: data.theme.surface }}>
+        <div className="flex-1 overflow-y-auto overflow-x-hidden relative">
           {/* Internal Hero Image */}
           <div className="relative w-full h-[60vh]">
             <img src={data.images.hero} className="w-full h-full object-cover" alt="Internal Hero" />
@@ -263,7 +315,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
           </div>
 
           {/* Inside Header */}
-          <div className="pt-12 pb-12 px-8 text-center relative z-10" style={{ backgroundColor: data.theme.surface }}>
+          <div className="pt-12 pb-12 px-8 text-center relative z-10">
             <Reveal direction="up">
               <h2 className="text-xl mb-12 leading-relaxed" style={{ fontFamily: 'var(--font-title)', color: data.theme.text }}>
                 {data.message}
@@ -275,6 +327,43 @@ export default function Invitation({ data }: { data: InvitationData }) {
               <div className="relative w-64 h-96 mx-auto mb-16 rounded-t-full shadow-xl overflow-hidden flex flex-col items-center justify-center" style={{ backgroundColor: data.theme.primary }}>
                 {/* Texture */}
                 <div className="absolute inset-0 opacity-20 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/paper-fibers.png')]"></div>
+
+                {/* Animated Particles */}
+                <div className="absolute inset-0 pointer-events-none">
+                  {[...Array(8)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute"
+                      style={{
+                        top: `${Math.random() * 80 + 10}%`,
+                        left: `${Math.random() * 80 + 10}%`,
+                      }}
+                      animate={{
+                        y: [0, -30, 0],
+                        opacity: [0, 0.6, 0],
+                        scale: [0.5, 1, 0.5],
+                        rotate: [0, 90]
+                      }}
+                      transition={{
+                        duration: 4 + Math.random() * 3,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: Math.random() * 3
+                      }}
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="white" fillOpacity="0.6"/>
+                      </svg>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Animated Inner Border */}
+                <motion.div 
+                  className="absolute inset-3 border border-white opacity-20 rounded-t-full pointer-events-none"
+                  animate={{ opacity: [0.1, 0.4, 0.1], scale: [0.98, 1, 0.98] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                />
 
                 <div className="relative z-10 flex flex-col items-center text-white drop-shadow-md">
                   <span className="text-8xl font-bold leading-none" style={{ fontFamily: 'var(--font-title)' }}>
@@ -298,14 +387,14 @@ export default function Invitation({ data }: { data: InvitationData }) {
           </div>
 
           {/* Info Section */}
-          <div className="py-12 px-8 text-center relative z-10" style={{ backgroundColor: data.theme.surface }}>
+          <div className="py-12 px-8 text-center relative z-10">
             <Reveal direction="up">
               <Countdown targetDateStr={data.date} color={data.theme.primary} />
             </Reveal>
           </div>
 
           {/* Interactive Section */}
-          <div className="py-20 px-8 text-center relative z-10" style={{ backgroundColor: data.theme.surface }}>
+          <div className="py-20 px-8 text-center relative z-10">
             <Reveal direction="up">
               <div className="mb-16">
                 <h2 className="text-2xl tracking-widest uppercase mb-4" style={{ fontFamily: 'var(--font-title)', color: data.theme.text }}>
@@ -362,6 +451,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
 
           {/* Dress Code Section */}
           <div className="py-20 px-8 text-center relative z-10" style={{ backgroundColor: data.theme.background, color: data.theme.surface }}>
+            <BackgroundOverlay type={data.pageBackground} />
             <Reveal direction="up">
               <h2 className="text-3xl mb-8" style={{ fontFamily: 'var(--font-title)', color: data.theme.primary }}>Dress Code</h2>
               <div className="flex justify-center mb-6">
@@ -379,7 +469,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
           </div>
 
           {/* Footer RSVP Section */}
-          <div className="pt-10 pb-32 px-6 text-center relative z-10 flex flex-col items-center" style={{ backgroundColor: data.theme.surface, color: data.theme.text }}>
+          <div className="pt-10 pb-32 px-6 text-center relative z-10 flex flex-col items-center" style={{ color: data.theme.text }}>
             <Reveal direction="up">
               <p className="text-lg leading-relaxed max-w-sm mx-auto mb-12" style={{ fontFamily: 'var(--font-title)' }}>
                 {data.finalMessage}

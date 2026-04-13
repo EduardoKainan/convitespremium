@@ -11,6 +11,8 @@ export interface ThemeConfig {
 
 export type DecorationType = 'none' | 'floral' | 'geometric' | 'stars' | 'elegant' | 'butterflies' | 'delicate-flowers' | '3d-rings' | '3d-diamonds';
 
+export type PageBackground = 'solid' | 'paper' | 'marble' | 'floral-light' | 'floral-dark' | 'geometric' | 'stars';
+
 export interface InvitationData {
   category: string;
   title: string;
@@ -25,6 +27,8 @@ export interface InvitationData {
   rsvpLink: string;
   finalMessage: string;
   decorationType?: DecorationType;
+  decorationScale?: number;
+  pageBackground?: PageBackground;
   theme: ThemeConfig;
   images: {
     cover: string;
