@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
 import { MapPin, Clock, Calendar, Music, Pause, Play, Heart, Navigation, Info, MessageCircle, MousePointerClick, GlassWater } from 'lucide-react';
 import { InvitationData } from '../types';
 import Decorations from './Decorations';
+import ThreeDecorations from './ThreeDecorations';
 
 const Reveal = ({ children, delay = 0, direction = 'up' }: { children: React.ReactNode, delay?: number, direction?: 'up' | 'down' | 'left' | 'right' }) => {
   const y = direction === 'up' ? 50 : direction === 'down' ? -50 : 0;
@@ -135,6 +136,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
         
         {/* Premium Decorations */}
         <Decorations type={data.decorationType} color={data.theme.primary} />
+        <ThreeDecorations type={data.decorationType} color={data.theme.primary} />
 
         {/* Floating Controls */}
         <div className="fixed inset-0 pointer-events-none z-40 flex justify-center">

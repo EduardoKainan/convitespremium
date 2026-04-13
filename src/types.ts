@@ -9,7 +9,7 @@ export interface ThemeConfig {
   fontBody: string;
 }
 
-export type DecorationType = 'none' | 'floral' | 'geometric' | 'stars' | 'elegant' | 'butterflies' | 'delicate-flowers';
+export type DecorationType = 'none' | 'floral' | 'geometric' | 'stars' | 'elegant' | 'butterflies' | 'delicate-flowers' | '3d-rings' | '3d-diamonds';
 
 export interface InvitationData {
   category: string;

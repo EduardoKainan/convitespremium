@@ -273,13 +273,19 @@ export default function Editor() {
                 onChange={handleChange} 
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border bg-white"
               >
-                <option value="none">Sem decoração</option>
-                <option value="elegant">Elegante (Ramos/Arabescos)</option>
-                <option value="floral">Floral (Folhas)</option>
-                <option value="geometric">Geométrico (Art Deco)</option>
-                <option value="stars">Estrelas/Brilho</option>
-                <option value="butterflies">Borboletas</option>
-                <option value="delicate-flowers">Flores Delicadas</option>
+                <optgroup label="2D Vetorial">
+                  <option value="none">Sem decoração</option>
+                  <option value="elegant">Elegante (Ramos/Arabescos)</option>
+                  <option value="floral">Floral (Folhas)</option>
+                  <option value="geometric">Geométrico (Art Deco)</option>
+                  <option value="stars">Estrelas/Brilho</option>
+                  <option value="butterflies">Borboletas</option>
+                  <option value="delicate-flowers">Flores Delicadas</option>
+                </optgroup>
+                <optgroup label="3D Premium">
+                  <option value="3d-rings">Anéis 3D Flutuantes</option>
+                  <option value="3d-diamonds">Cristais/Diamantes 3D</option>
+                </optgroup>
               </select>
             </div>
           </div>
