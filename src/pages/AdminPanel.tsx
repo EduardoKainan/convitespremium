@@ -19,6 +19,7 @@ interface InvitationData {
   id: string;
   ownerUid: string;
   createdAt: Timestamp;
+  status?: 'draft' | 'active';
   // data is complex, we just need basic info for list
 }
 
@@ -94,6 +95,15 @@ export default function AdminPanel() {
       fetchData();
     } catch (e) { console.error(e); }
   }
+
+  const toggleInviteStatus = async (id: string, newStatus: 'draft' | 'active') => {
+    if (!window.confirm(`Mudar status para ${newStatus === 'active' ? 'Ativo (Público)' : 'Pendente (Privado)'}?`)) return;
+    try {
+      const inviteRef = doc(db, 'invitations', id);
+      await setDoc(inviteRef, { status: newStatus }, { merge: true });
+      fetchData();
+    } catch(e) { console.error(e); }
+  };
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -216,6 +226,7 @@ export default function AdminPanel() {
                         <th className="px-6 py-4">Link (ID)</th>
                         <th className="px-6 py-4">Autor UID</th>
                         <th className="px-6 py-4">Criado Em</th>
+                        <th className="px-6 py-4">Status</th>
                         <th className="px-6 py-4 text-right">Ações</th>
                       </tr>
                     </thead>
@@ -231,7 +242,17 @@ export default function AdminPanel() {
                           <td className="px-6 py-4 whitespace-nowrap">
                             {inv.createdAt ? new Date(inv.createdAt.seconds * 1000).toLocaleString('pt-BR') : '-'}
                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${inv.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
+                              {inv.status === 'active' ? 'Ativo' : 'Pendente (Rascunho)'}
+                            </span>
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right space-x-3">
+                            {inv.status === 'active' ? (
+                              <button onClick={() => toggleInviteStatus(inv.id, 'draft')} className="text-amber-600 hover:text-amber-900 font-medium text-xs">Pausar</button>
+                            ) : (
+                              <button onClick={() => toggleInviteStatus(inv.id, 'active')} className="text-emerald-600 hover:text-emerald-900 font-medium text-xs">Aprovar PIX</button>
+                            )}
                             <button onClick={() => window.open(`/c/${inv.id}`, '_blank')} className="text-gray-500 hover:text-gray-900 transition-colors" title="Visualizar">
                               <LayoutTemplate size={18} />
                             </button>

@@ -35,9 +35,14 @@
         "createdAt": {
           "type": "timestamp",
           "description": "When the invitation was created"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "active"],
+          "description": "The publication status of the invitation"
         }
       },
-      "required": ["id", "ownerUid", "data", "createdAt"]
+      "required": ["id", "ownerUid", "data", "createdAt", "status"]
     }
   },
   "firestore": {

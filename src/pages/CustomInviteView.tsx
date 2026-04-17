@@ -1,15 +1,32 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import Invitation from '../components/Invitation';
 import { InvitationData } from '../types';
+import { onAuthStateChanged, User } from 'firebase/auth';
 
 export default function CustomInviteView() {
   const { customPath } = useParams();
   const [data, setData] = useState<InvitationData | null>(null);
+  const [status, setStatus] = useState<'draft' | 'active' | null>(null);
+  const [ownerUid, setOwnerUid] = useState<string | null>(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+  
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      setCurrentUser(u);
+      if (u) {
+        const uDoc = await getDoc(doc(db, 'users', u.uid));
+        if (uDoc.exists() && uDoc.data().role === 'admin') setIsAdmin(true);
+      }
+    });
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     const fetchInvitation = async () => {
@@ -24,7 +41,10 @@ export default function CustomInviteView() {
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-          setData(docSnap.data().data as InvitationData);
+          const docData = docSnap.data();
+          setData(docData.data as InvitationData);
+          setStatus(docData.status || 'draft');
+          setOwnerUid(docData.ownerUid);
         } else {
           setError(true);
         }
@@ -59,5 +79,26 @@ export default function CustomInviteView() {
     );
   }
 
-  return <Invitation data={data} />;
+  const isOwner = currentUser?.uid === ownerUid;
+  const canView = status === 'active' || isOwner || isAdmin;
+
+  if (!canView) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-6 text-center">
+        <h1 className="text-2xl font-bold mb-4 text-amber-500">Convite Inativo</h1>
+        <p className="text-gray-400 max-w-md">Este convite ainda está em modo rascunho e não foi ativado pelo proprietário para visualização pública.</p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <Invitation data={data} />
+      {status === 'draft' && (isOwner || isAdmin) && (
+        <div className="fixed bottom-0 inset-x-0 bg-red-600/90 text-white text-xs py-2 text-center z-50 backdrop-blur-sm">
+          Apenas você está vendo este convite. Ele está em <strong>Rascunho</strong> e invisível para seus convidados.
+        </div>
+      )}
+    </>
+  );
 }

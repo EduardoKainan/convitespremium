@@ -47,6 +47,8 @@ export default function Editor() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [inviteStatus, setInviteStatus] = useState<'draft' | 'active'>('draft');
+  const [showPublishModal, setShowPublishModal] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -174,9 +176,11 @@ export default function Editor() {
         id: formattedPath,
         ownerUid: user.uid,
         data: data,
-        createdAt: serverTimestamp()
+        createdAt: docSnap.exists() ? docSnap.data().createdAt : serverTimestamp(),
+        status: docSnap.exists() ? docSnap.data().status : 'draft'
       });
 
+      setInviteStatus(docSnap.exists() ? docSnap.data().status : 'draft');
       const newLink = `${window.location.origin}/c/${formattedPath}`;
       setShareLink(newLink);
       setSaveSuccess(true);
@@ -214,15 +218,32 @@ export default function Editor() {
 
       {/* Left Panel - Editor Form */}
       <div className={`${mobileView === 'edit' ? 'flex' : 'hidden'} w-full md:w-1/2 lg:w-2/5 bg-white shadow-xl z-10 md:flex flex-col h-[calc(100vh-64px)] md:h-screen`}>
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-white">
-          <button onClick={() => navigate('/')} className="flex items-center text-gray-600 hover:text-gray-900">
+        <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-white flex-wrap gap-2">
+          <button onClick={() => navigate('/')} className="flex items-center text-gray-600 hover:text-gray-900 font-medium">
             <ArrowLeft size={20} className="mr-2" />
             Voltar
           </button>
-          <button onClick={handleShare} className="flex items-center bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 text-sm font-medium transition-colors">
-            <Share2 size={16} className="mr-2" />
-            Compartilhar
-          </button>
+          
+          <div className="flex items-center gap-2">
+            <button onClick={handleShare} className="flex items-center bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 text-sm font-medium transition-colors">
+              <Share2 size={16} className="mr-2" />
+              Opções de Link
+            </button>
+            <button 
+              onClick={() => {
+                if (user && inviteStatus === 'draft') setShowPublishModal(true);
+                else if (!user) setSaveError("Você precisa estar logado para publicar.");
+                else setSaveError("Seu convite já está ativo!");
+              }} 
+              className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${inviteStatus === 'active' ? 'bg-green-100 text-green-700' : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm'}`}
+            >
+              {inviteStatus === 'active' ? (
+                <><Check size={16} className="mr-2" /> Ativo</>
+              ) : (
+                <><Sparkles size={16} className="mr-2" /> Ativar Convite</>
+              )}
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto bg-gray-50">
@@ -580,6 +601,52 @@ export default function Editor() {
           </div>
         </div>
       </div>
+
+      {/* Publish Modal */}
+      {showPublishModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 p-6 text-white text-center">
+              <h3 className="text-2xl font-bold mb-2">Ativar Convite</h3>
+              <p className="text-green-50 text-sm">Seu convite está salvo de forma privada. Adquira a licença vitalícia para liberar o link aos convidados.</p>
+            </div>
+            
+            <div className="p-6 overflow-y-auto">
+              <div className="mb-6">
+                <h4 className="text-lg font-semibold text-gray-900 mb-2 border-b pb-2">1. Realize o Pagamento</h4>
+                <p className="text-sm text-gray-600 mb-4">Para ativar este convite permanentemente e remover o bloqueio, faça um PIX no valor de <strong>R$ 49,90</strong>.</p>
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center mb-4">
+                  <p className="text-xs text-gray-500 mb-1">Chave PIX (E-mail ou Celular):</p>
+                  <p className="font-mono font-bold text-gray-900 text-sm tracking-tight break-all">
+                    contato@lumiere.com.br
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2 border-b pb-2">2. Validação Rápida</h4>
+                <p className="text-sm text-gray-600 mb-4">Envie seu comprovante no WhatsApp informando o link do seu convite. A ativação ocorre em minutos!</p>
+                
+                <a 
+                  href={`https://wa.me/5562982042056?text=${encodeURIComponent(`Olá! Fiz o pagamento para liberar meu convite. O link personalizado que escolhi foi o /c/${customPath || "[DIGITE SEU LINK]"}. Aqui está o comprovante:`)}`} 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="w-full flex items-center justify-center gap-2 bg-[#25D366] text-white px-4 py-3 rounded-md font-medium hover:bg-[#1EBE5D] transition-colors shadow-sm"
+                >
+                  <MessageCircle size={20} />
+                  Enviar Comprovante de Pagamento
+                </a>
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-gray-100 bg-gray-50 text-center">
+              <button onClick={() => setShowPublishModal(false)} className="text-sm font-medium text-gray-600 hover:text-gray-900 px-6 py-2 transition-colors">
+                Fechar e Pagar Depois
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Share Modal */}
       {showModal && (

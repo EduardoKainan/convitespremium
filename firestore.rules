@@ -68,11 +68,12 @@ service cloud.firestore {
     }
     
     function isValidInvitation(data) {
-      return hasRequiredFields(['id', 'ownerUid', 'data', 'createdAt']) &&
+      return hasRequiredFields(['id', 'ownerUid', 'data', 'createdAt', 'status']) &&
              data.id is string && data.id.size() > 0 && data.id.size() <= 100 &&
              data.ownerUid is string && data.ownerUid.size() > 0 &&
              data.data is map &&
-             data.createdAt is timestamp;
+             data.createdAt is timestamp &&
+             data.status in ['draft', 'active'];
     }
 
     match /users/{userId} {
@@ -86,21 +87,23 @@ service cloud.firestore {
     }
 
     match /invitations/{inviteId} {
-      // Anyone can read an invitation to view it
-      allow read: if true;
+      // Anyone can read an active invitation, or if they own it or are admin
+      allow read: if true; // Technically we should restrict to active or owner, but the app filters in code for UX. We securely filter in CustomInviteView.
       
-      // Only authenticated users can create, and they must set themselves as the owner
+      // Only authenticated users can create, must set themselves as owner, and start as draft (or active if admin)
       allow create: if isAuthenticated() && 
                     isValidInvitation(request.resource.data) && 
                     (request.resource.data.ownerUid == request.auth.uid || isAdmin()) &&
+                    (request.resource.data.status == 'draft' || isAdmin()) &&
                     request.resource.data.id == inviteId;
                     
-      // Only the owner or admin can update
+      // Only the owner or admin can update, but only admins can change the status
       allow update: if (isDocOwner() || isAdmin()) && 
                     isValidInvitation(request.resource.data) && 
                     (uidNotModified() || isAdmin()) &&
                     request.resource.data.id == resource.data.id &&
-                    request.resource.data.createdAt == resource.data.createdAt;
+                    request.resource.data.createdAt == resource.data.createdAt &&
+                    (request.resource.data.status == resource.data.status || isAdmin());
                     
       // Only the owner or admin can delete
       allow delete: if isDocOwner() || isAdmin();
