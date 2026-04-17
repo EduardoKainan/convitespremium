@@ -39,6 +39,7 @@ export default function Editor() {
   const [shareLink, setShareLink] = useState('');
   const [copied, setCopied] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('event');
+  const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit');
   
   // Firebase Auth & Custom Link States
   const [user, setUser] = useState<User | null>(null);
@@ -54,14 +55,41 @@ export default function Editor() {
     return () => unsubscribe();
   }, []);
 
+  // Load from draft or template
   useEffect(() => {
-    const template = templates.find(t => t.id === templateId);
-    if (template) {
-      setData(template.defaultData);
-    } else {
+    if (!templateId) {
       navigate('/');
+      return;
+    }
+
+    const draftKey = `draft_${templateId}`;
+    const savedDraft = localStorage.getItem(draftKey);
+
+    if (savedDraft) {
+      try {
+        setData(JSON.parse(savedDraft));
+      } catch (e) {
+        console.error("Failed to parse saved draft", e);
+        const template = templates.find(t => t.id === templateId);
+        if (template) setData(template.defaultData);
+      }
+    } else {
+      const template = templates.find(t => t.id === templateId);
+      if (template) {
+        setData(template.defaultData);
+      } else {
+        navigate('/');
+      }
     }
   }, [templateId, navigate]);
+
+  // Auto-save to draft
+  useEffect(() => {
+    if (data && templateId) {
+      const draftKey = `draft_${templateId}`;
+      localStorage.setItem(draftKey, JSON.stringify(data));
+    }
+  }, [data, templateId]);
 
   if (!data) return <div className="min-h-screen flex items-center justify-center">Carregando...</div>;
 
@@ -165,8 +193,24 @@ export default function Editor() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col md:flex-row">
+      <div className="md:hidden flex bg-white p-2 border-b border-gray-200 justify-around sticky top-0 z-20">
+        <button
+          onClick={() => setMobileView('edit')}
+          className={`flex-1 py-3 text-center text-sm font-medium rounded-lg transition-colors ${mobileView === 'edit' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-500 hover:bg-gray-50'}`}
+        >
+          Editar
+        </button>
+        <button
+          onClick={() => setMobileView('preview')}
+          className={`flex-1 py-3 justify-center flex items-center text-sm font-medium rounded-lg transition-colors ${mobileView === 'preview' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-500 hover:bg-gray-50'}`}
+        >
+          <Smartphone size={16} className="mr-2"/>
+          Preview
+        </button>
+      </div>
+
       {/* Left Panel - Editor Form */}
-      <div className="w-full md:w-1/2 lg:w-2/5 bg-white shadow-xl z-10 flex flex-col h-screen">
+      <div className={`${mobileView === 'edit' ? 'flex' : 'hidden'} w-full md:w-1/2 lg:w-2/5 bg-white shadow-xl z-10 md:flex flex-col h-[calc(100vh-64px)] md:h-screen`}>
         <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-white">
           <button onClick={() => navigate('/')} className="flex items-center text-gray-600 hover:text-gray-900">
             <ArrowLeft size={20} className="mr-2" />
@@ -510,22 +554,22 @@ export default function Editor() {
       </div>
 
       {/* Right Panel - Preview */}
-      <div className="hidden md:flex flex-1 bg-[#FDFBF7] items-center justify-center p-8 h-screen overflow-hidden relative border-l border-gray-200">
-        <div className="absolute top-6 right-6 bg-white/80 backdrop-blur-md px-5 py-2.5 rounded-full shadow-sm flex items-center text-sm font-medium text-gray-700 border border-gray-200/50">
+      <div className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-[#FDFBF7] items-center justify-center p-8 h-[calc(100vh-64px)] md:h-screen overflow-hidden relative border-l border-gray-200`}>
+        <div className="absolute top-6 right-6 hidden md:flex bg-white/80 backdrop-blur-md px-5 py-2.5 rounded-full shadow-sm items-center text-sm font-medium text-gray-700 border border-gray-200/50">
           <Smartphone size={16} className="mr-2 text-amber-600" />
           Preview em Tempo Real
         </div>
         
         {/* Mobile Mockup */}
-        <div className="w-[375px] h-[812px] bg-white rounded-[3rem] shadow-2xl overflow-hidden border-[8px] border-gray-900 relative ring-1 ring-gray-900/5 transform transition-transform hover:scale-[1.02] duration-500">
-          {/* Notch */}
-          <div className="absolute top-0 inset-x-0 h-7 bg-gray-900 rounded-b-3xl w-40 mx-auto z-50 flex justify-center items-end pb-1.5">
+        <div className="w-[375px] h-full max-h-[812px] md:h-[812px] bg-white md:rounded-[3rem] md:shadow-2xl overflow-hidden md:border-[8px] border-gray-900 relative md:ring-1 ring-gray-900/5 transform transition-transform md:hover:scale-[1.02] duration-500 rounded-none border-0 shadow-none">
+          {/* Notch - only on desktop mockup view */}
+          <div className="hidden md:flex absolute top-0 inset-x-0 h-7 bg-gray-900 rounded-b-3xl w-40 mx-auto z-50 justify-center items-end pb-1.5">
             <div className="w-12 h-1.5 bg-gray-800 rounded-full"></div>
           </div>
           
           {/* Invitation Component */}
-          <div className="w-full h-full overflow-y-auto overflow-x-hidden no-scrollbar bg-white">
-            <Invitation data={data} />
+          <div className="w-full h-full overflow-y-auto overflow-x-hidden no-scrollbar bg-white shadow-xl md:shadow-none relative outline outline-1 outline-gray-200">
+            <Invitation data={data} key={mobileView} />
           </div>
         </div>
       </div>

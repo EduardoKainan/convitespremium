@@ -203,7 +203,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
         {data.ornamentConfig && <OrnamentCanvas config={data.ornamentConfig} color={data.theme.primary} />}
 
         {/* Floating Controls */}
-        <div className="fixed inset-0 pointer-events-none z-40 flex justify-center">
+        <div className="fixed inset-0 pointer-events-none z-50 flex justify-center">
           <div className="w-full max-w-md relative pointer-events-none h-full">
             
             <AnimatePresence>
@@ -215,10 +215,10 @@ export default function Invitation({ data }: { data: InvitationData }) {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 1 }}
                     onClick={(e) => { e.stopPropagation(); toggleAudio(); }}
-                    className="absolute bottom-6 left-6 pointer-events-auto w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-transform hover:scale-105 backdrop-blur-md"
-                    style={{ backgroundColor: `${data.theme.primary}cc`, color: data.theme.surface }}
+                    className="absolute bottom-6 left-6 pointer-events-auto w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-105 backdrop-blur-md z-[100]"
+                    style={{ backgroundColor: `${data.theme.primary}ee`, color: data.theme.surface }}
                   >
-                    {isPlaying ? <Volume2 size={24} /> : <VolumeX size={24} />}
+                    {isPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
                   </motion.button>
                 </>
               )}
