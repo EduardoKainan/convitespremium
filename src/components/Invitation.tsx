@@ -163,11 +163,16 @@ export default function Invitation({ data }: { data: InvitationData }) {
 
   const handleOpen = () => {
     setIsOpened(true);
-    if (audioRef.current) {
-      audioRef.current.play().catch(e => console.log("Audio play failed", e));
-      setIsPlaying(true);
+    if (audioRef.current && !isPlaying) {
+      audioRef.current.play().then(() => setIsPlaying(true)).catch(e => console.log("Audio play failed", e));
     }
   };
+
+  useEffect(() => {
+    if (audioRef.current && directMusicUrl) {
+      audioRef.current.play().then(() => setIsPlaying(true)).catch(e => console.log("Autoplay blocked by browser until user interaction."));
+    }
+  }, [directMusicUrl]);
 
   const toggleAudio = () => {
     if (audioRef.current) {
@@ -193,7 +198,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
 
   return (
     <div 
-      className="w-full h-full min-h-screen flex justify-center selection:bg-black/10 relative overflow-hidden"
+      className="w-full h-full min-h-full flex justify-center selection:bg-black/10 relative overflow-hidden"
       style={{ ...customStyles, backgroundColor: 'var(--color-bg)', fontFamily: 'var(--font-body)', color: 'var(--color-text)' }}
     >
       <BackgroundOverlay type={data.pageBackground} color={data.theme.primary} />
@@ -204,7 +209,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
       </audio>
 
       {/* Mobile Container */}
-      <div className="w-full max-w-md relative shadow-2xl overflow-x-hidden flex flex-col" style={{ backgroundColor: 'var(--color-surface)' }}>
+      <div className="w-full h-full max-w-md relative shadow-2xl overflow-x-hidden flex flex-col" style={{ backgroundColor: 'var(--color-surface)' }}>
         <BackgroundOverlay type={data.pageBackground} color={data.theme.primary} />
         
         {/* Premium Decorations */}

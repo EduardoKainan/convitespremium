@@ -103,7 +103,7 @@ service cloud.firestore {
                     (uidNotModified() || isAdmin()) &&
                     request.resource.data.id == resource.data.id &&
                     request.resource.data.createdAt == resource.data.createdAt &&
-                    (request.resource.data.status == resource.data.status || isAdmin());
+                    (request.resource.data.status == resource.data.get('status', 'draft') || isAdmin());
                     
       // Only the owner or admin can delete
       allow delete: if isDocOwner() || isAdmin();

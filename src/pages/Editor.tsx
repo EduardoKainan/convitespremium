@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { templates } from '../data/templates';
 import { InvitationData } from '../types';
 import Invitation from '../components/Invitation';
-import { ArrowLeft, Share2, Smartphone, Copy, Check, Link as LinkIcon, LogIn, Loader2, Save, ChevronDown, ChevronUp, Sparkles, Palette, Type, Image as ImageIcon, Music, MapPin, Calendar, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Share2, Smartphone, Copy, Check, Link as LinkIcon, LogIn, Loader2, Save, ChevronDown, ChevronUp, Sparkles, Palette, Type, Image as ImageIcon, Music, MapPin, Calendar, MessageCircle, Lock } from 'lucide-react';
 import LZString from 'lz-string';
 import { auth, db, saveUserToDb } from '../firebase';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User } from 'firebase/auth';
@@ -652,46 +652,54 @@ export default function Editor() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Convite Gerado! 🎉</h3>
-            <p className="text-gray-600 mb-4 text-sm">
-              Use o link abaixo para compartilhar com seus convidados.
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Opções de Link</h3>
+            <p className="text-gray-600 mb-6 text-sm">
+              Configure o link para enviar o convite aos seus convidados.
             </p>
 
-            {inviteStatus === 'draft' && (
-              <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
-                <p className="text-sm text-amber-800 font-medium mb-2">
-                  ⚠️ Este link está bloqueado (Rascunho Privado).
-                </p>
-                <p className="text-xs text-amber-700 mb-3">
-                  Somente você consegue vê-lo. Para que seus convidados possam acessar, você precisa ativar o convite.
+            {inviteStatus === 'draft' ? (
+              <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-5 text-center">
+                <div className="mx-auto w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-3">
+                  <Lock size={24} />
+                </div>
+                <h4 className="text-lg font-bold text-red-900 mb-2">Convite Bloqueado</h4>
+                <p className="text-sm text-red-700 mb-4">
+                  O link de compartilhamento não está disponível pois este convite ainda é um rascunho. Ative-o para liberar o acesso aos seus convidados.
                 </p>
                 <button 
                   onClick={() => {
                     setShowModal(false);
-                    setShowPublishModal(true);
+                    if(!user) {
+                      handleLogin();
+                    }else{
+                      setShowPublishModal(true);
+                    }
                   }}
-                  className="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-md transition-colors"
+                  className="w-full py-3 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors shadow-sm"
                 >
-                  Pagar e Ativar Link Agora
+                  Liberar Meu Convite (Ativar)
                 </button>
               </div>
+            ) : (
+              <div className="mb-6">
+                <h4 className="text-md font-semibold text-gray-800 mb-2">Link Principal</h4>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="text" 
+                    readOnly 
+                    value={shareLink} 
+                    className="flex-1 bg-gray-50 border border-gray-200 rounded-md py-2 px-3 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <button 
+                    onClick={copyToClipboard}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-md transition-colors flex items-center justify-center w-10 h-10 shrink-0"
+                    title="Copiar Link"
+                  >
+                    {copied ? <Check size={18} /> : <Copy size={18} />}
+                  </button>
+                </div>
+              </div>
             )}
-            
-            <div className="flex items-center gap-2 mb-6">
-              <input 
-                type="text" 
-                readOnly 
-                value={shareLink} 
-                className="flex-1 bg-gray-50 border border-gray-200 rounded-md py-2 px-3 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-              <button 
-                onClick={copyToClipboard}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-md transition-colors flex items-center justify-center w-10 h-10 shrink-0"
-                title="Copiar Link"
-              >
-                {copied ? <Check size={18} /> : <Copy size={18} />}
-              </button>
-            </div>
 
             <div className="border-t border-gray-200 pt-6 mb-6">
               <h4 className="text-md font-semibold text-gray-800 mb-2 flex items-center">

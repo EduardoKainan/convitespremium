@@ -16,14 +16,20 @@ export default function CustomInviteView() {
   
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
       setCurrentUser(u);
       if (u) {
-        const uDoc = await getDoc(doc(db, 'users', u.uid));
-        if (uDoc.exists() && uDoc.data().role === 'admin') setIsAdmin(true);
+        try {
+          const uDoc = await getDoc(doc(db, 'users', u.uid));
+          if (uDoc.exists() && uDoc.data().role === 'admin') setIsAdmin(true);
+        } catch(e) {
+          console.error(e);
+        }
       }
+      setAuthLoading(false);
     });
     return () => unsub();
   }, []);
@@ -59,7 +65,7 @@ export default function CustomInviteView() {
     fetchInvitation();
   }, [customPath]);
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
@@ -93,7 +99,7 @@ export default function CustomInviteView() {
 
   return (
     <>
-      <Invitation data={data} />
+      <Invitation data={data} key={customPath} />
       {status === 'draft' && (isOwner || isAdmin) && (
         <div className="fixed bottom-0 inset-x-0 bg-red-600/90 text-white text-xs py-2 text-center z-50 backdrop-blur-sm">
           Apenas você está vendo este convite. Ele está em <strong>Rascunho</strong> e invisível para seus convidados.

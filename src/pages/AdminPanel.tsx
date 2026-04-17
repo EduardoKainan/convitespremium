@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, getDocs, doc, setDoc, deleteDoc, Timestamp } from 'firebase/firestore';
+import { collection, query, getDocs, doc, setDoc, deleteDoc, updateDoc, Timestamp, getDoc, serverTimestamp } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { onAuthStateChanged, User, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
@@ -100,9 +100,22 @@ export default function AdminPanel() {
     if (!window.confirm(`Mudar status para ${newStatus === 'active' ? 'Ativo (Público)' : 'Pendente (Privado)'}?`)) return;
     try {
       const inviteRef = doc(db, 'invitations', id);
-      await setDoc(inviteRef, { status: newStatus }, { merge: true });
-      fetchData();
-    } catch(e) { console.error(e); }
+      const docSnap = await getDoc(inviteRef);
+      if (docSnap.exists()) {
+        const currentData = docSnap.data();
+        const payload: any = { status: newStatus };
+        
+        // Fix missing properties on legacy invites
+        if (!currentData.createdAt) payload.createdAt = serverTimestamp();
+        if (!currentData.id) payload.id = id;
+        
+        await setDoc(inviteRef, payload, { merge: true });
+        fetchData();
+      }
+    } catch(e: any) { 
+        console.error(e);
+        alert("Erro ao atualizar o status: " + (e.message || e));
+    }
   };
 
   const handleLogout = async () => {
