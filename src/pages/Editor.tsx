@@ -5,7 +5,7 @@ import { InvitationData } from '../types';
 import Invitation from '../components/Invitation';
 import { ArrowLeft, Share2, Smartphone, Copy, Check, Link as LinkIcon, LogIn, Loader2, Save, ChevronDown, ChevronUp, Sparkles, Palette, Type, Image as ImageIcon, Music, MapPin, Calendar, MessageCircle } from 'lucide-react';
 import LZString from 'lz-string';
-import { auth, db } from '../firebase';
+import { auth, db, saveUserToDb } from '../firebase';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 
@@ -51,6 +51,9 @@ export default function Editor() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        saveUserToDb(currentUser);
+      }
     });
     return () => unsubscribe();
   }, []);

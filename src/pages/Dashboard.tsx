@@ -1,18 +1,32 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { templates } from '../data/templates';
-import { Sparkles, Filter, Search, LogIn, LogOut } from 'lucide-react';
-import { auth } from '../firebase';
+import { Sparkles, Filter, Search, LogIn, LogOut, Shield } from 'lucide-react';
+import { auth, saveUserToDb, db } from '../firebase';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, User } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function Dashboard() {
   const [activeCategory, setActiveCategory] = useState<string>('Todos');
   const [searchQuery, setSearchQuery] = useState('');
   const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        await saveUserToDb(currentUser);
+        // Check role
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists() && userDoc.data().role === 'admin') {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
+      } else {
+        setIsAdmin(false);
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -64,6 +78,11 @@ export default function Dashboard() {
               </button>
             ) : (
               <div className="flex items-center gap-3">
+                {isAdmin && (
+                  <Link to="/admin" className="flex items-center gap-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 px-4 py-2 rounded-full hover:bg-indigo-100 transition-colors">
+                    <Shield size={16} /> Painel Admin
+                  </Link>
+                )}
                 {user.photoURL && <img src={user.photoURL} alt={user.displayName || "User"} className="w-8 h-8 rounded-full border border-gray-200" />}
                 <button onClick={handleLogout} className="text-sm font-medium text-gray-600 hover:text-gray-900 flex items-center gap-1 bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition-colors">
                   <LogOut size={16} /> Sair

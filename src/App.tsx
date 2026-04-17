@@ -3,6 +3,7 @@ import Dashboard from './pages/Dashboard';
 import Editor from './pages/Editor';
 import InviteView from './pages/InviteView';
 import CustomInviteView from './pages/CustomInviteView';
+import AdminPanel from './pages/AdminPanel';
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
         <Route path="/editor/:templateId" element={<Editor />} />
         <Route path="/invite" element={<InviteView />} />
         <Route path="/c/:customPath" element={<CustomInviteView />} />
+        <Route path="/admin" element={<AdminPanel />} />
       </Routes>
     </Router>
   );

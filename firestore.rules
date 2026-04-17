@@ -6,6 +6,17 @@ service cloud.firestore {
     // Assumed Data Model
     // ===============================================================
     //
+    // Collection: users
+    // Document ID: [uid]
+    // Fields:
+    //   - uid: string
+    //   - email: string
+    //   - displayName: string
+    //   - photoURL: string
+    //   - role: string ("user" | "admin")
+    //   - createdAt: timestamp
+    //   - lastLoginAt: timestamp
+    //
     // Collection: invitations
     // Document ID: [custom-short-id]
     // Fields:
@@ -22,6 +33,12 @@ service cloud.firestore {
     
     function isAuthenticated() {
        return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "eduardokainan.senai@gmail.com" && request.auth.token.email_verified == true)); // Default admin
     }
     
     function isDocOwner() {
@@ -41,6 +58,14 @@ service cloud.firestore {
     function hasRequiredFields(fields) {
        return request.resource.data.keys().hasAll(fields);
     }
+
+    function isValidUser(data) {
+      return hasRequiredFields(['uid', 'email', 'role', 'createdAt']) &&
+             data.uid is string &&
+             data.email is string &&
+             data.role in ['user', 'admin'] &&
+             data.createdAt is timestamp;
+    }
     
     function isValidInvitation(data) {
       return hasRequiredFields(['id', 'ownerUid', 'data', 'createdAt']) &&
@@ -50,6 +75,16 @@ service cloud.firestore {
              data.createdAt is timestamp;
     }
 
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      // Users can create/update their own profile, but cannot elevate their role unless they are admin.
+      allow create: if isAuthenticated() && isValidUser(request.resource.data) && request.auth.uid == userId && 
+                    ((request.resource.data.role == 'user') || isAdmin());
+      allow update: if isAuthenticated() && isValidUser(request.resource.data) && request.auth.uid == userId && 
+                    ((request.resource.data.role == resource.data.role) || isAdmin());
+      allow delete: if isAdmin();
+    }
+
     match /invitations/{inviteId} {
       // Anyone can read an invitation to view it
       allow read: if true;
@@ -57,18 +92,18 @@ service cloud.firestore {
       // Only authenticated users can create, and they must set themselves as the owner
       allow create: if isAuthenticated() && 
                     isValidInvitation(request.resource.data) && 
-                    request.resource.data.ownerUid == request.auth.uid &&
+                    (request.resource.data.ownerUid == request.auth.uid || isAdmin()) &&
                     request.resource.data.id == inviteId;
                     
-      // Only the owner can update
-      allow update: if isDocOwner() && 
+      // Only the owner or admin can update
+      allow update: if (isDocOwner() || isAdmin()) && 
                     isValidInvitation(request.resource.data) && 
-                    uidNotModified() &&
+                    (uidNotModified() || isAdmin()) &&
                     request.resource.data.id == resource.data.id &&
                     request.resource.data.createdAt == resource.data.createdAt;
                     
-      // Only the owner can delete
-      allow delete: if isDocOwner();
+      // Only the owner or admin can delete
+      allow delete: if isDocOwner() || isAdmin();
     }
   }
 }
