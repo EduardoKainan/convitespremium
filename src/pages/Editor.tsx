@@ -232,7 +232,7 @@ export default function Editor() {
             <button 
               onClick={() => {
                 if (user && inviteStatus === 'draft') setShowPublishModal(true);
-                else if (!user) setSaveError("Você precisa estar logado para publicar.");
+                else if (!user) handleLogin();
                 else setSaveError("Seu convite já está ativo!");
               }} 
               className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${inviteStatus === 'active' ? 'bg-green-100 text-green-700' : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm'}`}
@@ -614,11 +614,11 @@ export default function Editor() {
             <div className="p-6 overflow-y-auto">
               <div className="mb-6">
                 <h4 className="text-lg font-semibold text-gray-900 mb-2 border-b pb-2">1. Realize o Pagamento</h4>
-                <p className="text-sm text-gray-600 mb-4">Para ativar este convite permanentemente e remover o bloqueio, faça um PIX no valor de <strong>R$ 49,90</strong>.</p>
+                <p className="text-sm text-gray-600 mb-4">Para ativar este convite permanentemente e remover o bloqueio, faça um PIX no valor de <strong>R$ 20,00</strong>.</p>
                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center mb-4">
-                  <p className="text-xs text-gray-500 mb-1">Chave PIX (E-mail ou Celular):</p>
+                  <p className="text-xs text-gray-500 mb-1">Chave PIX (E-mail):</p>
                   <p className="font-mono font-bold text-gray-900 text-sm tracking-tight break-all">
-                    contato@lumiere.com.br
+                    kainan.digital@gmail.com
                   </p>
                 </div>
               </div>
@@ -652,10 +652,30 @@ export default function Editor() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Convite Pronto! 🎉</h3>
-            <p className="text-gray-600 mb-6 text-sm">
-              Seu convite foi gerado com sucesso. Copie o link abaixo e envie para seus convidados.
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Convite Gerado! 🎉</h3>
+            <p className="text-gray-600 mb-4 text-sm">
+              Use o link abaixo para compartilhar com seus convidados.
             </p>
+
+            {inviteStatus === 'draft' && (
+              <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <p className="text-sm text-amber-800 font-medium mb-2">
+                  ⚠️ Este link está bloqueado (Rascunho Privado).
+                </p>
+                <p className="text-xs text-amber-700 mb-3">
+                  Somente você consegue vê-lo. Para que seus convidados possam acessar, você precisa ativar o convite.
+                </p>
+                <button 
+                  onClick={() => {
+                    setShowModal(false);
+                    setShowPublishModal(true);
+                  }}
+                  className="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-md transition-colors"
+                >
+                  Pagar e Ativar Link Agora
+                </button>
+              </div>
+            )}
             
             <div className="flex items-center gap-2 mb-6">
               <input 
@@ -707,7 +727,7 @@ export default function Editor() {
                       />
                     </div>
                     {saveError && <p className="text-xs text-red-600 mt-1">{saveError}</p>}
-                    {saveSuccess && <p className="text-xs text-green-600 mt-1">Link personalizado criado com sucesso!</p>}
+                    {saveSuccess && <p className="text-xs text-green-600 mt-1">Link personalizado criado com sucesso! {(inviteStatus === 'draft') && 'Não esqueça de ativar no botão acima.'}</p>}
                   </div>
                   
                   <button 
