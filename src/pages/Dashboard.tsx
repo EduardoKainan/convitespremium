@@ -140,21 +140,21 @@ export default function Dashboard() {
               Meus Convites
             </button>
           </nav>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {!user ? (
-              <button onClick={handleLogin} className="flex items-center gap-2 text-sm font-medium bg-gray-900 text-white px-5 py-2.5 rounded-full hover:bg-gray-800 transition-colors shadow-sm">
-                <LogIn size={16} /> Entrar
+              <button onClick={handleLogin} className="flex items-center gap-2 text-sm font-medium bg-gray-900 text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-full hover:bg-gray-800 transition-colors shadow-sm">
+                <LogIn size={16} /> <span className="hidden sm:inline">Entrar</span>
               </button>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 {isAdmin && (
-                  <Link to="/admin" className="flex items-center gap-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 px-4 py-2 rounded-full hover:bg-indigo-100 transition-colors">
-                    <Shield size={16} /> Painel Admin
+                  <Link to="/admin" className="flex items-center gap-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 px-3 py-2 sm:px-4 sm:py-2 rounded-full hover:bg-indigo-100 transition-colors" title="Painel Admin">
+                    <Shield size={16} /> <span className="hidden sm:inline">Painel Admin</span>
                   </Link>
                 )}
-                {user.photoURL && <img src={user.photoURL} alt={user.displayName || "User"} className="w-8 h-8 rounded-full border border-gray-200" />}
-                <button onClick={handleLogout} className="text-sm font-medium text-gray-600 hover:text-gray-900 flex items-center gap-1 bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition-colors">
-                  <LogOut size={16} /> Sair
+                {user.photoURL && <img src={user.photoURL} alt={user.displayName || "User"} className="hidden sm:block w-8 h-8 rounded-full border border-gray-200" />}
+                <button onClick={handleLogout} className="text-sm font-medium text-gray-600 hover:text-gray-900 flex items-center gap-1 bg-gray-100 px-3 py-2 sm:px-4 sm:py-2 rounded-full hover:bg-gray-200 transition-colors" title="Sair">
+                  <LogOut size={16} /> <span className="hidden sm:inline">Sair</span>
                 </button>
               </div>
             )}
@@ -162,7 +162,7 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 pb-28 md:pb-16">
         {currentTab === 'catalog' ? (
           <>
             {/* Hero Section */}
@@ -378,6 +378,31 @@ export default function Dashboard() {
           </div>
         )}
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 z-40 flex pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+        <button 
+          onClick={() => setCurrentTab('catalog')} 
+          className={`flex-1 py-3 flex flex-col items-center gap-1 ${currentTab === 'catalog' ? 'text-amber-600' : 'text-gray-400 hover:text-gray-600'}`}
+        >
+          <Sparkles size={20} />
+          <span className="text-[10px] font-medium tracking-wide">Catálogo</span>
+        </button>
+        <div className="w-px bg-gray-100 my-2"></div>
+        <button 
+          onClick={() => {
+            if (user) {
+              setCurrentTab('my-invites');
+            } else {
+              handleLogin();
+            }
+          }} 
+          className={`flex-1 py-3 flex flex-col items-center gap-1 ${currentTab === 'my-invites' ? 'text-amber-600' : 'text-gray-400 hover:text-gray-600'}`}
+        >
+          <LayoutTemplate size={20} />
+          <span className="text-[10px] font-medium tracking-wide">Meus Convites</span>
+        </button>
+      </nav>
     </div>
   );
 }
