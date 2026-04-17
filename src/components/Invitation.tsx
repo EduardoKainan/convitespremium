@@ -139,14 +139,23 @@ export default function Invitation({ data }: { data: InvitationData }) {
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 1000], [0, 250]);
 
-  // Helper to convert Google Drive sharing links to direct download/stream links
+  // Helper to convert sharing links to direct downloading/streaming links
   const getDirectAudioUrl = (url: string) => {
     if (!url) return url;
+    
+    // Dropbox
+    if (url.includes('dropbox.com')) {
+      let converted = url.replace('www.dropbox.com', 'dl.dropboxusercontent.com').replace('dl=0', '');
+      return converted + (converted.includes('?') ? '&raw=1' : '?raw=1');
+    }
+
+    // Google Drive
     const driveRegex = /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/;
     const match = url.match(driveRegex);
     if (match && match[1]) {
       return `https://drive.google.com/uc?export=download&id=${match[1]}`;
     }
+    
     return url;
   };
 

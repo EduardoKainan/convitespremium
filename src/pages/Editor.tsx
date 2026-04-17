@@ -321,8 +321,12 @@ export default function Editor() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">URL da Música (MP3)</label>
-                <input type="text" name="musicUrl" value={data.musicUrl} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" />
+                <label className="block text-sm font-medium text-gray-700">URL da Música (Recomendado: Dropbox)</label>
+                <input type="text" name="musicUrl" value={data.musicUrl} onChange={handleChange} placeholder="https://www.dropbox.com/s/..." className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" />
+                <p className="mt-1 text-[11px] text-gray-500 leading-tight pt-1">
+                  <strong className="font-semibold text-red-600">Atenção ao Google Drive:</strong> Devido às novas restrições de segurança globais do Google Drive (CORS), navegadores não tocam áudio escondido dele. 
+                  O ideal é subir seu MP3 no <strong className="text-blue-600">Dropbox</strong>. Basta colar o link de compartilhamento do seu Dropbox aqui que nós adaptamos o áudio para tocar automaticamente!
+                </p>
               </div>
             </AccordionSection>
 
