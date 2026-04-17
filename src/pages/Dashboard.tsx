@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { templates } from '../data/templates';
-import { Sparkles, Filter, Search, LogIn, LogOut, Shield, Trash2, Edit2, PlayCircle, Loader2 } from 'lucide-react';
+import { Sparkles, Filter, Search, LogIn, LogOut, Shield, Trash2, Edit2, PlayCircle, Loader2, LayoutTemplate } from 'lucide-react';
 import { auth, saveUserToDb, db } from '../firebase';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, getDoc, collection, query, where, getDocs, deleteDoc } from 'firebase/firestore';
