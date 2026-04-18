@@ -5,7 +5,7 @@ export const templates: Template[] = [
     id: '15-anos-classic',
     name: 'Luxo Navy & Gold',
     category: '15 Anos',
-    coverImage: '/covers/15-anos.jpg',
+    coverImage: 'https://i.postimg.cc/qqSVt4j3/15-anos.jpg',
     defaultData: {
       category: '15 Anos',
       title: 'Os 15 anos de',
@@ -43,7 +43,7 @@ export const templates: Template[] = [
     id: 'casamento-floral',
     name: 'Romântico Floral',
     category: 'Casamento',
-    coverImage: '/covers/casamento.jpg',
+    coverImage: 'https://i.postimg.cc/7hfrYfMV/casamento.jpg',
     defaultData: {
       category: 'Casamento',
       title: 'O Casamento de',
@@ -81,7 +81,7 @@ export const templates: Template[] = [
     id: 'cha-de-bebe-urso',
     name: 'Ursinho Aviador',
     category: 'Chá de Bebê',
-    coverImage: '/covers/cha-de-bebe.jpg',
+    coverImage: 'https://i.postimg.cc/gjQFwmNh/cha-de-bebe.jpg',
     defaultData: {
       category: 'Chá de Bebê',
       title: 'Chá de Bebê do',
@@ -119,7 +119,7 @@ export const templates: Template[] = [
     id: 'adulto-moderno',
     name: 'Black & Gold 30tão',
     category: 'Aniversário Adulto',
-    coverImage: '/covers/aniversario-adulto.jpg',
+    coverImage: 'https://i.postimg.cc/Rhy534XJ/aniversario-adulto.jpg',
     defaultData: {
       category: 'Aniversário Adulto',
       title: 'De repente',
@@ -157,7 +157,7 @@ export const templates: Template[] = [
     id: 'crianca-safari',
     name: 'Aventura Safari',
     category: 'Aniversário Criança',
-    coverImage: '/covers/aniversario-crianca.jpg',
+    coverImage: 'https://i.postimg.cc/zv6ZL80R/aniversario-de-crianca.jpg',
     defaultData: {
       category: 'Aniversário Criança',
       title: '1º Aninho do',
@@ -195,7 +195,7 @@ export const templates: Template[] = [
     id: 'recem-nascido',
     name: 'Bem-vindo ao Mundo',
     category: 'Recém-nascido',
-    coverImage: '/covers/cha-de-fraldas.jpg',
+    coverImage: 'https://i.postimg.cc/L5wKq2Nj/cha-de-fraldas.jpg',
     defaultData: {
       category: 'Recém-nascido',
       title: 'Apresentação da',
@@ -233,7 +233,7 @@ export const templates: Template[] = [
     id: 'cha-revelacao',
     name: 'Menino ou Menina',
     category: 'Chá Revelação',
-    coverImage: '/covers/cha-revelacao.jpg',
+    coverImage: 'https://i.postimg.cc/C5XTZSmj/cha-revelacao.jpg',
     defaultData: {
       category: 'Chá Revelação',
       title: 'A grande pergunta:',
@@ -272,7 +272,7 @@ export const templates: Template[] = [
     id: 'corporativo-elegante',
     name: 'Premium Business',
     category: 'Corporativo',
-    coverImage: '/covers/corporativo.jpg',
+    coverImage: 'https://i.postimg.cc/Bbk984MT/corporativo.jpg',
     defaultData: {
       category: 'Corporativo',
       title: 'Confraternização Anual',
