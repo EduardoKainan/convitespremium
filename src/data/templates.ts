@@ -233,7 +233,7 @@ export const templates: Template[] = [
     id: 'cha-revelacao',
     name: 'Menino ou Menina',
     category: 'Chá Revelação',
-    coverImage: 'https://images.unsplash.com/photo-1620853752536-ea9eb9dc58e0?q=80&w=500&auto=format&fit=crop',
+    coverImage: '/covers/cha-revelacao.jpg',
     defaultData: {
       category: 'Chá Revelação',
       title: 'A grande pergunta:',
@@ -272,7 +272,7 @@ export const templates: Template[] = [
     id: 'corporativo-elegante',
     name: 'Premium Business',
     category: 'Corporativo',
-    coverImage: 'https://images.unsplash.com/photo-1511556532299-8f662fc26c06?q=80&w=500&auto=format&fit=crop',
+    coverImage: '/covers/corporativo.jpg',
     defaultData: {
       category: 'Corporativo',
       title: 'Confraternização Anual',
