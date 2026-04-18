@@ -1,4 +1,4 @@
-export const TRACKING_ID = import.meta.env.VITE_META_PIXEL_ID || '';
+export const TRACKING_ID = import.meta.env.VITE_META_PIXEL_ID || '871814128520701';
 
 declare global {
   interface Window {
