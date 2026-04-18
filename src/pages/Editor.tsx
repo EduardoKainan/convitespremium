@@ -49,6 +49,7 @@ export default function Editor() {
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [inviteStatus, setInviteStatus] = useState<'draft' | 'active'>('draft');
+  const [pixCopied, setPixCopied] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -623,7 +624,7 @@ export default function Editor() {
             <div className="p-6 overflow-y-auto flex-1">
               {!user ? (
                 /* STEP 1: LOGIN */
-                <div className="text-center py-4">
+                <div key="step-login" className="text-center py-4">
                   <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                     <Lock size={28} className="text-gray-500" />
                   </div>
@@ -639,7 +640,7 @@ export default function Editor() {
                 </div>
               ) : (!saveSuccess && inviteStatus === 'draft') ? (
                 /* STEP 2: CHOOSE LINK */
-                <div className="py-2">
+                <div key="step-choose-link" className="py-2">
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">1. Escolha seu Link</h4>
                   <p className="text-sm text-gray-600 mb-6">Crie um link fácil de lembrar para enviar aos convidados.</p>
                   
@@ -667,7 +668,7 @@ export default function Editor() {
                 </div>
               ) : (inviteStatus === 'draft') ? (
                 /* STEP 3: PAYMENT */
-                <div className="py-2">
+                <div key="step-payment" className="py-2">
                   <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
                     <div>
                       <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Seu Link:</p>
@@ -681,11 +682,31 @@ export default function Editor() {
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">2. Validação e Pagamento</h4>
                   <p className="text-sm text-gray-600 mb-4">Para liberar o acesso dos convidados ao seu link, faça um PIX único de <strong>R$ 20,00</strong>.</p>
                   
-                  <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 text-center mb-6">
-                    <p className="text-xs text-gray-500 mb-1">Chave PIX (E-mail):</p>
-                    <p className="font-mono font-bold text-gray-900 text-base tracking-tight break-all">
-                      kainan.digital@gmail.com
-                    </p>
+                  <div className="bg-orange-50/50 p-5 rounded-xl border border-orange-100 mb-6 flex flex-col items-center">
+                    <div className="bg-white p-2 rounded-lg shadow-sm border border-orange-100 mb-4 w-full">
+                      <p className="text-[11px] text-gray-500 uppercase tracking-widest font-semibold text-center mb-1">Chave PIX (E-mail)</p>
+                      <div className="flex items-center justify-between bg-gray-50 rounded-md p-2">
+                        <p className="font-mono font-bold text-gray-900 text-sm tracking-tight break-all">
+                          kainan.digital@gmail.com
+                        </p>
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText('kainan.digital@gmail.com');
+                            setPixCopied(true);
+                            setTimeout(() => setPixCopied(false), 2000);
+                          }}
+                          className={`ml-2 p-2 rounded transition-colors ${pixCopied ? 'bg-green-100 text-green-700' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'}`}
+                          title="Copiar Chave PIX"
+                        >
+                          {pixCopied ? <Check size={16} /> : <Copy size={16} />}
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="text-center w-full bg-white rounded-lg p-3 border border-gray-100">
+                      <p className="text-xs text-gray-500 mb-0.5">Nome do Recebedor:</p>
+                      <p className="text-sm font-semibold text-gray-800">EDUARDO KAINAN LEITE SOUSA</p>
+                    </div>
                   </div>
                   
                   <a 
@@ -700,7 +721,7 @@ export default function Editor() {
                 </div>
               ) : (
                 /* STEP 4: ACTIVE & SHARE */
-                <div className="py-2 text-center">
+                <div key="step-active" className="py-2 text-center">
                   <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
                     <Check size={32} className="text-green-600" />
                   </div>
