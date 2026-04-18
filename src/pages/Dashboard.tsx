@@ -233,6 +233,14 @@ export default function Dashboard() {
                           onClick={() => {
                             // If they click 'Novo', clear any draft
                             localStorage.removeItem(`draft_${template.id}`);
+                            import('../lib/analytics').then(({ trackEvent }) => {
+                              trackEvent('InitiateCheckout', {
+                                content_ids: [template.id],
+                                content_name: template.name,
+                                content_category: template.category,
+                                action: 'criar_novo'
+                              });
+                            });
                           }}
                           className="w-full flex items-center justify-center px-4 py-3 rounded-full text-sm font-medium text-gray-900 bg-white hover:bg-gray-50 transition-colors shadow-lg"
                         >
@@ -241,6 +249,16 @@ export default function Dashboard() {
                         {hasDraft && (
                           <Link
                             to={`/editor/${template.id}`}
+                            onClick={() => {
+                              import('../lib/analytics').then(({ trackEvent }) => {
+                                trackEvent('InitiateCheckout', {
+                                  content_ids: [template.id],
+                                  content_name: template.name,
+                                  content_category: template.category,
+                                  action: 'continuar_edicao'
+                                });
+                              });
+                            }}
                             className="w-full flex items-center justify-center px-4 py-3 rounded-full text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-lg"
                           >
                             Continuar Edição

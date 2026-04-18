@@ -8,6 +8,7 @@ import LZString from 'lz-string';
 import { auth, db, saveUserToDb } from '../firebase';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { trackEvent } from '../lib/analytics';
 
 const AccordionSection = ({ title, icon: Icon, isOpen, onToggle, children }: any) => (
   <div className="border-b border-gray-100 last:border-0">
@@ -128,6 +129,7 @@ export default function Editor() {
     setCopied(false);
     setSaveSuccess(false);
     setSaveError('');
+    trackEvent('share_link_generated', { templateId, category: data?.category });
   };
 
   const handleLogin = async () => {
@@ -184,6 +186,14 @@ export default function Editor() {
       const newLink = `${window.location.origin}/c/${formattedPath}`;
       setShareLink(newLink);
       setSaveSuccess(true);
+      
+      trackEvent('Lead', { 
+        content_name: 'Custom Invitation',
+        content_category: data?.category,
+        customPath: formattedPath, 
+        templateId, 
+        isNew: !docSnap.exists()
+      });
     } catch (error) {
       console.error("Error saving custom link:", error);
       setSaveError("Erro ao salvar o link. Tente novamente.");
@@ -195,6 +205,7 @@ export default function Editor() {
   const copyToClipboard = () => {
     navigator.clipboard.writeText(shareLink);
     setCopied(true);
+    trackEvent('copy_link', { templateId, method: inviteStatus === 'active' ? 'custom' : 'stateless' });
     setTimeout(() => setCopied(false), 2000);
   };
 
