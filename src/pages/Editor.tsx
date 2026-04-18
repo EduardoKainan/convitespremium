@@ -594,21 +594,23 @@ export default function Editor() {
 
       {/* Right Panel - Preview */}
       <div className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-[#FDFBF7] items-center justify-center p-8 h-[calc(100vh-64px)] md:h-screen overflow-hidden relative border-l border-gray-200`}>
-        <div className="absolute top-6 right-6 hidden md:flex bg-white/80 backdrop-blur-md px-5 py-2.5 rounded-full shadow-sm items-center text-sm font-medium text-gray-700 border border-gray-200/50">
+        <div className="absolute top-6 right-6 hidden md:flex bg-white/80 backdrop-blur-md px-5 py-2.5 rounded-full shadow-sm items-center text-sm font-medium text-gray-700 border border-gray-200/50 z-10">
           <Smartphone size={16} className="mr-2 text-amber-600" />
           Preview em Tempo Real
         </div>
         
-        {/* Mobile Mockup */}
-        <div className="w-[375px] h-full max-h-[812px] md:h-[812px] bg-white md:rounded-[3rem] md:shadow-2xl overflow-hidden md:border-[8px] border-gray-900 relative md:ring-1 ring-gray-900/5 transform transition-transform md:hover:scale-[1.02] duration-500 rounded-none border-0 shadow-none">
-          {/* Notch - only on desktop mockup view */}
-          <div className="hidden md:flex absolute top-0 inset-x-0 h-7 bg-gray-900 rounded-b-3xl w-40 mx-auto z-50 justify-center items-end pb-1.5">
-            <div className="w-12 h-1.5 bg-gray-800 rounded-full"></div>
-          </div>
-          
-          {/* Invitation Component */}
-          <div className="w-full h-full overflow-y-auto overflow-x-hidden no-scrollbar bg-white shadow-xl md:shadow-none relative outline outline-1 outline-gray-200">
-            <Invitation data={data} key={mobileView} />
+        {/* Mobile Mockup - Scaled using wrapper to maintain center position */}
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="w-[375px] h-[812px] bg-white md:rounded-[3rem] md:shadow-2xl overflow-hidden md:border-[8px] border-gray-900 relative md:ring-1 ring-gray-900/5 transform transition-transform duration-500 rounded-none border-0 shadow-none scale-[0.85] sm:scale-100 md:scale-[0.70] lg:scale-[0.80] xl:scale-[0.90] 2xl:scale-100 origin-center">
+            {/* Notch - only on desktop mockup view */}
+            <div className="hidden md:flex absolute top-0 inset-x-0 h-7 bg-gray-900 rounded-b-3xl w-40 mx-auto z-50 justify-center items-end pb-1.5">
+              <div className="w-12 h-1.5 bg-gray-800 rounded-full"></div>
+            </div>
+            
+            {/* Invitation Component */}
+            <div className="w-full h-full overflow-y-auto overflow-x-hidden no-scrollbar bg-white shadow-xl md:shadow-none relative outline outline-1 outline-gray-200">
+              <Invitation data={data} key={mobileView} />
+            </div>
           </div>
         </div>
       </div>
