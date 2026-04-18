@@ -5,11 +5,13 @@ import InviteView from './pages/InviteView';
 import CustomInviteView from './pages/CustomInviteView';
 import AdminPanel from './pages/AdminPanel';
 import { MetaPixel } from './components/MetaPixel';
+import { WhatsAppButton } from './components/WhatsAppButton';
 
 export default function App() {
   return (
     <Router>
       <MetaPixel />
+      <WhatsAppButton />
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/editor/:templateId" element={<Editor />} />
