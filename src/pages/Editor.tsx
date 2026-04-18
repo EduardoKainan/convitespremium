@@ -49,7 +49,6 @@ export default function Editor() {
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [inviteStatus, setInviteStatus] = useState<'draft' | 'active'>('draft');
-  const [showPublishModal, setShowPublishModal] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -236,23 +235,14 @@ export default function Editor() {
           </button>
           
           <div className="flex items-center gap-2">
-            <button onClick={handleShare} className="flex items-center bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 text-sm font-medium transition-colors">
-              <Share2 size={16} className="mr-2" />
-              Opções de Link
-            </button>
             <button 
               onClick={() => {
-                if (user && inviteStatus === 'draft') setShowPublishModal(true);
-                else if (!user) handleLogin();
-                else setSaveError("Seu convite já está ativo!");
+                setShowModal(true);
               }} 
-              className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${inviteStatus === 'active' ? 'bg-green-100 text-green-700' : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm'}`}
+              className="flex items-center px-5 py-2.5 rounded-full text-sm font-medium transition-colors bg-emerald-600 text-white hover:bg-emerald-700 shadow-[0_0_15px_rgba(5,150,105,0.3)]"
             >
-              {inviteStatus === 'active' ? (
-                <><Check size={16} className="mr-2" /> Ativo</>
-              ) : (
-                <><Sparkles size={16} className="mr-2" /> Ativar Convite</>
-              )}
+              <Sparkles size={16} className="mr-2" />
+              Publicar Convite
             </button>
           </div>
         </div>
@@ -615,160 +605,141 @@ export default function Editor() {
         </div>
       </div>
 
-      {/* Publish Modal */}
-      {showPublishModal && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 p-6 text-white text-center">
-              <h3 className="text-2xl font-bold mb-2">Ativar Convite</h3>
-              <p className="text-green-50 text-sm">Seu convite está salvo de forma privada. Adquira a licença vitalícia para liberar o link aos convidados.</p>
-            </div>
-            
-            <div className="p-6 overflow-y-auto">
-              <div className="mb-6">
-                <h4 className="text-lg font-semibold text-gray-900 mb-2 border-b pb-2">1. Realize o Pagamento</h4>
-                <p className="text-sm text-gray-600 mb-4">Para ativar este convite permanentemente e remover o bloqueio, faça um PIX no valor de <strong>R$ 20,00</strong>.</p>
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center mb-4">
-                  <p className="text-xs text-gray-500 mb-1">Chave PIX (E-mail):</p>
-                  <p className="font-mono font-bold text-gray-900 text-sm tracking-tight break-all">
-                    kainan.digital@gmail.com
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-lg font-semibold text-gray-900 mb-2 border-b pb-2">2. Validação Rápida</h4>
-                <p className="text-sm text-gray-600 mb-4">Envie seu comprovante no WhatsApp informando o link do seu convite. A ativação ocorre em minutos!</p>
-                
-                <a 
-                  href={`https://wa.me/5562982042056?text=${encodeURIComponent(`Olá! Fiz o pagamento para liberar meu convite. O link personalizado que escolhi foi o /c/${customPath || "[DIGITE SEU LINK]"}. Aqui está o comprovante:`)}`} 
-                  target="_blank" 
-                  rel="noreferrer"
-                  className="w-full flex items-center justify-center gap-2 bg-[#25D366] text-white px-4 py-3 rounded-md font-medium hover:bg-[#1EBE5D] transition-colors shadow-sm"
-                >
-                  <MessageCircle size={20} />
-                  Enviar Comprovante de Pagamento
-                </a>
-              </div>
-            </div>
-
-            <div className="p-4 border-t border-gray-100 bg-gray-50 text-center">
-              <button onClick={() => setShowPublishModal(false)} className="text-sm font-medium text-gray-600 hover:text-gray-900 px-6 py-2 transition-colors">
-                Fechar e Pagar Depois
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Share Modal */}
+      {/* Combined Publish/Share Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Opções de Link</h3>
-            <p className="text-gray-600 mb-6 text-sm">
-              Configure o link para enviar o convite aos seus convidados.
-            </p>
-
-            {inviteStatus === 'draft' ? (
-              <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-5 text-center">
-                <div className="mx-auto w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-3">
-                  <Lock size={24} />
-                </div>
-                <h4 className="text-lg font-bold text-red-900 mb-2">Convite Bloqueado</h4>
-                <p className="text-sm text-red-700 mb-4">
-                  O link de compartilhamento não está disponível pois este convite ainda é um rascunho. Ative-o para liberar o acesso aos seus convidados.
-                </p>
-                <button 
-                  onClick={() => {
-                    setShowModal(false);
-                    if(!user) {
-                      handleLogin();
-                    }else{
-                      setShowPublishModal(true);
-                    }
-                  }}
-                  className="w-full py-3 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors shadow-sm"
-                >
-                  Liberar Meu Convite (Ativar)
-                </button>
-              </div>
-            ) : (
-              <div className="mb-6">
-                <h4 className="text-md font-semibold text-gray-800 mb-2">Link Principal</h4>
-                <div className="flex items-center gap-2">
-                  <input 
-                    type="text" 
-                    readOnly 
-                    value={shareLink} 
-                    className="flex-1 bg-gray-50 border border-gray-200 rounded-md py-2 px-3 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                  <button 
-                    onClick={copyToClipboard}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-md transition-colors flex items-center justify-center w-10 h-10 shrink-0"
-                    title="Copiar Link"
-                  >
-                    {copied ? <Check size={18} /> : <Copy size={18} />}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="border-t border-gray-200 pt-6 mb-6">
-              <h4 className="text-md font-semibold text-gray-800 mb-2 flex items-center">
-                <LinkIcon size={16} className="mr-2" />
-                Personalizar Link
-              </h4>
-              <p className="text-xs text-gray-500 mb-4">
-                Crie um link curto e amigável (ex: seusite.com/c/15-anos-julia).
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden max-h-[90vh] flex flex-col">
+            
+            {/* Header depending on state */}
+            <div className={`p-6 text-white text-center ${inviteStatus === 'active' ? 'bg-indigo-600' : 'bg-gradient-to-r from-emerald-600 to-emerald-700'}`}>
+              <h3 className="text-xl font-bold mb-2">
+                {inviteStatus === 'active' ? 'Seu Convite está Pronto!' : 'Publicar Convite'}
+              </h3>
+              <p className="text-sm opacity-90">
+                {inviteStatus === 'active' ? 'Compartilhe o link com seus convidados.' : 'Siga os passos abaixo para liberar seu link personalizado.'}
               </p>
+            </div>
 
+            <div className="p-6 overflow-y-auto flex-1">
               {!user ? (
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
-                  <p className="text-sm text-gray-600 mb-3">Faça login para criar links personalizados.</p>
+                /* STEP 1: LOGIN */
+                <div className="text-center py-4">
+                  <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                    <Lock size={28} className="text-gray-500" />
+                  </div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Salvar meu Convite</h4>
+                  <p className="text-sm text-gray-600 mb-6">Você precisa criar uma conta gratuita para salvar seu convite e escolher o seu link.</p>
                   <button 
                     onClick={handleLogin}
-                    className="w-full flex items-center justify-center bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors text-sm font-medium shadow-sm"
+                    className="w-full flex items-center justify-center bg-white border-2 border-gray-200 text-gray-800 px-4 py-3 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all font-medium shadow-sm"
                   >
-                    <LogIn size={16} className="mr-2" />
-                    Entrar com Google
+                    <LogIn size={20} className="mr-3" />
+                    Continuar com Google
                   </button>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex items-center bg-gray-50 border border-gray-300 rounded-md overflow-hidden focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
-                      <span className="px-3 text-gray-500 text-sm bg-gray-100 border-r border-gray-300">/c/</span>
-                      <input 
-                        type="text" 
-                        placeholder="meu-evento"
-                        value={customPath}
-                        onChange={(e) => setCustomPath(e.target.value)}
-                        className="flex-1 py-2 px-3 text-sm focus:outline-none bg-transparent"
-                      />
-                    </div>
-                    {saveError && <p className="text-xs text-red-600 mt-1">{saveError}</p>}
-                    {saveSuccess && <p className="text-xs text-green-600 mt-1">Link personalizado criado com sucesso! {(inviteStatus === 'draft') && 'Não esqueça de ativar no botão acima.'}</p>}
+              ) : (!saveSuccess && inviteStatus === 'draft') ? (
+                /* STEP 2: CHOOSE LINK */
+                <div className="py-2">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">1. Escolha seu Link</h4>
+                  <p className="text-sm text-gray-600 mb-6">Crie um link fácil de lembrar para enviar aos convidados.</p>
+                  
+                  <div className="flex items-center bg-gray-50 border-2 border-gray-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500 focus-within:border-emerald-500 transition-all mb-2">
+                    <span className="px-4 py-3 text-gray-500 font-medium bg-gray-100 border-r border-gray-200">/c/</span>
+                    <input 
+                      type="text" 
+                      placeholder="ana-e-joao"
+                      value={customPath}
+                      onChange={(e) => setCustomPath(e.target.value)}
+                      className="flex-1 py-3 px-4 focus:outline-none bg-transparent font-medium text-gray-900"
+                    />
                   </div>
+                  
+                  {saveError && <p className="text-sm text-red-600 mb-4">{saveError}</p>}
                   
                   <button 
                     onClick={handleSaveCustomLink}
                     disabled={isSaving || !customPath.trim()}
-                    className="w-full flex items-center justify-center bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full flex items-center justify-center bg-emerald-600 text-white px-4 py-3.5 rounded-xl hover:bg-emerald-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed mt-6 shadow-sm"
                   >
-                    {isSaving ? <Loader2 size={16} className="animate-spin mr-2" /> : <Save size={16} className="mr-2" />}
-                    Salvar Link Personalizado
+                    {isSaving ? <Loader2 size={20} className="animate-spin mr-2" /> : <Save size={20} className="mr-2" />}
+                    Salvar e Avançar
                   </button>
+                </div>
+              ) : (inviteStatus === 'draft') ? (
+                /* STEP 3: PAYMENT */
+                <div className="py-2">
+                  <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Seu Link:</p>
+                      <p className="font-medium text-emerald-700">/c/{customPath}</p>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                      <Check size={16} />
+                    </div>
+                  </div>
+
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">2. Validação e Pagamento</h4>
+                  <p className="text-sm text-gray-600 mb-4">Para liberar o acesso dos convidados ao seu link, faça um PIX único de <strong>R$ 20,00</strong>.</p>
+                  
+                  <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 text-center mb-6">
+                    <p className="text-xs text-gray-500 mb-1">Chave PIX (E-mail):</p>
+                    <p className="font-mono font-bold text-gray-900 text-base tracking-tight break-all">
+                      kainan.digital@gmail.com
+                    </p>
+                  </div>
+                  
+                  <a 
+                    href={`https://wa.me/5562982042056?text=${encodeURIComponent(`Olá! Fiz o pagamento para liberar meu convite. O link que escolhi foi o /c/${customPath}. Aqui está o comprovante:`)}`} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="w-full flex items-center justify-center gap-2 bg-[#25D366] text-white px-4 py-3.5 rounded-xl font-medium hover:bg-[#1EBE5D] transition-colors shadow-sm"
+                  >
+                    <MessageCircle size={20} />
+                    Enviar Comprovante
+                  </a>
+                </div>
+              ) : (
+                /* STEP 4: ACTIVE & SHARE */
+                <div className="py-2 text-center">
+                  <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                    <Check size={32} className="text-green-600" />
+                  </div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-6">Convite Liberado!</h4>
+                  
+                  <div className="flex items-center gap-2 mb-6">
+                    <input 
+                      type="text" 
+                      readOnly 
+                      value={shareLink} 
+                      className="flex-1 bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-sm text-gray-600 focus:outline-none"
+                    />
+                    <button 
+                      onClick={copyToClipboard}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-xl transition-colors flex items-center justify-center shrink-0 shadow-sm"
+                      title="Copiar Link"
+                    >
+                      {copied ? <Check size={20} /> : <Copy size={20} />}
+                    </button>
+                  </div>
+                  
+                  <a 
+                    href={shareLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full flex items-center justify-center bg-gray-100 text-gray-700 px-4 py-3 rounded-xl hover:bg-gray-200 transition-colors font-medium"
+                  >
+                    Abrir Convite
+                  </a>
                 </div>
               )}
             </div>
 
-            <div className="flex justify-end">
+            <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-center">
               <button 
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                onClick={() => setShowModal(false)} 
+                className="text-sm font-medium text-gray-500 hover:text-gray-900 px-6 py-2 transition-colors"
               >
-                Fechar
+                {inviteStatus === 'active' ? 'Fechar' : 'Fechar e Continuar Depois'}
               </button>
             </div>
           </div>
