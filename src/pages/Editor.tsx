@@ -120,18 +120,6 @@ export default function Editor() {
     } : null);
   };
 
-  const handleShare = () => {
-    // Compress and encode data to create a stateless shareable link
-    const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(data));
-    const link = `${window.location.origin}/invite?d=${compressed}`;
-    setShareLink(link);
-    setShowModal(true);
-    setCopied(false);
-    setSaveSuccess(false);
-    setSaveError('');
-    trackEvent('share_link_generated', { templateId, category: data?.category });
-  };
-
   const handleLogin = async () => {
     try {
       const provider = new GoogleAuthProvider();
