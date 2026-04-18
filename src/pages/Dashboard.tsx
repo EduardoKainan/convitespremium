@@ -110,7 +110,7 @@ export default function Dashboard() {
     }
   };
 
-  const categories = ['Todos', 'Casamento', '15 Anos', 'Infantil', 'Aniversário', 'Chá de Bebê'];
+  const categories = ['Todos', 'Casamento', '15 Anos', 'Infantil', 'Aniversário', 'Chá Revelação', 'Chá de Bebê', 'Corporativo'];
 
   const filteredTemplates = templates.filter(t => {
     const matchesCategory = activeCategory === 'Todos' || t.category === activeCategory;

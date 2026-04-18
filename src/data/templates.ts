@@ -5,7 +5,7 @@ export const templates: Template[] = [
     id: '15-anos-classic',
     name: 'Luxo Navy & Gold',
     category: '15 Anos',
-    coverImage: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=500&auto=format&fit=crop',
+    coverImage: '/covers/15-anos.jpg',
     defaultData: {
       category: '15 Anos',
       title: 'Os 15 anos de',
@@ -43,7 +43,7 @@ export const templates: Template[] = [
     id: 'casamento-floral',
     name: 'Romântico Floral',
     category: 'Casamento',
-    coverImage: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=500&auto=format&fit=crop',
+    coverImage: '/covers/casamento.jpg',
     defaultData: {
       category: 'Casamento',
       title: 'O Casamento de',
@@ -81,7 +81,7 @@ export const templates: Template[] = [
     id: 'cha-de-bebe-urso',
     name: 'Ursinho Aviador',
     category: 'Chá de Bebê',
-    coverImage: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=500&auto=format&fit=crop',
+    coverImage: '/covers/cha-de-bebe.jpg',
     defaultData: {
       category: 'Chá de Bebê',
       title: 'Chá de Bebê do',
@@ -119,7 +119,7 @@ export const templates: Template[] = [
     id: 'adulto-moderno',
     name: 'Black & Gold 30tão',
     category: 'Aniversário Adulto',
-    coverImage: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=500&auto=format&fit=crop',
+    coverImage: '/covers/aniversario-adulto.jpg',
     defaultData: {
       category: 'Aniversário Adulto',
       title: 'De repente',
@@ -157,7 +157,7 @@ export const templates: Template[] = [
     id: 'crianca-safari',
     name: 'Aventura Safari',
     category: 'Aniversário Criança',
-    coverImage: 'https://images.unsplash.com/photo-1530089711124-9ca31fb9e863?q=80&w=500&auto=format&fit=crop',
+    coverImage: '/covers/aniversario-crianca.jpg',
     defaultData: {
       category: 'Aniversário Criança',
       title: '1º Aninho do',
@@ -195,7 +195,7 @@ export const templates: Template[] = [
     id: 'recem-nascido',
     name: 'Bem-vindo ao Mundo',
     category: 'Recém-nascido',
-    coverImage: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?q=80&w=500&auto=format&fit=crop',
+    coverImage: '/covers/cha-de-fraldas.jpg',
     defaultData: {
       category: 'Recém-nascido',
       title: 'Apresentação da',
@@ -227,6 +227,84 @@ export const templates: Template[] = [
         footer: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?q=80&w=800&auto=format&fit=crop',
       },
       musicUrl: 'https://cdn.pixabay.com/audio/2022/01/18/audio_d0a13f69d2.mp3',
+    }
+  },
+  {
+    id: 'cha-revelacao',
+    name: 'Menino ou Menina',
+    category: 'Chá Revelação',
+    coverImage: 'https://images.unsplash.com/photo-1620853752536-ea9eb9dc58e0?q=80&w=500&auto=format&fit=crop',
+    defaultData: {
+      category: 'Chá Revelação',
+      title: 'A grande pergunta:',
+      name: 'Menino ou Menina?',
+      date: '2026-11-20',
+      time: '16:00',
+      locationName: 'Jardim das Surpresas',
+      locationAddress: 'Rua das Cores, 1234 - Bairro Feliz',
+      locationUrl: 'https://maps.google.com/?q=Rua+das+Cores,+1234',
+      message: 'Estamos ansiosos para descobrir e queremos viver essa emoção com as pessoas que mais amamos!',
+      dressCode: 'Vá com a cor do seu palpite: Rosa ou Azul!',
+      rsvpLink: 'https://wa.me/5511999999999?text=Olá!%20Meu%20palpite%20está%20pronto!%20Estarei%20no%20Chá%20Revelação.',
+      finalMessage: 'O amor já é gigante, independente da cor!',
+      decorationType: 'stars',
+      pageBackground: 'stars',
+      theme: {
+        primary: '#8A2BE2', // Roxo (mistura rosa e azul)
+        secondary: '#FFB6C1', // Rosa pra dar contraste
+        background: '#FAF0E6',
+        surface: '#FFFFFF',
+        text: '#4B0082',
+        fontTitle: '"Fredoka", sans-serif',
+        fontScript: '"Great Vibes", cursive',
+        fontBody: '"Montserrat", sans-serif',
+      },
+      images: {
+        cover: 'https://images.unsplash.com/photo-1620853752536-ea9eb9dc58e0?q=80&w=800&auto=format&fit=crop',
+        hero: 'https://images.unsplash.com/photo-1618641151608-f4044de78c85?q=80&w=800&auto=format&fit=crop',
+        background: 'https://images.unsplash.com/photo-1542385151-efd5dc5dc0d7?q=80&w=1000&auto=format&fit=crop',
+        footer: 'https://images.unsplash.com/photo-1620853752536-ea9eb9dc58e0?q=80&w=800&auto=format&fit=crop',
+      },
+      musicUrl: 'https://cdn.pixabay.com/audio/2022/01/21/audio_31743c58be.mp3',
+    }
+  },
+  {
+    id: 'corporativo-elegante',
+    name: 'Premium Business',
+    category: 'Corporativo',
+    coverImage: 'https://images.unsplash.com/photo-1511556532299-8f662fc26c06?q=80&w=500&auto=format&fit=crop',
+    defaultData: {
+      category: 'Corporativo',
+      title: 'Confraternização Anual',
+      name: 'Acme Corp',
+      date: '2026-12-10',
+      time: '19:00',
+      locationName: 'Business Center Skybar',
+      locationAddress: 'Av. das Nações Unidas, 1000',
+      locationUrl: 'https://maps.google.com/?q=Av.+das+Nações+Unidas,+1000',
+      message: 'Junte-se a nós para celebrar as conquistas e marcos do nosso ano, acompanhado de boa música e excelente networking.',
+      dressCode: 'Esporte Fino / Business Casual.',
+      rsvpLink: 'https://wa.me/5511999999999?text=Confirmo%20minha%20presença%20no%20evento%20corporativo%20da%20Acme%20Corp.',
+      finalMessage: 'Inovação e parcerias constroem o nosso futuro.',
+      decorationType: 'geometric',
+      pageBackground: 'marble',
+      theme: {
+        primary: '#1A365D', // Azul Marinho escuro
+        secondary: '#C5A059', // Dourado corporativo
+        background: '#E2E8F0',
+        surface: '#FFFFFF',
+        text: '#1E293B',
+        fontTitle: '"Montserrat", sans-serif',
+        fontScript: '"Playfair Display", serif',
+        fontBody: '"Montserrat", sans-serif',
+      },
+      images: {
+        cover: 'https://images.unsplash.com/photo-1511556532299-8f662fc26c06?q=80&w=800&auto=format&fit=crop',
+        hero: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=800&auto=format&fit=crop',
+        background: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=1000&auto=format&fit=crop',
+        footer: 'https://images.unsplash.com/photo-1511556532299-8f662fc26c06?q=80&w=800&auto=format&fit=crop',
+      },
+      musicUrl: 'https://cdn.pixabay.com/audio/2021/10/26/audio_9242c75a40.mp3',
     }
   }
 ];
