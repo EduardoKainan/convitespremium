@@ -5,10 +5,12 @@ import { InvitationData } from '../types';
 import Invitation from '../components/Invitation';
 import { ArrowLeft, Share2, Smartphone, Copy, Check, Link as LinkIcon, LogIn, Loader2, Save, ChevronDown, ChevronUp, Sparkles, Palette, Type, Image as ImageIcon, Music, MapPin, Calendar, MessageCircle, Lock } from 'lucide-react';
 import LZString from 'lz-string';
-import { auth, db, saveUserToDb } from '../firebase';
+import { auth, db, saveUserToDb, storage } from '../firebase';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { trackEvent } from '../lib/analytics';
+import { optimizeImage } from '../lib/imageOptimization';
 
 const AccordionSection = ({ title, icon: Icon, isOpen, onToggle, children }: any) => (
   <div className="border-b border-gray-100 last:border-0">
@@ -50,6 +52,8 @@ export default function Editor() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [inviteStatus, setInviteStatus] = useState<'draft' | 'active'>('draft');
   const [pixCopied, setPixCopied] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState<string | null>(null);
+  const [uploadingAudio, setUploadingAudio] = useState<boolean>(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -110,6 +114,104 @@ export default function Editor() {
       ...prev,
       theme: { ...prev.theme, [name]: value }
     } : null);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, name: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!user) {
+      alert("Por favor, faça login clicando em 'Publicar Convite' antes de fazer upload de imagens.");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("A imagem é muito grande. O limite máximo é de 5MB.");
+      return;
+    }
+
+    setUploadingImage(name);
+
+    try {
+      const optimizedFile = await optimizeImage(file);
+      
+      // Create a unique filename
+      const filename = `${user.uid}/${Date.now()}_${name}_${optimizedFile.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
+      const storageRef = ref(storage, `invitations_images/${filename}`);
+      
+      const uploadTask = uploadBytesResumable(storageRef, optimizedFile);
+      
+      uploadTask.on('state_changed', 
+        (snapshot) => {
+          // Progress can be tracked here if needed
+        }, 
+        (error) => {
+          console.error("Upload error:", error);
+          alert("Erro ao fazer upload da imagem. Se persistir, você pode usar um link.");
+          setUploadingImage(null);
+        }, 
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          setData(prev => prev ? {
+            ...prev,
+            images: { ...prev.images, [name]: downloadURL }
+          } : null);
+          setUploadingImage(null);
+        }
+      );
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao iniciar upload.");
+      setUploadingImage(null);
+    }
+  };
+
+  const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!user) {
+      alert("Por favor, faça login clicando em 'Publicar Convite' antes de fazer upload da música.");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert("A música é muito grande. O limite máximo é de 10MB.");
+      return;
+    }
+
+    setUploadingAudio(true);
+
+    try {
+      // Usando invitations_images também para áudio para aproveitar a mesma regra do Firebase
+      const filename = `${user.uid}/${Date.now()}_music_${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
+      const storageRef = ref(storage, `invitations_images/${filename}`);
+      
+      const uploadTask = uploadBytesResumable(storageRef, file);
+      
+      uploadTask.on('state_changed', 
+        (snapshot) => {
+          // Progress can be tracked here if needed
+        }, 
+        (error) => {
+          console.error("Upload error:", error);
+          alert("Erro ao fazer upload da música. Se persistir, você pode usar um link.");
+          setUploadingAudio(false);
+        }, 
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          setData(prev => prev ? {
+            ...prev,
+            musicUrl: downloadURL
+          } : null);
+          setUploadingAudio(false);
+        }
+      );
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao iniciar upload da música.");
+      setUploadingAudio(false);
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -303,8 +405,8 @@ export default function Editor() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Dress Code (Traje)</label>
-                <input type="text" name="dressCode" value={data.dressCode} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" />
+                <label className="block text-sm font-medium text-gray-700">Dress Code (Opcional)</label>
+                <input type="text" name="dressCode" value={data.dressCode} onChange={handleChange} placeholder="Ex: Esporte Fino (Deixe em branco para ocultar)" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" />
               </div>
             </AccordionSection>
 
@@ -315,31 +417,67 @@ export default function Editor() {
               onToggle={() => setActiveSection(activeSection === 'media' ? '' : 'media')}
             >
               <div>
-                <label className="block text-sm font-medium text-gray-700">Link de Confirmação (WhatsApp/RSVP)</label>
-                <input type="url" name="rsvpLink" value={data.rsvpLink} onChange={handleChange} placeholder="https://wa.me/..." className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" />
+                <label className="block text-sm font-medium text-gray-700">WhatsApp para Confirmação de Presença</label>
+                <div className="mt-1 flex rounded-md shadow-sm">
+                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
+                    BR (+55)
+                  </span>
+                  <input 
+                    type="text" 
+                    name="whatsappNumber" 
+                    value={data.whatsappNumber || ''} 
+                    onChange={handleChange} 
+                    placeholder="Ex: 11999999999" 
+                    className="flex-1 min-w-0 block w-full rounded-none rounded-r-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                  />
+                </div>
+                <p className="mt-1 text-xs text-gray-500">Digite apenas os números com DDD.</p>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700">URL da Foto da Capa (Envelope)</label>
-                <input type="text" name="cover" value={data.images.cover} onChange={handleImageChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" />
+                <label className="block text-sm font-medium text-gray-700">Foto da Capa (Envelope)</label>
+                <div className="mt-1 flex items-center gap-2">
+                  <input type="text" name="cover" value={data.images.cover} onChange={handleImageChange} placeholder="URL da imagem (https://...)" className="flex-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" />
+                  <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 p-2 rounded-md transition-colors flex shrink-0 items-center justify-center">
+                    {uploadingImage === 'cover' ? <Loader2 size={20} className="animate-spin text-indigo-600" /> : <ImageIcon size={20} />}
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'cover')} disabled={uploadingImage !== null} />
+                  </label>
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">URL da Foto Principal (Interna)</label>
-                <input type="text" name="hero" value={data.images.hero} onChange={handleImageChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" />
+                <label className="block text-sm font-medium text-gray-700">Foto Principal (Interna)</label>
+                <div className="mt-1 flex items-center gap-2">
+                  <input type="text" name="hero" value={data.images.hero} onChange={handleImageChange} placeholder="URL da imagem (https://...)" className="flex-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" />
+                  <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 p-2 rounded-md transition-colors flex shrink-0 items-center justify-center">
+                    {uploadingImage === 'hero' ? <Loader2 size={20} className="animate-spin text-indigo-600" /> : <ImageIcon size={20} />}
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'hero')} disabled={uploadingImage !== null} />
+                  </label>
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">URL da Foto do Rodapé</label>
-                <input type="text" name="footer" value={data.images.footer} onChange={handleImageChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" />
+                <label className="block text-sm font-medium text-gray-700">Foto do Rodapé</label>
+                <div className="mt-1 flex items-center gap-2">
+                  <input type="text" name="footer" value={data.images.footer} onChange={handleImageChange} placeholder="URL da imagem (https://...)" className="flex-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" />
+                  <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 p-2 rounded-md transition-colors flex shrink-0 items-center justify-center">
+                    {uploadingImage === 'footer' ? <Loader2 size={20} className="animate-spin text-indigo-600" /> : <ImageIcon size={20} />}
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'footer')} disabled={uploadingImage !== null} />
+                  </label>
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">URL da Música (Recomendado: Dropbox)</label>
-                <input type="text" name="musicUrl" value={data.musicUrl} onChange={handleChange} placeholder="https://www.dropbox.com/s/..." className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" />
+                <label className="block text-sm font-medium text-gray-700">Música de Fundo (MP3) ou Link</label>
+                <div className="mt-1 flex items-center gap-2">
+                  <input type="text" name="musicUrl" value={data.musicUrl} onChange={handleChange} placeholder="https://www.dropbox.com/s/..." className="flex-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" />
+                  <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 p-2 rounded-md transition-colors flex shrink-0 items-center justify-center">
+                    {uploadingAudio ? <Loader2 size={20} className="animate-spin text-indigo-600" /> : <Music size={20} />}
+                    <input type="file" accept="audio/mpeg,audio/mp3,audio/wav" className="hidden" onChange={handleAudioUpload} disabled={uploadingAudio} />
+                  </label>
+                </div>
                 <p className="mt-1 text-[11px] text-gray-500 leading-tight pt-1">
-                  <strong className="font-semibold text-red-600">Atenção ao Google Drive:</strong> Devido às novas restrições de segurança globais do Google Drive (CORS), navegadores não tocam áudio escondido dele. 
-                  O ideal é subir seu MP3 no <strong className="text-blue-600">Dropbox</strong>. Basta colar o link de compartilhamento do seu Dropbox aqui que nós adaptamos o áudio para tocar automaticamente!
+                  Faça o <strong className="font-semibold text-indigo-600">upload do seu arquivo MP3</strong> no botão ao lado, ou cole um link do <strong className="text-blue-600">Dropbox</strong>. Não use Google Drive, pois ele bloqueia o áudio automático.
                 </p>
               </div>
             </AccordionSection>

@@ -196,6 +196,16 @@ export default function Invitation({ data }: { data: InvitationData }) {
     '--font-body': data.theme.fontBody,
   } as React.CSSProperties;
 
+  // Generate WhatsApp Link
+  const getWhatsAppLink = () => {
+    if (data.whatsappNumber && data.whatsappNumber.trim() !== '') {
+      const cleanNumber = data.whatsappNumber.replace(/\D/g, '');
+      const message = encodeURIComponent(`Olá! Gostaria de confirmar minha presença no evento: ${data.title} - ${data.name}.`);
+      return `https://wa.me/55${cleanNumber}?text=${message}`;
+    }
+    return data.rsvpLink;
+  };
+
   return (
     <div 
       className="w-full h-full min-h-full flex justify-center selection:bg-black/10 relative overflow-hidden"
@@ -438,7 +448,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
               <div className="relative h-72 w-full max-w-sm mx-auto mb-12">
                 {/* RSVP Button (Top Left) */}
                 <a 
-                  href={data.rsvpLink}
+                  href={getWhatsAppLink()}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="absolute top-0 left-4 flex flex-col items-center group hover:scale-105 transition-transform"
@@ -477,23 +487,25 @@ export default function Invitation({ data }: { data: InvitationData }) {
           </div>
 
           {/* Dress Code Section */}
-          <div className="py-20 px-8 text-center relative z-10" style={{ backgroundColor: data.theme.background, color: data.theme.surface }}>
-            <BackgroundOverlay type={data.pageBackground} color={data.theme.primary} />
-            <Reveal direction="up">
-              <h2 className="text-3xl mb-8" style={{ fontFamily: 'var(--font-title)', color: data.theme.primary }}>Dress Code</h2>
-              <div className="flex justify-center mb-6">
-                <div 
-                  className="w-16 h-16 rounded-full flex items-center justify-center shadow-inner"
-                  style={{ border: `1px solid ${data.theme.primary}50`, backgroundColor: `${data.theme.surface}10` }}
-                >
-                  <Info size={28} style={{ color: data.theme.primary }} />
+          {data.dressCode && data.dressCode.trim() !== '' && (
+            <div className="py-20 px-8 text-center relative z-10" style={{ backgroundColor: data.theme.background, color: data.theme.surface }}>
+              <BackgroundOverlay type={data.pageBackground} color={data.theme.primary} />
+              <Reveal direction="up">
+                <h2 className="text-3xl mb-8" style={{ fontFamily: 'var(--font-title)', color: data.theme.primary }}>Dress Code</h2>
+                <div className="flex justify-center mb-6">
+                  <div 
+                    className="w-16 h-16 rounded-full flex items-center justify-center shadow-inner"
+                    style={{ border: `1px solid ${data.theme.primary}50`, backgroundColor: `${data.theme.surface}10` }}
+                  >
+                    <Info size={28} style={{ color: data.theme.primary }} />
+                  </div>
                 </div>
-              </div>
-              <p className="text-sm leading-relaxed max-w-xs mx-auto" style={{ opacity: 0.8 }}>
-                {data.dressCode}
-              </p>
-            </Reveal>
-          </div>
+                <p className="text-sm leading-relaxed max-w-xs mx-auto" style={{ opacity: 0.8 }}>
+                  {data.dressCode}
+                </p>
+              </Reveal>
+            </div>
+          )}
 
           {/* Footer RSVP Section */}
           <div className="pt-10 pb-32 px-6 text-center relative z-10 flex flex-col items-center" style={{ color: data.theme.text }}>
