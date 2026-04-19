@@ -1,15 +1,41 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { templates } from '../data/templates';
-import { Sparkles, Filter, Search, LogIn, LogOut, Shield, Trash2, Edit2, PlayCircle, Loader2, LayoutTemplate } from 'lucide-react';
+import { Sparkles, Filter, Search, LogIn, LogOut, Shield, Trash2, Edit2, PlayCircle, Loader2, LayoutTemplate, Check, ArrowRight } from 'lucide-react';
 import { auth, saveUserToDb, db } from '../firebase';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, getDoc, collection, query, where, getDocs, deleteDoc } from 'firebase/firestore';
 
 import { deleteInvitationAndFiles } from '../lib/invitationManager';
 
+const WistiaEmbed = () => {
+  useEffect(() => {
+    if (!document.getElementById('wistia-player-script')) {
+      const script1 = document.createElement('script');
+      script1.id = 'wistia-player-script';
+      script1.src = "https://fast.wistia.com/player.js";
+      script1.async = true;
+      document.body.appendChild(script1);
+
+      const script2 = document.createElement('script');
+      script2.id = 'wistia-embed-script';
+      script2.src = "https://fast.wistia.com/embed/qpwj726qzg.js";
+      script2.async = true;
+      script2.type = "module";
+      document.body.appendChild(script2);
+    }
+  }, []);
+
+  return (
+    <div style={{ width: '100%', height: '100%' }}>
+      <style>{`wistia-player[media-id='qpwj726qzg']:not(:defined) { background: center / contain no-repeat url('https://fast.wistia.com/embed/medias/qpwj726qzg/swatch'); display: block; filter: blur(5px); padding-top:56.25%; }`}</style>
+      {React.createElement('wistia-player', { 'media-id': 'qpwj726qzg', aspect: '1.7777777777777777' })}
+    </div>
+  );
+};
+
 export default function Dashboard() {
-  const [currentTab, setCurrentTab] = useState<'catalog' | 'my-invites'>('catalog');
+  const [currentTab, setCurrentTab] = useState<'catalog' | 'my-invites' | 'packages'>('catalog');
   const [activeCategory, setActiveCategory] = useState<string>('Todos');
   const [searchQuery, setSearchQuery] = useState('');
   const [user, setUser] = useState<User | null>(null);
@@ -18,21 +44,27 @@ export default function Dashboard() {
   const [myFirebaseInvites, setMyFirebaseInvites] = useState<any[]>([]);
   const [myLocalDrafts, setMyLocalDrafts] = useState<any[]>([]);
   const [isLoadingInvites, setIsLoadingInvites] = useState(false);
+  const [userCredits, setUserCredits] = useState<number>(0);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
         await saveUserToDb(currentUser);
-        // Check role
+        // Check role and credits
         const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-        if (userDoc.exists() && userDoc.data().role === 'admin') {
-          setIsAdmin(true);
-        } else {
-          setIsAdmin(false);
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          if (data.role === 'admin') {
+            setIsAdmin(true);
+          } else {
+            setIsAdmin(false);
+          }
+          setUserCredits(data.credits || 0);
         }
       } else {
         setIsAdmin(false);
+        setUserCredits(0);
         setCurrentTab('catalog'); // Reset if logged out
       }
     });
@@ -133,6 +165,14 @@ export default function Dashboard() {
           </div>
           <nav className="hidden md:flex gap-8 text-sm font-medium text-gray-500">
             <button onClick={() => setCurrentTab('catalog')} className={`${currentTab === 'catalog' ? 'text-amber-600 font-semibold border-b-2 border-amber-600' : 'text-gray-900 hover:text-amber-600'} pb-1 transition-colors`}>Catálogo</button>
+            <button onClick={() => setCurrentTab('packages')} className={`${currentTab === 'packages' ? 'text-amber-600 font-semibold border-b-2 border-amber-600' : 'text-gray-900 hover:text-amber-600'} pb-1 transition-colors flex items-center gap-1.5`}>
+              Revenda
+              {user && userCredits > 0 && (
+                <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 flex items-center h-4 rounded-full">
+                  {userCredits} CRÉDITOS
+                </span>
+              )}
+            </button>
             <button onClick={() => {
               if (user) {
                 setCurrentTab('my-invites');
@@ -169,26 +209,70 @@ export default function Dashboard() {
         {currentTab === 'catalog' ? (
           <>
             {/* Hero Section */}
-            <div className="text-center max-w-3xl mx-auto mb-20">
-              <h1 className="text-5xl md:text-6xl font-serif font-medium text-gray-900 mb-6 leading-tight">
-                Convites digitais com <br/> <span className="italic text-amber-700">elegância atemporal</span>
-              </h1>
-              <p className="text-lg text-gray-500 mb-10">
-                Crie experiências inesquecíveis para seus convidados com nossos modelos premium, ornamentos 3D exclusivos e design sofisticado.
-              </p>
-              
-              {/* Search Bar */}
-              <div className="relative max-w-xl mx-auto">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-gray-400" />
+            <div className="flex flex-col lg:flex-row items-center gap-12 mb-24 mt-4">
+              <div className="lg:w-1/2 flex flex-col justify-center text-left">
+                <div className="inline-block bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full text-xs tracking-wider mb-6 w-max uppercase shadow-sm">
+                  🔥 O Fim dos Convites de Papel
                 </div>
-                <input
-                  type="text"
-                  className="block w-full pl-11 pr-4 py-4 border-gray-200 rounded-full text-gray-900 placeholder-gray-400 focus:ring-amber-500 focus:border-amber-500 sm:text-sm shadow-sm bg-white"
-                  placeholder="Buscar por estilo, ocasião ou cor..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 mb-6 leading-[1.1] tracking-tight">
+                  Seu Convite Digital Pronto em <span className="text-amber-600">Menos de 5 Minutos!</span>
+                </h1>
+                <p className="text-lg text-gray-600 mb-8 leading-relaxed font-medium">
+                  Chega de pagar caro em gráficas e pagar frete. Envie diretamente pelo WhatsApp um convite interativo que impressiona qualquer convidado, sem depender de ninguém.
+                </p>
+                <ul className="space-y-4 mb-10 text-gray-700 font-medium text-sm sm:text-base">
+                  <li className="flex items-center gap-3">
+                    <div className="bg-emerald-100 p-1.5 rounded-full text-emerald-600 shrink-0"><Check size={16} strokeWidth={3}/></div>
+                    <span><strong>Confirmação de Presença (RSVP)</strong> direto no seu WhatsApp</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <div className="bg-emerald-100 p-1.5 rounded-full text-emerald-600 shrink-0"><Check size={16} strokeWidth={3}/></div>
+                    <span>Botão com o <strong>Mapa (GPS)</strong> até o local da festa</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <div className="bg-emerald-100 p-1.5 rounded-full text-emerald-600 shrink-0"><Check size={16} strokeWidth={3}/></div>
+                    <span>Receba presentes em dinheiro direto na <strong>Chave PIX</strong></span>
+                  </li>
+                </ul>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button onClick={() => {
+                    document.getElementById('catalog-grid')?.scrollIntoView({ behavior: 'smooth' });
+                  }} className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-lg px-8 py-4 rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                    Criar Meu Convite Agora <ArrowRight size={20} />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="lg:w-1/2 w-full">
+                <div className="bg-white p-2 sm:p-3 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 relative">
+                  <div className="absolute -top-4 -right-4 md:-right-6 bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded-full shadow-lg uppercase tracking-wider transform rotate-3 z-10 hidden sm:block">
+                    Aperte o Play
+                  </div>
+                  <div className="rounded-2xl overflow-hidden bg-gray-900 shadow-inner relative w-full aspect-video">
+                    <WistiaEmbed />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="catalog-grid" className="scroll-mt-32">
+              <div className="text-center mb-10 max-w-2xl mx-auto">
+                <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">Escolha o Seu Design Perfeito</h2>
+                <p className="text-gray-500 mb-8 font-medium text-lg">Todos os modelos abaixo vêm com as ferramentas interativas inclusas. Não precisa saber programar nem desenhar.</p>
+                
+                {/* Search Bar */}
+                <div className="relative max-w-xl mx-auto">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Search className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    className="block w-full pl-11 pr-4 py-4 border-gray-200 rounded-full text-gray-900 placeholder-gray-400 focus:ring-amber-500 focus:border-amber-500 sm:text-sm shadow-sm bg-white font-medium"
+                    placeholder="Buscar por estilo, ocasião ou cor..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
               </div>
             </div>
 
@@ -305,7 +389,7 @@ export default function Dashboard() {
               </div>
             )}
           </>
-        ) : (
+        ) : currentTab === 'my-invites' ? (
           <div className="max-w-5xl mx-auto">
             <h1 className="text-3xl font-serif font-medium text-gray-900 mb-8">Todos os Meus Convites</h1>
             
@@ -400,6 +484,91 @@ export default function Dashboard() {
               </div>
             )}
           </div>
+        ) : (
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-16">
+              <h1 className="text-4xl font-serif font-medium text-gray-900 mb-4">Pacotes de Revenda</h1>
+              <p className="text-lg text-gray-500 max-w-2xl mx-auto">Compre créditos com desconto, gere links para seus clientes instantaneamente sem precisar aguardar aprovação e libere ferramentas exclusivas.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Pacote Start */}
+              <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col">
+                <div className="p-8 text-center border-b border-gray-100 bg-gray-50 flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Plano START</h3>
+                  <div className="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full inline-block mb-4">5 CRÉDITOS</div>
+                  <div className="flex justify-center items-baseline mb-2">
+                    <span className="text-3xl font-bold text-gray-900">R$ 49</span>
+                    <span className="text-lg font-medium text-gray-500">,90</span>
+                  </div>
+                  <p className="text-sm text-gray-500">Sai a apenas R$ 9,98 por convite.</p>
+                </div>
+                <div className="p-6 bg-white">
+                  <a href="https://wa.me/55XX999999999?text=Ol%C3%A1%21+Gostaria+de+adquirir+o+Plano+START+de+5+cr%C3%A9ditos." target="_blank" rel="noreferrer" className="w-full block text-center py-3 px-4 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-medium transition-colors">
+                    Solicitar via WhatsApp
+                  </a>
+                </div>
+              </div>
+
+              {/* Pacote Pro (Destaque) */}
+              <div className="bg-gray-900 rounded-3xl border-2 border-amber-500 overflow-hidden shadow-2xl relative transform md:-translate-y-4 flex flex-col z-10">
+                <div className="absolute top-0 inset-x-0 bg-amber-500 text-white text-[10px] font-bold tracking-widest text-center py-1.5 uppercase">Mais Popular</div>
+                <div className="p-8 text-center border-b border-gray-800 bg-gray-900/50 flex-1 pt-10">
+                  <h3 className="text-xl font-bold text-white mb-2">Plano PRO</h3>
+                  <div className="bg-amber-500/20 text-amber-300 text-xs font-bold px-3 py-1 rounded-full inline-block mb-4">10 CRÉDITOS</div>
+                  <div className="flex justify-center items-baseline mb-2 text-white">
+                    <span className="text-4xl font-bold">R$ 69</span>
+                    <span className="text-xl font-medium text-gray-400">,90</span>
+                  </div>
+                  <p className="text-sm text-gray-400">Sai a apenas R$ 6,99 por convite.</p>
+                </div>
+                <div className="p-6 bg-gray-900">
+                  <a href="https://wa.me/55XX999999999?text=Ol%C3%A1%21+Gostaria+de+adquirir+o+Plano+PRO+de+10+cr%C3%A9ditos." target="_blank" rel="noreferrer" className="w-full block text-center py-3 px-4 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold transition-colors">
+                    Solicitar via WhatsApp
+                  </a>
+                </div>
+              </div>
+
+              {/* Pacote Agency */}
+              <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col">
+                <div className="p-8 text-center border-b border-gray-100 bg-gray-50 flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Plano AGÊNCIA</h3>
+                  <div className="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full inline-block mb-4">30 CRÉDITOS</div>
+                  <div className="flex justify-center items-baseline mb-2">
+                    <span className="text-3xl font-bold text-gray-900">R$ 129</span>
+                    <span className="text-lg font-medium text-gray-500">,90</span>
+                  </div>
+                  <p className="text-sm text-gray-500">Sai a apenas R$ 4,33 por convite.</p>
+                </div>
+                <div className="p-6 bg-white">
+                  <a href="https://wa.me/55XX999999999?text=Ol%C3%A1%21+Gostaria+de+adquirir+o+Plano+AG%C3%8ANCIA+de+30+cr%C3%A9ditos." target="_blank" rel="noreferrer" className="w-full block text-center py-3 px-4 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-medium transition-colors">
+                    Solicitar via WhatsApp
+                  </a>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-16 bg-blue-50 border border-blue-100 rounded-2xl p-8 max-w-3xl mx-auto">
+              <h4 className="text-lg font-serif font-medium text-gray-900 mb-4 flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-blue-600" />
+                Como funciona a Revenda?
+              </h4>
+              <ul className="space-y-3 text-gray-600 text-sm">
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                  <p>Você compra os créditos via PIX pelo WhatsApp.</p>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                  <p>Os créditos são adicionados automaticamente à sua conta.</p>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                  <p>Ao criar e publicar um convite, você não precisa mais esperar nossa aprovação manual do PIX de R$20. Basta clicar em <strong>"Publicar com 1 Crédito"</strong> e o link é liberado na hora.</p>
+                </li>
+              </ul>
+            </div>
+          </div>
         )}
       </main>
 
@@ -411,6 +580,17 @@ export default function Dashboard() {
         >
           <Sparkles size={20} />
           <span className="text-[10px] font-medium tracking-wide">Catálogo</span>
+        </button>
+        <div className="w-px bg-gray-100 my-2"></div>
+        <button 
+          onClick={() => setCurrentTab('packages')} 
+          className={`flex-1 py-3 flex flex-col items-center gap-1 ${currentTab === 'packages' ? 'text-amber-600' : 'text-gray-400 hover:text-gray-600'}`}
+        >
+          <div className="relative">
+            <Sparkles size={20} />
+            {user && userCredits > 0 && <span className="absolute -top-1 -right-2 bg-amber-100 text-amber-800 text-[8px] font-bold px-1 rounded-full">{userCredits}</span>}
+          </div>
+          <span className="text-[10px] font-medium tracking-wide">Revenda</span>
         </button>
         <div className="w-px bg-gray-100 my-2"></div>
         <button 

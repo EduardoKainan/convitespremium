@@ -13,6 +13,7 @@ interface AppUser {
   role: 'user' | 'admin';
   createdAt: Timestamp;
   lastLoginAt: Timestamp;
+  credits?: number;
 }
 
 interface InvitationData {
@@ -124,6 +125,23 @@ export default function AdminPanel() {
     }
   };
 
+  const addCredits = async (uid: string, amount: number) => {
+    if (!window.confirm(`Adicionar ${amount} créditos a este usuário?`)) return;
+    try {
+      const userRef = doc(db, 'users', uid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const currentCredits = userSnap.data().credits || 0;
+        await setDoc(userRef, { credits: currentCredits + amount }, { merge: true });
+        fetchData();
+        alert('Créditos adicionados com sucesso!');
+      }
+    } catch(e) {
+      console.error(e);
+      alert('Erro ao adicionar créditos.');
+    }
+  };
+
   const handleLogout = async () => {
     await signOut(auth);
     navigate('/');
@@ -203,7 +221,7 @@ export default function AdminPanel() {
                       <tr>
                         <th className="px-6 py-4">Usuário</th>
                         <th className="px-6 py-4">Email</th>
-                        <th className="px-6 py-4">Data de Cadastro</th>
+                        <th className="px-6 py-4">Créditos</th>
                         <th className="px-6 py-4">Cargo</th>
                         <th className="px-6 py-4 text-right">Ações</th>
                       </tr>
@@ -219,7 +237,14 @@ export default function AdminPanel() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">{u.email}</td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            {u.createdAt ? new Date(u.createdAt.seconds * 1000).toLocaleDateString('pt-BR') : '-'}
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-amber-600">{u.credits || 0}</span>
+                              <div className="flex gap-1 ml-2">
+                                <button onClick={() => addCredits(u.uid, 5)} className="px-1.5 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-xs font-medium text-gray-600">+5</button>
+                                <button onClick={() => addCredits(u.uid, 10)} className="px-1.5 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-xs font-medium text-gray-600">+10</button>
+                                <button onClick={() => addCredits(u.uid, 30)} className="px-1.5 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-xs font-medium text-gray-600">+30</button>
+                              </div>
+                            </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${u.role === 'admin' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-800'}`}>

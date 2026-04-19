@@ -48,6 +48,7 @@ export default function Editor() {
   
   // Firebase Auth & Custom Link States
   const [user, setUser] = useState<User | null>(null);
+  const [userCredits, setUserCredits] = useState<number>(0);
   const [customPath, setCustomPath] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
@@ -58,10 +59,14 @@ export default function Editor() {
   const [uploadingAudio, setUploadingAudio] = useState<boolean>(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        saveUserToDb(currentUser);
+        await saveUserToDb(currentUser);
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+          setUserCredits(userDoc.data().credits || 0);
+        }
       }
     });
     return () => unsubscribe();
@@ -832,11 +837,67 @@ export default function Editor() {
                   <button 
                     onClick={handleSaveCustomLink}
                     disabled={isSaving || !customPath.trim()}
-                    className="w-full flex items-center justify-center bg-emerald-600 text-white px-4 py-3.5 rounded-xl hover:bg-emerald-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed mt-6 shadow-sm"
+                    className="w-full flex items-center justify-center bg-gray-900 text-white px-4 py-3.5 rounded-xl hover:bg-gray-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed mt-6 shadow-sm mb-3"
                   >
                     {isSaving ? <Loader2 size={20} className="animate-spin mr-2" /> : <Save size={20} className="mr-2" />}
-                    Salvar e Avançar
+                    Salvar Link Provisório
                   </button>
+
+                  {userCredits > 0 ? (
+                    <button 
+                      onClick={async () => {
+                        if (!customPath.trim()) {
+                          setSaveError("Digite o link primeiro.");
+                          return;
+                        }
+                        try {
+                          setIsSaving(true);
+                          
+                          const formattedPath = customPath.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                          const docRef = doc(db, 'invitations', formattedPath);
+                          const docSnap = await getDoc(docRef);
+
+                          if (docSnap.exists() && docSnap.data().ownerUid !== user.uid) {
+                            setSaveError("Este link já está em uso por outra pessoa.");
+                            setIsSaving(false);
+                            return;
+                          }
+
+                          // Use 1 credit and publish instantly
+                          await setDoc(docRef, {
+                            id: formattedPath,
+                            ownerUid: user.uid,
+                            data: data,
+                            createdAt: docSnap.exists() ? docSnap.data().createdAt : serverTimestamp(),
+                            status: 'active'
+                          });
+
+                          // Deduct 1 credit
+                          const userRef = doc(db, 'users', user.uid);
+                          await setDoc(userRef, { credits: userCredits - 1 }, { merge: true });
+                          setUserCredits(prev => prev - 1);
+
+                          setInviteStatus('active');
+                          setShareLink(`${window.location.origin}/c/${formattedPath}`);
+                          setSaveSuccess(true);
+                        } catch (e) {
+                          console.error(e);
+                          setSaveError("Erro ao publicar com crédito.");
+                        } finally {
+                          setIsSaving(false);
+                        }
+                      }}
+                      disabled={isSaving || !customPath.trim()}
+                      className="w-full flex items-center justify-center bg-emerald-600 text-white px-4 py-3.5 rounded-xl hover:bg-emerald-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm border border-emerald-700"
+                    >
+                      <Sparkles size={20} className="mr-2 text-amber-300" />
+                      Publicar com 1 Crédito (Rápido)
+                    </button>
+                  ) : (
+                    <p className="text-xs text-center text-gray-500 mt-4">
+                      Você será redirecionado para a tela de ativação.
+                    </p>
+                  )}
                 </div>
               ) : (inviteStatus === 'draft') ? (
                 /* STEP 3: PAYMENT */
@@ -852,7 +913,7 @@ export default function Editor() {
                   </div>
 
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">2. Validação e Pagamento</h4>
-                  <p className="text-sm text-gray-600 mb-4">Para liberar o acesso dos convidados ao seu link, faça um PIX único de <strong>R$ 20,00</strong>.</p>
+                  <p className="text-sm text-gray-600 mb-4">Para liberar o acesso dos convidados ao seu link, faça um PIX único de <strong>R$ 20,00</strong>. Ou compre um <a href="/" className="text-emerald-600 font-semibold hover:underline">Pacote de Revenda</a>.</p>
                   
                   <div className="bg-orange-50/50 p-5 rounded-xl border border-orange-100 mb-6 flex flex-col items-center">
                     <div className="bg-white p-3 rounded-lg shadow-sm border border-orange-100 mb-4 w-full flex flex-col items-center">

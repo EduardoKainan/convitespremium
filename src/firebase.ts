@@ -24,6 +24,7 @@ export const saveUserToDb = async (user: User) => {
         displayName: user.displayName || '',
         photoURL: user.photoURL || '',
         role: user.email === 'eduardokainan.senai@gmail.com' ? 'admin' : 'user',
+        credits: 0,
         createdAt: serverTimestamp(),
         lastLoginAt: serverTimestamp()
       });
