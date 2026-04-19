@@ -445,7 +445,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
 
             <Reveal direction="up" delay={0.2}>
               {/* Interactive Buttons Layout */}
-              <div className="relative h-72 w-full max-w-sm mx-auto mb-12">
+              <div className="relative h-96 w-full max-w-sm mx-auto mb-12">
                 {/* RSVP Button (Top Left) */}
                 <a 
                   href={getWhatsAppLink()}
@@ -462,12 +462,12 @@ export default function Invitation({ data }: { data: InvitationData }) {
                   </div>
                 </a>
 
-                {/* Location Button (Bottom Right) */}
+                {/* Location Button (Top Right) */}
                 <a 
                   href={data.locationUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="absolute bottom-0 right-4 flex flex-col items-center group hover:scale-105 transition-transform"
+                  className="absolute top-0 right-4 flex flex-col items-center group hover:scale-105 transition-transform"
                 >
                   <div className="w-24 h-24 flex items-center justify-center mb-4">
                     <MapPin size={64} fill={data.theme.primary} strokeWidth={0} className="drop-shadow-lg" />
@@ -478,9 +478,32 @@ export default function Invitation({ data }: { data: InvitationData }) {
                   </div>
                 </a>
                 
+                {/* Gift PIX Button (Bottom Center) if pixKey exists */}
+                {data.pixKey && data.pixKey.trim() !== '' && (
+                  <button 
+                    onClick={() => {
+                      const textToCopy = data.pixKey || '';
+                      navigator.clipboard.writeText(textToCopy);
+                      alert('Chave PIX copiada para a área de transferência!');
+                    }}
+                    className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center group hover:scale-105 transition-transform"
+                  >
+                    <div className="w-24 h-24 flex items-center justify-center mb-4">
+                      <div className="relative">
+                         <div className="absolute inset-0 rounded-full blur-md opacity-40 mix-blend-multiply" style={{ backgroundColor: data.theme.primary }}></div>
+                         <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill={data.theme.primary} stroke="currentColor" strokeWidth="0" strokeLinecap="round" strokeLinejoin="round" className="relative drop-shadow-md"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <span className="block text-xs font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Presentear</span>
+                      <span className="block text-[10px] font-bold uppercase tracking-widest opacity-70 mt-1" style={{ color: data.theme.primary }}>Copiar PIX</span>
+                    </div>
+                  </button>
+                )}
+                
                 {/* Click Icon Bottom Center */}
-                <div className="absolute -bottom-16 left-1/2 -translate-x-1/2">
-                  <MousePointerClick size={40} strokeWidth={1} style={{ color: data.theme.primary }} />
+                <div className={`absolute -bottom-6 left-1/2 -translate-x-1/2`}>
+                  <MousePointerClick size={40} strokeWidth={1} style={{ color: data.theme.primary, opacity: 0.5 }} />
                 </div>
               </div>
             </Reveal>

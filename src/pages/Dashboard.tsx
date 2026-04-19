@@ -157,8 +157,12 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-gray-900 font-sans">
       {/* Premium Header */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-40 flex flex-col shadow-sm">
+        <div className="bg-gray-900 text-white text-center py-2 px-4 text-xs sm:text-sm font-medium tracking-wide">
+          <span className="opacity-90">Revenda nossos convites! Planos com unidades a partir de</span> <strong className="font-bold text-emerald-400">R$ 4,33</strong>. 
+          <button onClick={() => { setCurrentTab('packages'); window.scrollTo(0,0); }} className="underline hover:text-gray-300 ml-2 font-bold cursor-pointer">Ver Planos</button>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between w-full">
           <div className="flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-pink-600" />
             <span className="text-xl font-serif font-medium tracking-tight">Lumière Invites</span>
@@ -209,14 +213,32 @@ export default function Dashboard() {
         {currentTab === 'catalog' ? (
           <>
             {/* Hero Section */}
-            <div className="flex flex-col lg:flex-row items-center gap-12 mb-24 mt-4">
-              <div className="lg:w-1/2 flex flex-col justify-center text-left">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-8 mb-24 mt-4 items-center">
+              
+              {/* Headline Block (Top on both) */}
+              <div className="flex flex-col justify-center text-left lg:col-start-1 lg:row-start-1">
                 <div className="inline-block bg-pink-100 text-pink-800 font-bold px-3 py-1 rounded-full text-xs tracking-wider mb-6 w-max uppercase shadow-sm">
                   🔥 O Fim dos Convites de Papel
                 </div>
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 mb-6 leading-[1.1] tracking-tight">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 mb-0 lg:mb-6 leading-[1.1] tracking-tight">
                   Seu Convite Digital Pronto em <span className="text-pink-600">Menos de 5 Minutos!</span>
                 </h1>
+              </div>
+
+              {/* Video Block (Middle on mobile, Right on desktop) */}
+              <div className="w-full relative lg:col-start-2 lg:row-start-1 lg:row-span-2">
+                <div className="bg-white p-2 sm:p-3 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 relative">
+                  <div className="absolute -top-4 -right-1 sm:-right-4 md:-right-6 bg-emerald-500 text-white font-bold text-[10px] sm:text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-lg uppercase tracking-wider transform rotate-3 z-10 block">
+                    Aperte o Play
+                  </div>
+                  <div className="rounded-2xl overflow-hidden bg-gray-900 shadow-inner relative w-full aspect-video">
+                    <WistiaEmbed />
+                  </div>
+                </div>
+              </div>
+
+              {/* Subheadline and CTA Block (Bottom on mobile, Bottom on desktop left) */}
+              <div className="flex flex-col justify-center text-left lg:col-start-1 lg:row-start-2 -mt-4 lg:mt-0">
                 <p className="text-lg text-gray-600 mb-8 leading-relaxed font-medium">
                   Chega de pagar caro em gráficas e pagar frete. Envie diretamente pelo WhatsApp um convite interativo que impressiona qualquer convidado, sem depender de ninguém.
                 </p>
@@ -240,17 +262,6 @@ export default function Dashboard() {
                   }} className="bg-pink-600 hover:bg-pink-700 text-white font-bold text-lg px-8 py-4 rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
                     Criar Meu Convite Agora <ArrowRight size={20} />
                   </button>
-                </div>
-              </div>
-              
-              <div className="lg:w-1/2 w-full">
-                <div className="bg-white p-2 sm:p-3 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 relative">
-                  <div className="absolute -top-4 -right-4 md:-right-6 bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded-full shadow-lg uppercase tracking-wider transform rotate-3 z-10 hidden sm:block">
-                    Aperte o Play
-                  </div>
-                  <div className="rounded-2xl overflow-hidden bg-gray-900 shadow-inner relative w-full aspect-video">
-                    <WistiaEmbed />
-                  </div>
                 </div>
               </div>
             </div>

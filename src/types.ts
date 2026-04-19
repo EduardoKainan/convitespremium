@@ -36,6 +36,7 @@ export interface InvitationData {
   dressCode: string;
   rsvpLink: string;
   whatsappNumber?: string;
+  pixKey?: string;
   finalMessage: string;
   
   // Legacy fields for backward compatibility during transition
