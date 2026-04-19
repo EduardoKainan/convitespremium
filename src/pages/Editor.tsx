@@ -20,7 +20,7 @@ const AccordionSection = ({ title, icon: Icon, isOpen, onToggle, children }: any
       className="w-full flex items-center justify-between py-4 px-6 bg-white hover:bg-gray-50 transition-colors focus:outline-none"
     >
       <div className="flex items-center gap-3">
-        <div className="p-2 bg-amber-50 text-amber-700 rounded-lg">
+        <div className="p-2 bg-pink-50 text-pink-700 rounded-lg">
           <Icon size={18} />
         </div>
         <span className="font-medium text-gray-900">{title}</span>
@@ -759,7 +759,7 @@ export default function Editor() {
       {/* Right Panel - Preview */}
       <div className={`${mobileView === 'preview' ? 'flex' : 'hidden'} md:flex flex-1 bg-[#FDFBF7] items-center justify-center p-8 h-[calc(100vh-64px)] md:h-screen overflow-hidden relative border-l border-gray-200`}>
         <div className="absolute top-6 right-6 hidden md:flex bg-white/80 backdrop-blur-md px-5 py-2.5 rounded-full shadow-sm items-center text-sm font-medium text-gray-700 border border-gray-200/50 z-10">
-          <Smartphone size={16} className="mr-2 text-amber-600" />
+          <Smartphone size={16} className="mr-2 text-pink-600" />
           Preview em Tempo Real
         </div>
         
@@ -890,7 +890,7 @@ export default function Editor() {
                       disabled={isSaving || !customPath.trim()}
                       className="w-full flex items-center justify-center bg-emerald-600 text-white px-4 py-3.5 rounded-xl hover:bg-emerald-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm border border-emerald-700"
                     >
-                      <Sparkles size={20} className="mr-2 text-amber-300" />
+                      <Sparkles size={20} className="mr-2 text-pink-300" />
                       Publicar com 1 Crédito (Rápido)
                     </button>
                   ) : (
@@ -915,13 +915,13 @@ export default function Editor() {
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">2. Validação e Pagamento</h4>
                   <p className="text-sm text-gray-600 mb-4">Para liberar o acesso dos convidados ao seu link, faça um PIX único de <strong>R$ 20,00</strong>. Ou compre um <a href="/" className="text-emerald-600 font-semibold hover:underline">Pacote de Revenda</a>.</p>
                   
-                  <div className="bg-orange-50/50 p-5 rounded-xl border border-orange-100 mb-6 flex flex-col items-center">
-                    <div className="bg-white p-3 rounded-lg shadow-sm border border-orange-100 mb-4 w-full flex flex-col items-center">
+                  <div className="bg-pink-50/50 p-5 rounded-xl border border-pink-100 mb-6 flex flex-col items-center">
+                    <div className="bg-white p-3 rounded-lg shadow-sm border border-pink-100 mb-4 w-full flex flex-col items-center">
                       <p className="text-[11px] text-gray-500 uppercase tracking-widest font-semibold text-center mb-3">QR Code PIX</p>
                       <img src={qrPixImg} alt="QR Code PIX" className="w-48 h-48 sm:w-56 sm:h-56 object-contain rounded-md" />
                     </div>
 
-                    <div className="bg-white p-2 rounded-lg shadow-sm border border-orange-100 mb-4 w-full">
+                    <div className="bg-white p-2 rounded-lg shadow-sm border border-pink-100 mb-4 w-full">
                       <p className="text-[11px] text-gray-500 uppercase tracking-widest font-semibold text-center mb-1">Ou Chave PIX (E-mail)</p>
                       <div className="flex items-center justify-between bg-gray-50 rounded-md p-2">
                         <p className="font-mono font-bold text-gray-900 text-sm tracking-tight break-all">

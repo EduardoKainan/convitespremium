@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { templates } from '../data/templates';
-import { Sparkles, Filter, Search, LogIn, LogOut, Shield, Trash2, Edit2, PlayCircle, Loader2, LayoutTemplate, Check, ArrowRight } from 'lucide-react';
+import { Sparkles, Filter, Search, LogIn, LogOut, Shield, Trash2, Edit2, PlayCircle, Loader2, LayoutTemplate, Check, ArrowRight, MousePointerClick, PenTool, Share2, Star, ChevronDown } from 'lucide-react';
 import { auth, saveUserToDb, db } from '../firebase';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, getDoc, collection, query, where, getDocs, deleteDoc } from 'firebase/firestore';
@@ -160,15 +160,15 @@ export default function Dashboard() {
       <header className="bg-white border-b border-gray-100 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-amber-600" />
+            <Sparkles className="w-6 h-6 text-pink-600" />
             <span className="text-xl font-serif font-medium tracking-tight">Lumière Invites</span>
           </div>
           <nav className="hidden md:flex gap-8 text-sm font-medium text-gray-500">
-            <button onClick={() => setCurrentTab('catalog')} className={`${currentTab === 'catalog' ? 'text-amber-600 font-semibold border-b-2 border-amber-600' : 'text-gray-900 hover:text-amber-600'} pb-1 transition-colors`}>Catálogo</button>
-            <button onClick={() => setCurrentTab('packages')} className={`${currentTab === 'packages' ? 'text-amber-600 font-semibold border-b-2 border-amber-600' : 'text-gray-900 hover:text-amber-600'} pb-1 transition-colors flex items-center gap-1.5`}>
+            <button onClick={() => setCurrentTab('catalog')} className={`${currentTab === 'catalog' ? 'text-pink-600 font-semibold border-b-2 border-pink-600' : 'text-gray-900 hover:text-pink-600'} pb-1 transition-colors`}>Catálogo</button>
+            <button onClick={() => setCurrentTab('packages')} className={`${currentTab === 'packages' ? 'text-pink-600 font-semibold border-b-2 border-pink-600' : 'text-gray-900 hover:text-pink-600'} pb-1 transition-colors flex items-center gap-1.5`}>
               Revenda
               {user && userCredits > 0 && (
-                <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 flex items-center h-4 rounded-full">
+                <span className="bg-pink-100 text-pink-800 text-[10px] font-bold px-2 flex items-center h-4 rounded-full">
                   {userCredits} CRÉDITOS
                 </span>
               )}
@@ -179,7 +179,7 @@ export default function Dashboard() {
               } else {
                 handleLogin();
               }
-            }} className={`${currentTab === 'my-invites' ? 'text-amber-600 font-semibold border-b-2 border-amber-600' : 'text-gray-900 hover:text-amber-600'} pb-1 transition-colors`}>
+            }} className={`${currentTab === 'my-invites' ? 'text-pink-600 font-semibold border-b-2 border-pink-600' : 'text-gray-900 hover:text-pink-600'} pb-1 transition-colors`}>
               Meus Convites
             </button>
           </nav>
@@ -211,11 +211,11 @@ export default function Dashboard() {
             {/* Hero Section */}
             <div className="flex flex-col lg:flex-row items-center gap-12 mb-24 mt-4">
               <div className="lg:w-1/2 flex flex-col justify-center text-left">
-                <div className="inline-block bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full text-xs tracking-wider mb-6 w-max uppercase shadow-sm">
+                <div className="inline-block bg-pink-100 text-pink-800 font-bold px-3 py-1 rounded-full text-xs tracking-wider mb-6 w-max uppercase shadow-sm">
                   🔥 O Fim dos Convites de Papel
                 </div>
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 mb-6 leading-[1.1] tracking-tight">
-                  Seu Convite Digital Pronto em <span className="text-amber-600">Menos de 5 Minutos!</span>
+                  Seu Convite Digital Pronto em <span className="text-pink-600">Menos de 5 Minutos!</span>
                 </h1>
                 <p className="text-lg text-gray-600 mb-8 leading-relaxed font-medium">
                   Chega de pagar caro em gráficas e pagar frete. Envie diretamente pelo WhatsApp um convite interativo que impressiona qualquer convidado, sem depender de ninguém.
@@ -237,7 +237,7 @@ export default function Dashboard() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button onClick={() => {
                     document.getElementById('catalog-grid')?.scrollIntoView({ behavior: 'smooth' });
-                  }} className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-lg px-8 py-4 rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                  }} className="bg-pink-600 hover:bg-pink-700 text-white font-bold text-lg px-8 py-4 rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
                     Criar Meu Convite Agora <ArrowRight size={20} />
                   </button>
                 </div>
@@ -267,7 +267,7 @@ export default function Dashboard() {
                   </div>
                   <input
                     type="text"
-                    className="block w-full pl-11 pr-4 py-4 border-gray-200 rounded-full text-gray-900 placeholder-gray-400 focus:ring-amber-500 focus:border-amber-500 sm:text-sm shadow-sm bg-white font-medium"
+                    className="block w-full pl-11 pr-4 py-4 border-gray-200 rounded-full text-gray-900 placeholder-gray-400 focus:ring-pink-500 focus:border-pink-500 sm:text-sm shadow-sm bg-white font-medium"
                     placeholder="Buscar por estilo, ocasião ou cor..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -382,10 +382,169 @@ export default function Dashboard() {
                 <p className="text-gray-500 text-lg">Nenhum modelo encontrado para sua busca.</p>
                 <button 
                   onClick={() => {setSearchQuery(''); setActiveCategory('Todos');}}
-                  className="mt-4 text-amber-600 font-medium hover:text-amber-700"
+                  className="mt-4 text-pink-600 font-medium hover:text-pink-700"
                 >
                   Limpar filtros
                 </button>
+              </div>
+            )}
+
+            {/* Como Funciona Section */}
+            {!searchQuery && activeCategory === 'Todos' && (
+              <div className="mt-32 mb-20 text-center">
+                <div className="inline-block bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full text-xs tracking-wider mb-4 uppercase">Simples e Rápido</div>
+                <h2 className="text-3xl font-black text-gray-900 mb-12 tracking-tight">Como funciona a plataforma?</h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 relative max-w-sm mx-auto w-full">
+                    <div className="w-16 h-16 bg-pink-100 text-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-6 transform -rotate-3">
+                      <MousePointerClick size={32} />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">1. Escolha o Modelo</h3>
+                    <p className="text-gray-600 font-medium leading-relaxed">Navegue pelo nosso catálogo e clique no design que mais combina com seu evento e estilo.</p>
+                  </div>
+                  
+                  <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 relative max-w-sm mx-auto w-full">
+                    <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 transform rotate-3">
+                      <PenTool size={32} />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">2. Personalize Online</h3>
+                    <p className="text-gray-600 font-medium leading-relaxed">Adicione suas próprias fotos, altere nomes, datas, locais e preencha sua chave PIX com facilidade.</p>
+                  </div>
+
+                  <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 relative max-w-sm mx-auto w-full">
+                    <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6 transform -rotate-3">
+                      <Share2 size={32} />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">3. Publique e Envie</h3>
+                    <p className="text-gray-600 font-medium leading-relaxed">Pague uma taxa única e libere o link na hora. Envie no WhatsApp para todos os convidados sem pagar frete.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Depoimentos Section */}
+            {!searchQuery && activeCategory === 'Todos' && (
+              <div className="mt-32 mb-20 bg-gray-900 rounded-[3rem] p-10 md:p-16 text-center shadow-2xl relative overflow-hidden">
+                <h2 className="text-3xl font-black text-white mb-16 tracking-tight">O que dizem nossos clientes</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Card 1 */}
+                  <div className="bg-gray-800 p-8 rounded-3xl text-left border border-gray-700">
+                    <div className="flex gap-1 text-pink-400 mb-4">
+                      <Star fill="currentColor" size={20}/><Star fill="currentColor" size={20}/><Star fill="currentColor" size={20}/><Star fill="currentColor" size={20}/><Star fill="currentColor" size={20}/>
+                    </div>
+                    <p className="text-gray-300 mb-6 italic leading-relaxed text-sm">"Nós economizamos quase R$ 800 que gastaríamos em convites de papel. Foi super fácil de fazer nosso convite de casamento pelo celular, os convidados amaram e a lista de presentes no PIX ajudou muito nossa lua de mel!"</p>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center text-white font-bold text-lg">M</div>
+                      <div>
+                        <p className="text-white font-bold">Mariana & Pedro</p>
+                        <p className="text-gray-400 text-xs mt-0.5">Categorias: Casamento</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Card 2 */}
+                  <div className="bg-gray-800 p-8 rounded-3xl text-left border border-gray-700">
+                    <div className="flex gap-1 text-pink-400 mb-4">
+                      <Star fill="currentColor" size={20}/><Star fill="currentColor" size={20}/><Star fill="currentColor" size={20}/><Star fill="currentColor" size={20}/><Star fill="currentColor" size={20}/>
+                    </div>
+                    <p className="text-gray-300 mb-6 italic leading-relaxed text-sm">"Usei para o aniversário de 15 anos da minha filha. O melhor foi o botão de mapa com GPS! Salvou a vida de vários convidados que não conheciam a chácara. Super recomendo a ferramenta."</p>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg">R</div>
+                      <div>
+                        <p className="text-white font-bold">Raquel Silva</p>
+                        <p className="text-gray-400 text-xs mt-0.5">Categorias: 15 Anos</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card 3 */}
+                  <div className="bg-gray-800 p-8 rounded-3xl text-left border border-gray-700">
+                    <div className="flex gap-1 text-pink-400 mb-4">
+                      <Star fill="currentColor" size={20}/><Star fill="currentColor" size={20}/><Star fill="currentColor" size={20}/><Star fill="currentColor" size={20}/><Star fill="currentColor" size={20}/>
+                    </div>
+                    <p className="text-gray-300 mb-6 italic leading-relaxed text-sm">"Comecei a usar os modelos para revender para meus próprios clientes de design. Compro pacote de créditos no atacado e lucro quase 100% em cima. O sistema já virou minha principal fonte de renda extra!"</p>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-lg">L</div>
+                      <div>
+                        <p className="text-white font-bold">Lucas Gomes</p>
+                        <p className="text-gray-400 text-xs mt-0.5">Revendedor (Planos Agência)</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* FAQ Section */}
+            {!searchQuery && activeCategory === 'Todos' && (
+              <div className="mt-20 mb-20 max-w-3xl mx-auto">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">Dúvidas Frequentes</h2>
+                  <p className="text-gray-500 font-medium">Tudo o que você precisa saber sobre nossos convites digitais.</p>
+                </div>
+
+                <div className="space-y-4">
+                  <details className="group bg-white border border-gray-200 rounded-2xl cursor-pointer shadow-sm hover:shadow-md transition">
+                    <summary className="flex justify-between items-center font-bold cursor-pointer list-none p-6 text-gray-900">
+                      <span>1. Como funciona a Lista de Presentes em PIX?</span>
+                      <span className="transition group-open:rotate-180 bg-gray-100 p-2 rounded-full text-gray-500">
+                        <ChevronDown size={18} />
+                      </span>
+                    </summary>
+                    <div className="text-gray-600 p-6 pt-0 leading-relaxed font-medium text-sm">
+                      Dentro do nosso editor, você vai copiar e colar a sua Chave PIX. Quando enviar o convite, o seu convidado clica no botão "Presentear" e o próprio aplicativo do banco dele faz o pagamento direto na sua conta bancária. Nós não intermediamos e nem cobramos nenhuma taxa! É 100% seu.
+                    </div>
+                  </details>
+
+                  <details className="group bg-white border border-gray-200 rounded-2xl cursor-pointer shadow-sm hover:shadow-md transition">
+                    <summary className="flex justify-between items-center font-bold cursor-pointer list-none p-6 text-gray-900">
+                      <span>2. Preciso pagar alguma mensalidade?</span>
+                      <span className="transition group-open:rotate-180 bg-gray-100 p-2 rounded-full text-gray-500">
+                        <ChevronDown size={18} />
+                      </span>
+                    </summary>
+                    <div className="text-gray-600 p-6 pt-0 leading-relaxed font-medium text-sm">
+                      De jeito nenhum! Você paga uma taxa única de R$ 20,00 por convite (caso não seja revendedor com pacotes). Ele ficará online enquanto você e seus convidados precisarem daquele link aberto.
+                    </div>
+                  </details>
+
+                  <details className="group bg-white border border-gray-200 rounded-2xl cursor-pointer shadow-sm hover:shadow-md transition">
+                    <summary className="flex justify-between items-center font-bold cursor-pointer list-none p-6 text-gray-900">
+                      <span>3. E a música de fundo do convite, como coloco?</span>
+                      <span className="transition group-open:rotate-180 bg-gray-100 p-2 rounded-full text-gray-500">
+                        <ChevronDown size={18} />
+                      </span>
+                    </summary>
+                    <div className="text-gray-600 p-6 pt-0 leading-relaxed font-medium text-sm">
+                      No painel de edição você tem a opção de fazer upload da música em arquivo MP3. Assim que o convidado abre a página, ele é recebido com a sua trilha sonora preferida para criar o clima perfeito.
+                    </div>
+                  </details>
+
+                  <details className="group bg-white border border-gray-200 rounded-2xl cursor-pointer shadow-sm hover:shadow-md transition">
+                    <summary className="flex justify-between items-center font-bold cursor-pointer list-none p-6 text-gray-900">
+                      <span>4. Depois de pronto e publicado, posso alterar alguma informação?</span>
+                      <span className="transition group-open:rotate-180 bg-gray-100 p-2 rounded-full text-gray-500">
+                        <ChevronDown size={18} />
+                      </span>
+                    </summary>
+                    <div className="text-gray-600 p-6 pt-0 leading-relaxed font-medium text-sm">
+                      Claro! Se houver erro de digitação, mudança no endereço, local ou horário antes da festa, não precisa pagar de novo. Pela aba "Meus Convites" na Plataforma, você pode editar e salvar as mudanças. O link para os convidados continuará o mesmo, então não precisará enviar tudo novamente.
+                    </div>
+                  </details>
+
+                  <details className="group bg-white border border-gray-200 rounded-2xl cursor-pointer shadow-sm hover:shadow-md transition">
+                    <summary className="flex justify-between items-center font-bold cursor-pointer list-none p-6 text-gray-900">
+                      <span>5. Eu sou profissional. Tem planos de Revenda?</span>
+                      <span className="transition group-open:rotate-180 bg-gray-100 p-2 rounded-full text-gray-500">
+                        <ChevronDown size={18} />
+                      </span>
+                    </summary>
+                    <div className="text-gray-600 p-6 pt-0 leading-relaxed font-medium text-sm">
+                      Se você é designer, promotor de eventos ou quer fazer uma renda extra vendendo para terceiros, o sistema conta com a funcionalidade de "Pacotes de Crédito" na guia de Revenda. Você paga valores a partir de R$ 4,33 na unidade e cobra o valor cheio final do seu cliente! É muito lucro.
+                    </div>
+                  </details>
+                </div>
               </div>
             )}
           </>
@@ -394,15 +553,15 @@ export default function Dashboard() {
             <h1 className="text-3xl font-serif font-medium text-gray-900 mb-8">Todos os Meus Convites</h1>
             
             {isLoadingInvites ? (
-              <div className="py-20 flex justify-center"><Loader2 className="w-8 h-8 text-amber-600 animate-spin" /></div>
+              <div className="py-20 flex justify-center"><Loader2 className="w-8 h-8 text-pink-600 animate-spin" /></div>
             ) : myFirebaseInvites.length === 0 && myLocalDrafts.length === 0 ? (
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
-                <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-pink-50 text-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <LayoutTemplate size={32} />
                 </div>
                 <h3 className="text-xl font-medium text-gray-900 mb-2">Você ainda não criou nenhum convite</h3>
                 <p className="text-gray-500 mb-6">Explore nosso catálogo e comece a criar o design perfeito para o seu evento.</p>
-                <button onClick={() => setCurrentTab('catalog')} className="bg-amber-600 text-white px-6 py-3 rounded-full hover:bg-amber-700 transition">
+                <button onClick={() => setCurrentTab('catalog')} className="bg-pink-600 text-white px-6 py-3 rounded-full hover:bg-pink-700 transition">
                   Ver Modelos
                 </button>
               </div>
@@ -425,7 +584,7 @@ export default function Dashboard() {
                               <h3 className="font-serif text-lg font-medium text-gray-900 leading-tight">{inv.data?.title || 'Sem Título'}</h3>
                               <p className="text-sm text-gray-500 mt-1 truncate max-w-[200px]">{inv.data?.name || ''}</p>
                             </div>
-                            <span className={`text-xs px-2 py-1 rounded-md font-medium border ${inv.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
+                            <span className={`text-xs px-2 py-1 rounded-md font-medium border ${inv.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-pink-50 text-pink-700 border-pink-200'}`}>
                               {inv.status === 'active' ? 'Ativo' : 'Rascunho Privado'}
                             </span>
                           </div>
@@ -496,7 +655,7 @@ export default function Dashboard() {
               <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col">
                 <div className="p-8 text-center border-b border-gray-100 bg-gray-50 flex-1">
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Plano START</h3>
-                  <div className="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full inline-block mb-4">5 CRÉDITOS</div>
+                  <div className="bg-pink-100 text-pink-800 text-xs font-bold px-3 py-1 rounded-full inline-block mb-4">5 CRÉDITOS</div>
                   <div className="flex justify-center items-baseline mb-2">
                     <span className="text-3xl font-bold text-gray-900">R$ 49</span>
                     <span className="text-lg font-medium text-gray-500">,90</span>
@@ -511,11 +670,11 @@ export default function Dashboard() {
               </div>
 
               {/* Pacote Pro (Destaque) */}
-              <div className="bg-gray-900 rounded-3xl border-2 border-amber-500 overflow-hidden shadow-2xl relative transform md:-translate-y-4 flex flex-col z-10">
-                <div className="absolute top-0 inset-x-0 bg-amber-500 text-white text-[10px] font-bold tracking-widest text-center py-1.5 uppercase">Mais Popular</div>
+              <div className="bg-gray-900 rounded-3xl border-2 border-pink-500 overflow-hidden shadow-2xl relative transform md:-translate-y-4 flex flex-col z-10">
+                <div className="absolute top-0 inset-x-0 bg-pink-500 text-white text-[10px] font-bold tracking-widest text-center py-1.5 uppercase">Mais Popular</div>
                 <div className="p-8 text-center border-b border-gray-800 bg-gray-900/50 flex-1 pt-10">
                   <h3 className="text-xl font-bold text-white mb-2">Plano PRO</h3>
-                  <div className="bg-amber-500/20 text-amber-300 text-xs font-bold px-3 py-1 rounded-full inline-block mb-4">10 CRÉDITOS</div>
+                  <div className="bg-pink-500/20 text-pink-300 text-xs font-bold px-3 py-1 rounded-full inline-block mb-4">10 CRÉDITOS</div>
                   <div className="flex justify-center items-baseline mb-2 text-white">
                     <span className="text-4xl font-bold">R$ 69</span>
                     <span className="text-xl font-medium text-gray-400">,90</span>
@@ -523,7 +682,7 @@ export default function Dashboard() {
                   <p className="text-sm text-gray-400">Sai a apenas R$ 6,99 por convite.</p>
                 </div>
                 <div className="p-6 bg-gray-900">
-                  <a href="https://wa.me/55XX999999999?text=Ol%C3%A1%21+Gostaria+de+adquirir+o+Plano+PRO+de+10+cr%C3%A9ditos." target="_blank" rel="noreferrer" className="w-full block text-center py-3 px-4 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold transition-colors">
+                  <a href="https://wa.me/55XX999999999?text=Ol%C3%A1%21+Gostaria+de+adquirir+o+Plano+PRO+de+10+cr%C3%A9ditos." target="_blank" rel="noreferrer" className="w-full block text-center py-3 px-4 bg-pink-500 hover:bg-pink-600 text-white rounded-xl font-bold transition-colors">
                     Solicitar via WhatsApp
                   </a>
                 </div>
@@ -576,7 +735,7 @@ export default function Dashboard() {
       <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 z-40 flex pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
         <button 
           onClick={() => setCurrentTab('catalog')} 
-          className={`flex-1 py-3 flex flex-col items-center gap-1 ${currentTab === 'catalog' ? 'text-amber-600' : 'text-gray-400 hover:text-gray-600'}`}
+          className={`flex-1 py-3 flex flex-col items-center gap-1 ${currentTab === 'catalog' ? 'text-pink-600' : 'text-gray-400 hover:text-gray-600'}`}
         >
           <Sparkles size={20} />
           <span className="text-[10px] font-medium tracking-wide">Catálogo</span>
@@ -584,11 +743,11 @@ export default function Dashboard() {
         <div className="w-px bg-gray-100 my-2"></div>
         <button 
           onClick={() => setCurrentTab('packages')} 
-          className={`flex-1 py-3 flex flex-col items-center gap-1 ${currentTab === 'packages' ? 'text-amber-600' : 'text-gray-400 hover:text-gray-600'}`}
+          className={`flex-1 py-3 flex flex-col items-center gap-1 ${currentTab === 'packages' ? 'text-pink-600' : 'text-gray-400 hover:text-gray-600'}`}
         >
           <div className="relative">
             <Sparkles size={20} />
-            {user && userCredits > 0 && <span className="absolute -top-1 -right-2 bg-amber-100 text-amber-800 text-[8px] font-bold px-1 rounded-full">{userCredits}</span>}
+            {user && userCredits > 0 && <span className="absolute -top-1 -right-2 bg-pink-100 text-pink-800 text-[8px] font-bold px-1 rounded-full">{userCredits}</span>}
           </div>
           <span className="text-[10px] font-medium tracking-wide">Revenda</span>
         </button>
@@ -601,7 +760,7 @@ export default function Dashboard() {
               handleLogin();
             }
           }} 
-          className={`flex-1 py-3 flex flex-col items-center gap-1 ${currentTab === 'my-invites' ? 'text-amber-600' : 'text-gray-400 hover:text-gray-600'}`}
+          className={`flex-1 py-3 flex flex-col items-center gap-1 ${currentTab === 'my-invites' ? 'text-pink-600' : 'text-gray-400 hover:text-gray-600'}`}
         >
           <LayoutTemplate size={20} />
           <span className="text-[10px] font-medium tracking-wide">Meus Convites</span>

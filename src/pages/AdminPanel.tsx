@@ -238,7 +238,7 @@ export default function AdminPanel() {
                           <td className="px-6 py-4 whitespace-nowrap">{u.email}</td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center gap-2">
-                              <span className="font-bold text-amber-600">{u.credits || 0}</span>
+                              <span className="font-bold text-pink-600">{u.credits || 0}</span>
                               <div className="flex gap-1 ml-2">
                                 <button onClick={() => addCredits(u.uid, 5)} className="px-1.5 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-xs font-medium text-gray-600">+5</button>
                                 <button onClick={() => addCredits(u.uid, 10)} className="px-1.5 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-xs font-medium text-gray-600">+10</button>
@@ -298,13 +298,13 @@ export default function AdminPanel() {
                             {inv.createdAt ? new Date(inv.createdAt.seconds * 1000).toLocaleString('pt-BR') : '-'}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${inv.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${inv.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-pink-100 text-pink-800'}`}>
                               {inv.status === 'active' ? 'Ativo' : 'Pendente (Rascunho)'}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right space-x-3">
                             {inv.status === 'active' ? (
-                              <button onClick={() => toggleInviteStatus(inv.id, 'draft')} className="text-amber-600 hover:text-amber-900 font-medium text-xs">Pausar</button>
+                              <button onClick={() => toggleInviteStatus(inv.id, 'draft')} className="text-pink-600 hover:text-pink-900 font-medium text-xs">Pausar</button>
                             ) : (
                               <button onClick={() => toggleInviteStatus(inv.id, 'active')} className="text-emerald-600 hover:text-emerald-900 font-medium text-xs">Aprovar PIX</button>
                             )}
