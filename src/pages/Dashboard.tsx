@@ -6,6 +6,8 @@ import { auth, saveUserToDb, db } from '../firebase';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, getDoc, collection, query, where, getDocs, deleteDoc } from 'firebase/firestore';
 
+import { deleteInvitationAndFiles } from '../lib/invitationManager';
+
 export default function Dashboard() {
   const [currentTab, setCurrentTab] = useState<'catalog' | 'my-invites'>('catalog');
   const [activeCategory, setActiveCategory] = useState<string>('Todos');
@@ -83,12 +85,13 @@ export default function Dashboard() {
   };
 
   const handleDeleteFirebase = async (id: string) => {
-    if (window.confirm('Excluir link de convite permanentemente?')) {
+    if (window.confirm('Excluir link de convite e todos os seus arquivos permanentemente?')) {
       try {
-        await deleteDoc(doc(db, 'invitations', id));
+        await deleteInvitationAndFiles(id);
         fetchMyInvites();
       } catch (e) {
         console.error(e);
+        alert('Erro ao excluir convite. Verifique suas permissões.');
       }
     }
   };
@@ -348,8 +351,11 @@ export default function Dashboard() {
                             </p>
                             <div className="flex items-center gap-2">
                               <a href={`/c/${inv.id}`} target="_blank" rel="noreferrer" className="flex-1 flex items-center justify-center gap-2 bg-gray-900 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 transition">
-                                <PlayCircle size={16} /> Abrir Link
+                                <PlayCircle size={16} /> Abrir
                               </a>
+                              <Link to={`/editor/${inv.templateId}?edit=${inv.id}`} className="p-2.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg transition" title="Editar Convite">
+                                <Edit2 size={18} />
+                              </Link>
                               <button onClick={() => handleDeleteFirebase(inv.id)} className="p-2.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition" title="Excluir Convite">
                                 <Trash2 size={18} />
                               </button>

@@ -65,33 +65,70 @@ export default function Editor() {
     return () => unsubscribe();
   }, []);
 
-  // Load from draft or template
+  // Load from template, draft, or existing firebase ID
   useEffect(() => {
-    if (!templateId) {
+    if (!templateId && !window.location.search.includes('?edit=')) {
       navigate('/');
       return;
     }
 
-    const draftKey = `draft_${templateId}`;
-    const savedDraft = localStorage.getItem(draftKey);
+    const loadData = async () => {
+      // Check if we are editing an existing published invite
+      const params = new URLSearchParams(window.location.search);
+      const editId = params.get('edit');
 
-    if (savedDraft) {
-      try {
-        setData(JSON.parse(savedDraft));
-      } catch (e) {
-        console.error("Failed to parse saved draft", e);
-        const template = templates.find(t => t.id === templateId);
-        if (template) setData(template.defaultData);
+      if (editId) {
+        setIsPublishing(true); // show loader
+        try {
+          const docRef = doc(db, 'invitations', editId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists() && user && (docSnap.data().ownerUid === user.uid || (user as any).role === 'admin')) {
+            const fbData = docSnap.data().data;
+            setData(fbData);
+            setInviteId(editId);
+            setInviteStatus(docSnap.data().status || 'active');
+            // Assuming templateId is the same, or we might need it from Firebase.
+            // Using template ID from URL route if it matches.
+          } else {
+             alert('Você não tem permissão para editar este convite, ou ele não existe mais.');
+             navigate('/dashboard');
+          }
+        } catch (e) {
+          console.error("Error loading invite", e);
+        } finally {
+          setIsPublishing(false);
+        }
+        return;
       }
-    } else {
-      const template = templates.find(t => t.id === templateId);
-      if (template) {
-        setData(template.defaultData);
+
+      // If not editing Firebase, load local draft
+      const draftKey = `draft_${templateId}`;
+      const savedDraft = localStorage.getItem(draftKey);
+
+      if (savedDraft) {
+        try {
+          setData(JSON.parse(savedDraft));
+        } catch (e) {
+          console.error("Failed to parse saved draft", e);
+          const template = templates.find(t => t.id === templateId);
+          if (template) setData(template.defaultData);
+        }
       } else {
-        navigate('/');
+        const template = templates.find(t => t.id === templateId);
+        if (template) {
+          setData(template.defaultData);
+        } else {
+          navigate('/');
+        }
       }
+    };
+    
+    // We shouldn't load Firebase until user is known (to check ownership)
+    // Wait slightly or run without auth check first? Let's check auth soon as it resolves.
+    if (user || !window.location.search.includes('?edit=')) {
+      loadData();
     }
-  }, [templateId, navigate]);
+  }, [templateId, navigate, user]);
 
   // Auto-save to draft
   useEffect(() => {

@@ -23,6 +23,8 @@ interface InvitationData {
   // data is complex, we just need basic info for list
 }
 
+import { deleteInvitationAndFiles, cleanupStaleDrafts } from '../lib/invitationManager';
+
 export default function AdminPanel() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [appUser, setAppUser] = useState<AppUser | null>(null);
@@ -42,7 +44,8 @@ export default function AdminPanel() {
         
         if (me && me.role === 'admin') {
           setAppUser(me);
-          fetchData();
+          // Run cleanup on admin load in background, then fetch data
+          cleanupStaleDrafts().then(() => fetchData()).catch(() => fetchData());
         } else {
           // You are not an admin
           navigate('/');
@@ -89,11 +92,14 @@ export default function AdminPanel() {
   };
 
   const deleteInvite = async (id: string) => {
-    if (!window.confirm("Apagar convite permanentemente?")) return;
+    if (!window.confirm("Apagar convite e seus arquivos permanentemente?")) return;
     try {
-      await deleteDoc(doc(db, 'invitations', id));
+      await deleteInvitationAndFiles(id);
       fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+      console.error(e); 
+      alert('Erro ao apagar convite.');
+    }
   }
 
   const toggleInviteStatus = async (id: string, newStatus: 'draft' | 'active') => {
