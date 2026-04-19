@@ -353,7 +353,7 @@ export default function Dashboard() {
                               <a href={`/c/${inv.id}`} target="_blank" rel="noreferrer" className="flex-1 flex items-center justify-center gap-2 bg-gray-900 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 transition">
                                 <PlayCircle size={16} /> Abrir
                               </a>
-                              <Link to={`/editor/${inv.templateId}?edit=${inv.id}`} className="p-2.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg transition" title="Editar Convite">
+                              <Link to={`/editor/${inv.data?.templateId || 'casamento-moderno'}?edit=${inv.id}`} className="p-2.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg transition" title="Editar Convite">
                                 <Edit2 size={18} />
                               </Link>
                               <button onClick={() => handleDeleteFirebase(inv.id)} className="p-2.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition" title="Excluir Convite">

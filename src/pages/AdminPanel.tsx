@@ -20,7 +20,7 @@ interface InvitationData {
   ownerUid: string;
   createdAt: Timestamp;
   status?: 'draft' | 'active';
-  // data is complex, we just need basic info for list
+  data?: { templateId?: string; [key: string]: any };
 }
 
 import { deleteInvitationAndFiles, cleanupStaleDrafts } from '../lib/invitationManager';
@@ -283,6 +283,9 @@ export default function AdminPanel() {
                             ) : (
                               <button onClick={() => toggleInviteStatus(inv.id, 'active')} className="text-emerald-600 hover:text-emerald-900 font-medium text-xs">Aprovar PIX</button>
                             )}
+                            <button onClick={() => window.open(`/editor/${inv.data?.templateId || 'casamento-moderno'}?edit=${inv.id}`, '_blank')} className="text-indigo-500 hover:text-indigo-900 transition-colors" title="Editar">
+                              <Edit2 size={18} />
+                            </button>
                             <button onClick={() => window.open(`/c/${inv.id}`, '_blank')} className="text-gray-500 hover:text-gray-900 transition-colors" title="Visualizar">
                               <LayoutTemplate size={18} />
                             </button>

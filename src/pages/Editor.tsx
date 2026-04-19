@@ -11,6 +11,7 @@ import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { trackEvent } from '../lib/analytics';
 import { optimizeImage } from '../lib/imageOptimization';
+import qrPixImg from '../assets/qr-pix.jpg';
 
 const AccordionSection = ({ title, icon: Icon, isOpen, onToggle, children }: any) => (
   <div className="border-b border-gray-100 last:border-0">
@@ -43,6 +44,7 @@ export default function Editor() {
   const [copied, setCopied] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('event');
   const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit');
+  const [loginReason, setLoginReason] = useState<'publish' | 'upload'>('publish');
   
   // Firebase Auth & Custom Link States
   const [user, setUser] = useState<User | null>(null);
@@ -78,14 +80,14 @@ export default function Editor() {
       const editId = params.get('edit');
 
       if (editId) {
-        setIsPublishing(true); // show loader
+        setIsSaving(true); // show loader
         try {
           const docRef = doc(db, 'invitations', editId);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists() && user && (docSnap.data().ownerUid === user.uid || (user as any).role === 'admin')) {
             const fbData = docSnap.data().data;
             setData(fbData);
-            setInviteId(editId);
+            setCustomPath(editId);
             setInviteStatus(docSnap.data().status || 'active');
             // Assuming templateId is the same, or we might need it from Firebase.
             // Using template ID from URL route if it matches.
@@ -96,7 +98,7 @@ export default function Editor() {
         } catch (e) {
           console.error("Error loading invite", e);
         } finally {
-          setIsPublishing(false);
+          setIsSaving(false);
         }
         return;
       }
@@ -140,12 +142,12 @@ export default function Editor() {
 
   if (!data) return <div className="min-h-screen flex items-center justify-center">Carregando...</div>;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setData(prev => prev ? { ...prev, [name]: value } : null);
   };
 
-  const handleThemeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleThemeChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setData(prev => prev ? {
       ...prev,
@@ -158,7 +160,8 @@ export default function Editor() {
     if (!file) return;
 
     if (!user) {
-      alert("Por favor, faça login clicando em 'Publicar Convite' antes de fazer upload de imagens.");
+      setLoginReason('upload');
+      setShowModal(true);
       return;
     }
 
@@ -208,7 +211,8 @@ export default function Editor() {
     if (!file) return;
 
     if (!user) {
-      alert("Por favor, faça login clicando em 'Publicar Convite' antes de fazer upload da música.");
+      setLoginReason('upload');
+      setShowModal(true);
       return;
     }
 
@@ -365,6 +369,7 @@ export default function Editor() {
           <div className="flex items-center gap-2">
             <button 
               onClick={() => {
+                setLoginReason('publish');
                 setShowModal(true);
               }} 
               className="flex items-center px-5 py-2.5 rounded-full text-sm font-medium transition-colors bg-emerald-600 text-white hover:bg-emerald-700 shadow-[0_0_15px_rgba(5,150,105,0.3)]"
@@ -777,10 +782,10 @@ export default function Editor() {
             {/* Header depending on state */}
             <div className={`p-6 text-white text-center ${inviteStatus === 'active' ? 'bg-indigo-600' : 'bg-gradient-to-r from-emerald-600 to-emerald-700'}`}>
               <h3 className="text-xl font-bold mb-2">
-                {inviteStatus === 'active' ? 'Seu Convite está Pronto!' : 'Publicar Convite'}
+                {inviteStatus === 'active' ? 'Seu Convite está Pronto!' : !user && loginReason === 'upload' ? 'Fazer Upload de Arquivos' : 'Publicar Convite'}
               </h3>
               <p className="text-sm opacity-90">
-                {inviteStatus === 'active' ? 'Compartilhe o link com seus convidados.' : 'Siga os passos abaixo para liberar seu link personalizado.'}
+                {inviteStatus === 'active' ? 'Compartilhe o link com seus convidados.' : !user && loginReason === 'upload' ? 'Faça login para poder hospedar seus arquivos de imagem e áudio.' : 'Siga os passos abaixo para liberar seu link personalizado.'}
               </p>
             </div>
 
@@ -791,8 +796,12 @@ export default function Editor() {
                   <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                     <Lock size={28} className="text-gray-500" />
                   </div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Salvar meu Convite</h4>
-                  <p className="text-sm text-gray-600 mb-6">Você precisa criar uma conta gratuita para salvar seu convite e escolher o seu link.</p>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Crie sua Conta</h4>
+                  <p className="text-sm text-gray-600 mb-6">
+                    {loginReason === 'upload' 
+                      ? 'Você precisa criar uma conta gratuita para hospedar suas imagens e músicas com segurança.' 
+                      : 'Você precisa criar uma conta gratuita para salvar seu convite e escolher o seu link.'}
+                  </p>
                   <button 
                     onClick={handleLogin}
                     className="w-full flex items-center justify-center bg-white border-2 border-gray-200 text-gray-800 px-4 py-3 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all font-medium shadow-sm"
@@ -846,8 +855,13 @@ export default function Editor() {
                   <p className="text-sm text-gray-600 mb-4">Para liberar o acesso dos convidados ao seu link, faça um PIX único de <strong>R$ 20,00</strong>.</p>
                   
                   <div className="bg-orange-50/50 p-5 rounded-xl border border-orange-100 mb-6 flex flex-col items-center">
+                    <div className="bg-white p-3 rounded-lg shadow-sm border border-orange-100 mb-4 w-full flex flex-col items-center">
+                      <p className="text-[11px] text-gray-500 uppercase tracking-widest font-semibold text-center mb-3">QR Code PIX</p>
+                      <img src={qrPixImg} alt="QR Code PIX" className="w-48 h-48 sm:w-56 sm:h-56 object-contain rounded-md" />
+                    </div>
+
                     <div className="bg-white p-2 rounded-lg shadow-sm border border-orange-100 mb-4 w-full">
-                      <p className="text-[11px] text-gray-500 uppercase tracking-widest font-semibold text-center mb-1">Chave PIX (E-mail)</p>
+                      <p className="text-[11px] text-gray-500 uppercase tracking-widest font-semibold text-center mb-1">Ou Chave PIX (E-mail)</p>
                       <div className="flex items-center justify-between bg-gray-50 rounded-md p-2">
                         <p className="font-mono font-bold text-gray-900 text-sm tracking-tight break-all">
                           kainan.digital@gmail.com
@@ -876,6 +890,9 @@ export default function Editor() {
                     href={`https://wa.me/5562982042056?text=${encodeURIComponent(`Olá! Fiz o pagamento para liberar meu convite. O link que escolhi foi o /c/${customPath}. Aqui está o comprovante:`)}`} 
                     target="_blank" 
                     rel="noreferrer"
+                    onClick={() => {
+                      trackEvent('Purchase', { currency: 'BRL', value: 20.00 });
+                    }}
                     className="w-full flex items-center justify-center gap-2 bg-[#25D366] text-white px-4 py-3.5 rounded-xl font-medium hover:bg-[#1EBE5D] transition-colors shadow-sm"
                   >
                     <MessageCircle size={20} />

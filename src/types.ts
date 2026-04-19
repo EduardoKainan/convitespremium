@@ -9,6 +9,7 @@ export interface ThemeConfig {
   fontBody: string;
 }
 
+export type DecorationType = 'floral' | 'geometric' | 'minimalist' | 'classic' | 'stars' | 'butterflies' | 'leaves' | 'none';
 export type OrnamentPackId = 'none' | 'pearls-premium' | 'rings-metallic' | 'crystals-elegant' | 'floral-2d' | 'geometric-2d' | 'stars-2d' | 'elegant-2d' | 'butterflies-2d' | 'delicate-flowers-2d';
 export type OccasionPresetId = 'wedding-classic' | 'wedding-modern' | 'sweet-16' | 'baby-shower' | 'birthday-luxe' | 'custom';
 
