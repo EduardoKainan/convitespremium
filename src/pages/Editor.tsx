@@ -322,6 +322,9 @@ export default function Editor() {
       const newLink = `${window.location.origin}/c/${formattedPath}`;
       setShareLink(newLink);
       setSaveSuccess(true);
+      if (window.location.search.includes('?edit=')) {
+        alert("Alterações salvas com sucesso!");
+      }
       
       trackEvent('Lead', { 
         content_name: 'Custom Invitation',
@@ -372,16 +375,27 @@ export default function Editor() {
           </button>
           
           <div className="flex items-center gap-2">
-            <button 
-              onClick={() => {
-                setLoginReason('publish');
-                setShowModal(true);
-              }} 
-              className="flex items-center px-5 py-2.5 rounded-full text-sm font-medium transition-colors bg-emerald-600 text-white hover:bg-emerald-700 shadow-[0_0_15px_rgba(5,150,105,0.3)]"
-            >
-              <Sparkles size={16} className="mr-2" />
-              Publicar Convite
-            </button>
+            {window.location.search.includes('?edit=') ? (
+              <button 
+                onClick={handleSaveCustomLink} 
+                disabled={isSaving}
+                className="flex items-center px-5 py-2.5 rounded-full text-sm font-medium transition-colors bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm disabled:opacity-50"
+              >
+                {isSaving ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Save size={16} className="mr-2" />}
+                Salvar Alterações
+              </button>
+            ) : (
+              <button 
+                onClick={() => {
+                  setLoginReason('publish');
+                  setShowModal(true);
+                }} 
+                className="flex items-center px-5 py-2.5 rounded-full text-sm font-medium transition-colors bg-emerald-600 text-white hover:bg-emerald-700 shadow-[0_0_15px_rgba(5,150,105,0.3)]"
+              >
+                <Sparkles size={16} className="mr-2" />
+                Publicar Convite
+              </button>
+            )}
           </div>
         </div>
 
