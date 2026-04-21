@@ -39,16 +39,20 @@ export interface InvitationData {
   pixKey?: string;
   finalMessage: string;
   
-  // Legacy fields for backward compatibility during transition
+  // Global visual adjustments
   decorationType?: string;
   decorationScale?: number;
   decorationOffsetX?: number;
   decorationOffsetY?: number;
 
-  // New premium fields
   occasionPresetId?: OccasionPresetId;
-  ornamentConfig?: OrnamentConfig;
   
+  premiumEffects?: {
+    floralDrawing?: 'none' | 'gold-arabesque' | 'boho-leaves' | 'heart-flowers' | 'vine-leaves' | 'spring-flowers' | 'elegant-swirls';
+    particles?: 'none' | 'rose-petals' | 'sparkles' | 'snow' | 'rain' | 'confetti' | 'stardust' | 'sakura';
+    coverLottie?: 'none' | 'watercolor-flowers' | 'gold-mandala' | 'opening-rose';
+  };
+
   pageBackground?: PageBackground;
   theme: ThemeConfig;
   images: {

@@ -67,6 +67,7 @@ export default function Decorations({ type = 'none', color, scale = 1, offsetX =
   }
 
   // Floral (Leaves)
+  // Floral (Cachos)
   if (type === 'floral') {
     const FloralSVG = () => (
       <svg className="w-20 h-20 md:w-32 md:h-32" viewBox="0 0 100 100" fill="currentColor">
@@ -81,6 +82,58 @@ export default function Decorations({ type = 'none', color, scale = 1, offsetX =
         <Corner className="top-0 right-0 scale-x-[-1]"><FloralSVG /></Corner>
         <Corner className="bottom-0 left-0 scale-y-[-1]"><FloralSVG /></Corner>
         <Corner className="bottom-0 right-0 scale-x-[-1] scale-y-[-1]"><FloralSVG /></Corner>
+      </div>
+    );
+  }
+
+  // Roses
+  if (type === 'roses') {
+    const RoseSVG = () => (
+      <svg className="w-24 h-24 md:w-36 md:h-36" viewBox="0 0 100 100" fill="currentColor">
+        {/* Leaves */}
+        <path d="M40,20 C30,10 10,15 15,35 C20,55 45,60 50,45 C50,45 45,30 40,20 Z" opacity="0.4" />
+        <path d="M20,40 C10,30 15,10 35,15 C55,20 60,45 45,50 C45,50 30,45 20,40 Z" opacity="0.4" />
+        {/* Flower Base */}
+        <path d="M30,30 C15,25 0,40 10,55 C20,70 45,75 55,60 C65,45 45,35 30,30 Z" opacity="0.7" />
+        {/* Inner Petals */}
+        <path d="M35,35 C25,30 20,45 25,55 C30,65 45,60 50,50 C55,40 45,40 35,35 Z" opacity="0.8" />
+        {/* Core */}
+        <path d="M38,40 C32,38 30,45 35,50 C40,55 45,50 45,45 C45,40 40,42 38,40 Z" opacity="1" />
+        {/* Decorative lines/swirls around */}
+        <path d="M55,60 C70,75 80,60 90,70" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.5" />
+        <path d="M10,55 C5,75 20,80 15,95" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.4" />
+      </svg>
+    );
+    return (
+      <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+        <Corner className="top-0 left-0"><RoseSVG /></Corner>
+        <Corner className="top-0 right-0 scale-x-[-1]"><RoseSVG /></Corner>
+        <Corner className="bottom-0 left-0 scale-y-[-1]"><RoseSVG /></Corner>
+        <Corner className="bottom-0 right-0 scale-x-[-1] scale-y-[-1]"><RoseSVG /></Corner>
+      </div>
+    );
+  }
+
+  // Loose Leaves
+  if (type === 'leaves') {
+    const LooseLeavesSVG = () => (
+      <svg className="w-24 h-24 md:w-32 md:h-32" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M10,10 C30,15 40,30 35,50 C20,45 10,30 10,10 Z" fill="currentColor" opacity="0.6" stroke="none" />
+        <path d="M10,10 C30,15 40,30 35,50 C20,45 10,30 10,10 Z" opacity="0.8" />
+        <path d="M10,10 C20,25 30,35 35,50" opacity="0.8" />
+        
+        <path d="M45,15 C60,20 65,35 55,50 C40,45 35,30 45,15 Z" fill="currentColor" opacity="0.4" stroke="none" />
+        <path d="M45,15 C60,20 65,35 55,50 C40,45 35,30 45,15 Z" opacity="0.6" />
+        
+        <path d="M20,60 C35,65 40,80 30,95 C15,85 10,70 20,60 Z" fill="currentColor" opacity="0.3" stroke="none" />
+      </svg>
+    );
+    return (
+      <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+        <Corner className="top-2 left-2"><LooseLeavesSVG /></Corner>
+        <Corner className="top-2 right-2 scale-x-[-1]"><LooseLeavesSVG /></Corner>
+        <Corner className="bottom-2 left-2 scale-y-[-1]"><LooseLeavesSVG /></Corner>
+        <Corner className="bottom-2 right-2 scale-x-[-1] scale-y-[-1]"><LooseLeavesSVG /></Corner>
       </div>
     );
   }
@@ -146,6 +199,47 @@ export default function Decorations({ type = 'none', color, scale = 1, offsetX =
         <Corner className="top-0 right-0 scale-x-[-1]"><DelicateFlowerSVG /></Corner>
         <Corner className="bottom-0 left-0 scale-y-[-1]"><DelicateFlowerSVG /></Corner>
         <Corner className="bottom-0 right-0 scale-x-[-1] scale-y-[-1]"><DelicateFlowerSVG /></Corner>
+      </div>
+    );
+  }
+
+  // Flower Borders
+  if (type === 'flower-borders') {
+    const FlowerBorderSVG = () => (
+      <svg className="w-24 h-24 md:w-32 md:h-32" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M0,50 C20,30 40,10 50,0" strokeOpacity="0.8"/>
+        <path d="M20,70 C40,50 60,30 70,20" strokeOpacity="0.5"/>
+        <circle cx="50" cy="50" r="8" fill="currentColor" opacity="0.4"/>
+        <path d="M50,42 C55,30 70,30 65,45 C75,40 85,55 70,60 C75,70 60,85 50,70 C40,85 25,70 30,60 C15,55 25,40 35,45 C30,30 45,30 50,42 Z" fill="currentColor" stroke="none" opacity="0.8"/>
+      </svg>
+    );
+    return (
+      <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+        <Corner className="top-4 left-4"><FlowerBorderSVG /></Corner>
+        <Corner className="top-4 right-4 scale-x-[-1]"><FlowerBorderSVG /></Corner>
+        <Corner className="bottom-4 left-4 scale-y-[-1]"><FlowerBorderSVG /></Corner>
+        <Corner className="bottom-4 right-4 scale-x-[-1] scale-y-[-1]"><FlowerBorderSVG /></Corner>
+      </div>
+    );
+  }
+
+  // Leafy Borders
+  if (type === 'leafy-borders') {
+    const LeafBorderSVG = () => (
+      <svg className="w-32 h-32 md:w-40 md:h-40" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M0,0 Q50,20 100,50" strokeOpacity="0.8"/>
+        <path d="M0,20 C10,10 30,10 40,30 C20,30 10,20 0,20 Z" fill="currentColor" stroke="none" opacity="0.6"/>
+        <path d="M20,30 C30,20 50,20 60,40 C40,40 30,30 20,30 Z" fill="currentColor" stroke="none" opacity="0.6"/>
+        <path d="M40,40 C50,30 70,30 80,50 C60,50 50,40 40,40 Z" fill="currentColor" stroke="none" opacity="0.6"/>
+        <path d="M10,0 C20,10 20,30 0,40 C0,20 10,10 10,0 Z" fill="currentColor" stroke="none" opacity="0.4"/>
+      </svg>
+    );
+    return (
+      <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+        <Corner className="top-0 left-0"><LeafBorderSVG /></Corner>
+        <Corner className="top-0 right-0 scale-x-[-1]"><LeafBorderSVG /></Corner>
+        <Corner className="bottom-0 left-0 scale-y-[-1]"><LeafBorderSVG /></Corner>
+        <Corner className="bottom-0 right-0 scale-x-[-1] scale-y-[-1]"><LeafBorderSVG /></Corner>
       </div>
     );
   }

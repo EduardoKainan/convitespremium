@@ -160,6 +160,14 @@ export default function Editor() {
     } : null);
   };
 
+  const handlePremiumEffectsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setData(prev => prev ? {
+      ...prev,
+      premiumEffects: { ...(prev.premiumEffects || {}), [name]: value }
+    } : null);
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, name: string) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -603,134 +611,141 @@ export default function Editor() {
               <select 
                 name="decorationType" 
                 value={data.decorationType || 'none'} 
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val.startsWith('3d-')) {
-                    // Map old 3D types to new ornament packs for backward compatibility
-                    let packId = 'none';
-                    if (val === '3d-spheres') packId = 'pearls-premium';
-                    else if (val === '3d-rings') packId = 'rings-metallic';
-                    else if (val === '3d-diamonds' || val === '3d-crystals') packId = 'crystals-elegant';
-                    
-                    handleChange({ target: { name: 'ornamentConfig', value: { packId, intensity: 0.5, delicacy: 0.5, quantity: 0.5, movement: 0.5 } } } as any);
-                    handleChange({ target: { name: 'decorationType', value: 'none' } } as any);
-                  } else {
-                    handleChange(e);
-                    handleChange({ target: { name: 'ornamentConfig', value: { packId: 'none', intensity: 0, delicacy: 0, quantity: 0, movement: 0 } } } as any);
-                  }
-                }} 
+                onChange={handleChange} 
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border bg-white"
               >
                 <optgroup label="2D Vetorial">
                   <option value="none">Sem decoração</option>
                   <option value="elegant">Elegante (Ramos/Arabescos)</option>
-                  <option value="floral">Floral (Folhas)</option>
+                  <option value="floral">Floral (Cachos)</option>
+                  <option value="roses">Rosas Clássicas</option>
+                  <option value="leaves">Folhas Soltas</option>
+                  <option value="flower-borders">Flores nas Bordas</option>
+                  <option value="leafy-borders">Folhagens nas Bordas</option>
                   <option value="geometric">Geométrico (Art Deco)</option>
                   <option value="stars">Estrelas/Brilho</option>
                   <option value="butterflies">Borboletas</option>
                   <option value="delicate-flowers">Flores Delicadas</option>
                 </optgroup>
-                <optgroup label="3D Premium">
-                  <option value="3d-rings">Aros Metálicos Finos</option>
-                  <option value="3d-spheres">Pérolas Premium</option>
-                  <option value="3d-crystals">Cristais Elegantes</option>
-                </optgroup>
               </select>
             </div>
 
-            {data.ornamentConfig && data.ornamentConfig.packId !== 'none' && (
-              <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <h4 className="text-sm font-semibold text-gray-900">Ajustes Finos 3D</h4>
-                
-                <div>
-                  <label className="block text-xs font-medium text-gray-700">Delicadeza (Escala/Espessura)</label>
-                  <input 
-                    type="range" 
-                    min="0" max="1" step="0.1" 
-                    value={data.ornamentConfig.delicacy} 
-                    onChange={(e) => handleChange({ target: { name: 'ornamentConfig', value: { ...data.ornamentConfig, delicacy: parseFloat(e.target.value) } } } as any)} 
-                    className="w-full mt-1"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-xs font-medium text-gray-700">Quantidade</label>
-                  <input 
-                    type="range" 
-                    min="0" max="1" step="0.1" 
-                    value={data.ornamentConfig.quantity} 
-                    onChange={(e) => handleChange({ target: { name: 'ornamentConfig', value: { ...data.ornamentConfig, quantity: parseFloat(e.target.value) } } } as any)} 
-                    className="w-full mt-1"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-gray-700">Movimento</label>
-                  <input 
-                    type="range" 
-                    min="0" max="1" step="0.1" 
-                    value={data.ornamentConfig.movement} 
-                    onChange={(e) => handleChange({ target: { name: 'ornamentConfig', value: { ...data.ornamentConfig, movement: parseFloat(e.target.value) } } } as any)} 
-                    className="w-full mt-1"
-                  />
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Tamanho da Decoração (Geral)</label>
+              <div className="flex items-center gap-4 mt-1">
+                <input 
+                  type="range" 
+                  name="decorationScale" 
+                  min="0.5" 
+                  max="2" 
+                  step="0.1" 
+                  value={data.decorationScale || 1} 
+                  onChange={(e) => handleChange({ target: { name: 'decorationScale', value: parseFloat(e.target.value) } } as any)} 
+                  className="w-full"
+                />
+                <span className="text-xs text-gray-500 w-8">{Math.round((data.decorationScale || 1) * 100)}%</span>
               </div>
-            )}
+            </div>
 
-            {(!data.ornamentConfig || data.ornamentConfig.packId === 'none') && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Tamanho da Decoração 2D</label>
-                  <div className="flex items-center gap-4 mt-1">
-                    <input 
-                      type="range" 
-                      name="decorationScale" 
-                      min="0.5" 
-                      max="2" 
-                      step="0.1" 
-                      value={data.decorationScale || 1} 
-                      onChange={(e) => handleChange({ target: { name: 'decorationScale', value: parseFloat(e.target.value) } } as any)} 
-                      className="w-full"
-                    />
-                    <span className="text-xs text-gray-500 w-8">{Math.round((data.decorationScale || 1) * 100)}%</span>
-                  </div>
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Posição Horizontal (X)</label>
+              <div className="flex items-center gap-4 mt-1">
+                <input 
+                  type="range" 
+                  name="decorationOffsetX" 
+                  min="-200" 
+                  max="200" 
+                  step="1" 
+                  value={data.decorationOffsetX || 0} 
+                  onChange={(e) => handleChange({ target: { name: 'decorationOffsetX', value: parseInt(e.target.value) } } as any)} 
+                  className="w-full"
+                />
+                <span className="text-xs text-gray-500 w-8">{data.decorationOffsetX || 0}px</span>
+              </div>
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Posição Horizontal (X)</label>
-                  <div className="flex items-center gap-4 mt-1">
-                    <input 
-                      type="range" 
-                      name="decorationOffsetX" 
-                      min="-200" 
-                      max="200" 
-                      step="1" 
-                      value={data.decorationOffsetX || 0} 
-                      onChange={(e) => handleChange({ target: { name: 'decorationOffsetX', value: parseInt(e.target.value) } } as any)} 
-                      className="w-full"
-                    />
-                    <span className="text-xs text-gray-500 w-8">{data.decorationOffsetX || 0}px</span>
-                  </div>
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Posição Vertical (Y)</label>
+              <div className="flex items-center gap-4 mt-1">
+                <input 
+                  type="range" 
+                  name="decorationOffsetY" 
+                  min="-200" 
+                  max="200" 
+                  step="1" 
+                  value={data.decorationOffsetY || 0} 
+                  onChange={(e) => handleChange({ target: { name: 'decorationOffsetY', value: parseInt(e.target.value) } } as any)} 
+                  className="w-full"
+                />
+                <span className="text-xs text-gray-500 w-8">{data.decorationOffsetY || 0}px</span>
+              </div>
+            </div>
+            </AccordionSection>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Posição Vertical (Y)</label>
-                  <div className="flex items-center gap-4 mt-1">
-                    <input 
-                      type="range" 
-                      name="decorationOffsetY" 
-                      min="-200" 
-                      max="200" 
-                      step="1" 
-                      value={data.decorationOffsetY || 0} 
-                      onChange={(e) => handleChange({ target: { name: 'decorationOffsetY', value: parseInt(e.target.value) } } as any)} 
-                      className="w-full"
-                    />
-                    <span className="text-xs text-gray-500 w-8">{data.decorationOffsetY || 0}px</span>
-                  </div>
-                </div>
-              </>
-            )}
+            <AccordionSection 
+              title="Efeitos Premium & Animações" 
+              icon={Sparkles} 
+              isOpen={activeSection === 'premium-effects'} 
+              onToggle={() => setActiveSection(activeSection === 'premium-effects' ? '' : 'premium-effects')}
+            >
+              <div className="bg-gradient-to-r from-pink-50 to-indigo-50 p-4 -mx-4 -mt-4 mb-4 border-b border-indigo-100">
+                <p className="text-xs text-indigo-800 font-medium">✨ Adicione movimento e luxo ao seu convite com bibliotecas de ponta (Lottie & Framer Motion).</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Art Floral / Traços Animados (Cantos)</label>
+                <select 
+                  name="floralDrawing" 
+                  value={data.premiumEffects?.floralDrawing || 'none'} 
+                  onChange={handlePremiumEffectsChange} 
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border bg-white"
+                >
+                  <option value="none">Nenhum</option>
+                  <option value="gold-arabesque">Arabescos Delicados (Animados)</option>
+                  <option value="boho-leaves">Ramos Boho (Animados)</option>
+                  <option value="heart-flowers">Flores em Coração (Loops Contínuos)</option>
+                  <option value="vine-leaves">Vinhas de Cipó (Bordas Superior e Inferior)</option>
+                  <option value="spring-flowers">Flores de Primavera (Cantos Animados)</option>
+                  <option value="elegant-swirls">Espirais Elegantes (Laterais)</option>
+                </select>
+                <p className="mt-1 text-xs text-gray-500">Desenhos elegantes nas bordas que acompanham o scroll.</p>
+              </div>
+
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700">Chuva & Partículas Flutuantes</label>
+                <select 
+                  name="particles" 
+                  value={data.premiumEffects?.particles || 'none'} 
+                  onChange={handlePremiumEffectsChange} 
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border bg-white"
+                >
+                  <option value="none">Nenhum</option>
+                  <option value="rose-petals">Chuva de Pétalas</option>
+                  <option value="sparkles">Pó de Fada / Brilho Dourado</option>
+                  <option value="snow">Neve Suave</option>
+                  <option value="rain">Chuva Elegante</option>
+                  <option value="confetti">Festa de Confetes (Colorido)</option>
+                  <option value="stardust">Poeira Estelar (Pulsante)</option>
+                  <option value="sakura">Flores de Cerejeira</option>
+                </select>
+                <p className="mt-1 text-xs text-gray-500">Imersão com elementos caindo e interagindo com a tela toda.</p>
+              </div>
+
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700">Lottie Animado (Exclusivo da Capa)</label>
+                <select 
+                  name="coverLottie" 
+                  value={data.premiumEffects?.coverLottie || 'none'} 
+                  onChange={handlePremiumEffectsChange} 
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border bg-white"
+                >
+                  <option value="none">Nenhum</option>
+                  <option value="watercolor-flowers">Aquarela Floral Se Abrindo</option>
+                  <option value="gold-mandala">Mandala Dourada Giratória</option>
+                  <option value="opening-rose">Rosa Desabrochando</option>
+                </select>
+                <p className="mt-1 text-xs text-gray-500">Animações luxuosas de estúdio na Capa Principal (fundo).</p>
+              </div>
             </AccordionSection>
 
             <AccordionSection 

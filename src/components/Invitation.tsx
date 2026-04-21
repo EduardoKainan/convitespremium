@@ -4,6 +4,9 @@ import { MapPin, Clock, Calendar, Music, Pause, Play, Heart, Navigation, Info, M
 import { InvitationData } from '../types';
 import Decorations from './Decorations';
 import OrnamentCanvas from './ornaments/OrnamentCanvas';
+import ParticlesBackground from './effects/ParticlesBackground';
+import LottieCover from './effects/LottieCover';
+import FloralVectorDrawing from './effects/FloralVectorDrawing';
 
 const Reveal = ({ children, delay = 0, direction = 'up' }: { children: React.ReactNode, delay?: number, direction?: 'up' | 'down' | 'left' | 'right' }) => {
   const y = direction === 'up' ? 50 : direction === 'down' ? -50 : 0;
@@ -164,13 +167,23 @@ export default function Invitation({ data }: { data: InvitationData }) {
   const handleOpen = () => {
     setIsOpened(true);
     if (audioRef.current && !isPlaying) {
-      audioRef.current.play().then(() => setIsPlaying(true)).catch(e => console.log("Audio play failed", e));
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => setIsPlaying(true)).catch(e => {
+          if (e.name !== 'AbortError') console.log("Audio play failed", e);
+        });
+      }
     }
   };
 
   useEffect(() => {
     if (audioRef.current && directMusicUrl) {
-      audioRef.current.play().then(() => setIsPlaying(true)).catch(e => console.log("Autoplay blocked by browser until user interaction."));
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => setIsPlaying(true)).catch(e => {
+          // Swallow autoplay blocked or abort errors quietly.
+        });
+      }
     }
   }, [directMusicUrl]);
 
@@ -178,10 +191,17 @@ export default function Invitation({ data }: { data: InvitationData }) {
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
+        setIsPlaying(false);
       } else {
-        audioRef.current.play();
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => setIsPlaying(true)).catch(e => {
+             if (e.name !== 'AbortError') console.log("Audio play failed", e);
+          });
+        } else {
+          setIsPlaying(true);
+        }
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
@@ -213,18 +233,34 @@ export default function Invitation({ data }: { data: InvitationData }) {
     >
       <BackgroundOverlay type={data.pageBackground} color={data.theme.primary} />
 
+      {/* Global Particle Background */}
+      {data.premiumEffects?.particles && data.premiumEffects.particles !== 'none' && (
+        <div className="absolute inset-0 pointer-events-none z-10 w-full h-full">
+          <ParticlesBackground type={data.premiumEffects.particles as any} />
+        </div>
+      )}
+
       {/* Audio Element */}
       <audio ref={audioRef} loop>
         <source src={directMusicUrl} />
       </audio>
 
       {/* Mobile Container */}
-      <div className="w-full h-full max-w-md relative shadow-2xl overflow-x-hidden flex flex-col" style={{ backgroundColor: 'var(--color-surface)' }}>
+      <div className="w-full h-full max-w-md relative shadow-2xl overflow-x-hidden flex flex-col z-20" style={{ backgroundColor: 'var(--color-surface)' }}>
         <BackgroundOverlay type={data.pageBackground} color={data.theme.primary} />
         
         {/* Premium Decorations */}
         <Decorations type={data.decorationType as any} color={data.theme.primary} scale={data.decorationScale} offsetX={data.decorationOffsetX} offsetY={data.decorationOffsetY} />
-        {data.ornamentConfig && <OrnamentCanvas config={data.ornamentConfig} color={data.theme.primary} />}
+
+        {data.premiumEffects?.floralDrawing && data.premiumEffects.floralDrawing !== 'none' && (
+          <FloralVectorDrawing 
+            type={data.premiumEffects.floralDrawing as any} 
+            color={data.theme.primary} 
+            scale={data.decorationScale}
+            offsetX={data.decorationOffsetX}
+            offsetY={data.decorationOffsetY}
+          />
+        )}
 
         {/* Floating Controls */}
         <div className="fixed inset-0 pointer-events-none z-50 flex justify-center">
@@ -279,6 +315,10 @@ export default function Invitation({ data }: { data: InvitationData }) {
               <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] shrink-0">
                 <img src={data.images.cover} className="w-full h-full object-cover" alt="Cover" />
                 
+                {data.premiumEffects?.coverLottie && data.premiumEffects.coverLottie !== 'none' && (
+                  <LottieCover type={data.premiumEffects.coverLottie as any} />
+                )}
+
                 {/* Bottom fade gradient */}
                 <div className="absolute bottom-0 inset-x-0 h-48 z-10" style={{ background: `linear-gradient(to top, ${data.theme.surface} 0%, transparent 100%)` }}></div>
 
@@ -445,65 +485,70 @@ export default function Invitation({ data }: { data: InvitationData }) {
 
             <Reveal direction="up" delay={0.2}>
               {/* Interactive Buttons Layout */}
-              <div className="relative h-96 w-full max-w-sm mx-auto mb-12">
-                {/* RSVP Button (Top Left) */}
-                <a 
-                  href={getWhatsAppLink()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="absolute top-0 left-4 flex flex-col items-center group hover:scale-105 transition-transform"
-                >
-                  <div className="w-24 h-24 flex items-center justify-center mb-4">
-                    <Heart size={64} fill={data.theme.primary} strokeWidth={0} className="drop-shadow-lg" />
-                  </div>
-                  <div className="text-center">
-                    <span className="block text-xs font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Confirmar</span>
-                    <span className="block text-xs font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Presença</span>
-                  </div>
-                </a>
+              <div className="w-full max-w-sm mx-auto mb-12">
+                <p className="text-sm italic mb-10 max-w-xs mx-auto" style={{ color: data.theme.text, opacity: 0.8 }}>
+                  "Sua presença é muito importante. Por favor, confirme se poderá comparecer e veja como chegar:"
+                </p>
 
-                {/* Location Button (Top Right) */}
-                <a 
-                  href={data.locationUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="absolute top-0 right-4 flex flex-col items-center group hover:scale-105 transition-transform"
-                >
-                  <div className="w-24 h-24 flex items-center justify-center mb-4">
-                    <MapPin size={64} fill={data.theme.primary} strokeWidth={0} className="drop-shadow-lg" />
-                  </div>
-                  <div className="text-center">
-                    <span className="block text-xs font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Local do</span>
-                    <span className="block text-xs font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Evento</span>
-                  </div>
-                </a>
-                
-                {/* Gift PIX Button (Bottom Center) if pixKey exists */}
-                {data.pixKey && data.pixKey.trim() !== '' && (
-                  <button 
-                    onClick={() => {
-                      const textToCopy = data.pixKey || '';
-                      navigator.clipboard.writeText(textToCopy);
-                      alert('Chave PIX copiada para a área de transferência!');
-                    }}
-                    className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center group hover:scale-105 transition-transform"
+                <div className="flex flex-row justify-center gap-8 mb-12">
+                  {/* RSVP Button */}
+                  <a 
+                    href={getWhatsAppLink()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center group hover:scale-105 transition-transform w-[120px]"
                   >
-                    <div className="w-24 h-24 flex items-center justify-center mb-4">
-                      <div className="relative">
-                         <div className="absolute inset-0 rounded-full blur-md opacity-40 mix-blend-multiply" style={{ backgroundColor: data.theme.primary }}></div>
-                         <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill={data.theme.primary} stroke="currentColor" strokeWidth="0" strokeLinecap="round" strokeLinejoin="round" className="relative drop-shadow-md"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
-                      </div>
+                    <div className="w-20 h-20 flex items-center justify-center mb-4 rounded-full shadow-md" style={{ backgroundColor: `${data.theme.primary}15` }}>
+                      <Heart size={36} fill={data.theme.primary} strokeWidth={0} />
                     </div>
                     <div className="text-center">
-                      <span className="block text-xs font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Presentear</span>
-                      <span className="block text-[10px] font-bold uppercase tracking-widest opacity-70 mt-1" style={{ color: data.theme.primary }}>Copiar PIX</span>
+                      <span className="block text-[11px] font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Confirmar</span>
+                      <span className="block text-[11px] font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Presença</span>
                     </div>
-                  </button>
+                  </a>
+
+                  {/* Location Button */}
+                  <a 
+                    href={data.locationUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center group hover:scale-105 transition-transform w-[120px]"
+                  >
+                    <div className="w-20 h-20 flex items-center justify-center mb-4 rounded-full shadow-md" style={{ backgroundColor: `${data.theme.primary}15` }}>
+                      <MapPin size={36} fill={data.theme.primary} strokeWidth={0} />
+                    </div>
+                    <div className="text-center">
+                      <span className="block text-[11px] font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Local do</span>
+                      <span className="block text-[11px] font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Evento</span>
+                    </div>
+                  </a>
+                </div>
+                
+                {/* Gift PIX Button */}
+                {data.pixKey && data.pixKey.trim() !== '' && (
+                  <div className="flex justify-center border-t border-b py-8" style={{ borderColor: `${data.theme.primary}30` }}>
+                    <button 
+                      onClick={() => {
+                        const textToCopy = data.pixKey || '';
+                        navigator.clipboard.writeText(textToCopy);
+                        alert('Chave PIX copiada para a Área de Transferência!');
+                      }}
+                      className="flex flex-col items-center group hover:scale-105 transition-transform w-full"
+                    >
+                      <div className="w-20 h-20 flex items-center justify-center mb-4 rounded-full shadow-md" style={{ backgroundColor: `${data.theme.primary}15` }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill={data.theme.primary} stroke="currentColor" strokeWidth="0" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+                      </div>
+                      <div className="text-center">
+                        <span className="block text-sm font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Lista de Presentes (PIX)</span>
+                        <span className="block text-xs uppercase tracking-widest opacity-60 mt-2" style={{ color: data.theme.text }}>Toque para Copiar a Chave</span>
+                      </div>
+                    </button>
+                  </div>
                 )}
                 
                 {/* Click Icon Bottom Center */}
-                <div className={`absolute -bottom-6 left-1/2 -translate-x-1/2`}>
-                  <MousePointerClick size={40} strokeWidth={1} style={{ color: data.theme.primary, opacity: 0.5 }} />
+                <div className="mt-16 flex justify-center">
+                  <MousePointerClick size={32} strokeWidth={1} style={{ color: data.theme.primary, opacity: 0.4 }} />
                 </div>
               </div>
             </Reveal>
