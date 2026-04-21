@@ -558,6 +558,29 @@ export default function Editor() {
             </AccordionSection>
 
             <AccordionSection 
+              title="Ajustes do Criador (Watermark)" 
+              icon={Lock} 
+              isOpen={activeSection === 'creator'} 
+              onToggle={() => setActiveSection(activeSection === 'creator' ? '' : 'creator')}
+            >
+              <div className="flex flex-col gap-2">
+                <label className="flex items-center gap-3 p-3 border rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border-gray-200">
+                  <input 
+                    type="checkbox" 
+                    name="isEvaluationCopy" 
+                    checked={data.isEvaluationCopy || false} 
+                    onChange={(e) => handleChange({ target: { name: 'isEvaluationCopy', value: e.target.checked } } as any)} 
+                    className="h-5 w-5 text-red-600 rounded focus:ring-red-500 border-gray-300"
+                  />
+                  <div>
+                    <span className="block text-sm font-semibold text-gray-800">Cópia de Avaliação (Watermark)</span>
+                    <span className="block text-xs text-gray-500">Adiciona uma faixa vermelha avisando que aguarda pagamento.</span>
+                  </div>
+                </label>
+              </div>
+            </AccordionSection>
+
+            <AccordionSection 
               title="Design e Cores" 
               icon={Palette} 
               isOpen={activeSection === 'design'} 

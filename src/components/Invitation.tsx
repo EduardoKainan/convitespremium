@@ -241,9 +241,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
       )}
 
       {/* Audio Element */}
-      <audio ref={audioRef} loop>
-        <source src={directMusicUrl} />
-      </audio>
+      <audio ref={audioRef} loop src={directMusicUrl || undefined} />
 
       {/* Mobile Container */}
       <div className="w-full h-full max-w-md relative shadow-2xl overflow-x-hidden flex flex-col z-20" style={{ backgroundColor: 'var(--color-surface)' }}>
@@ -313,7 +311,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
 
               {/* Hero Section on Cover */}
               <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] shrink-0">
-                <img src={data.images.cover} className="w-full h-full object-cover" alt="Cover" />
+                <img src={data.images.cover || undefined} className="w-full h-full object-cover" alt="Cover" />
                 
                 {data.premiumEffects?.coverLottie && data.premiumEffects.coverLottie !== 'none' && (
                   <LottieCover type={data.premiumEffects.coverLottie as any} />
@@ -386,7 +384,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
         <div className="flex-1 overflow-y-auto overflow-x-hidden relative">
           {/* Internal Hero Image */}
           <div className="relative w-full h-[60vh]">
-            <img src={data.images.hero} className="w-full h-full object-cover" alt="Internal Hero" />
+            <img src={data.images.hero || undefined} className="w-full h-full object-cover" alt="Internal Hero" />
             {/* Gradient Fade to Surface Color */}
             <div className="absolute bottom-0 inset-x-0 h-48" style={{ background: `linear-gradient(to top, ${data.theme.surface} 0%, transparent 100%)` }}></div>
           </div>
@@ -452,7 +450,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
                   <span className="text-2xl font-medium tracking-widest mb-6" style={{ fontFamily: 'var(--font-title)' }}>
                     {data.date.split('-')[0]}
                   </span>
-                  <span className="text-3xl" style={{ fontFamily: 'var(--font-script)' }}>
+                  <span className="text-3xl" style={{ fontFamily: 'var(--font-script)' }} translate="no">
                     às
                   </span>
                   <span className="text-3xl font-bold mt-2" style={{ fontFamily: 'var(--font-title)' }}>
@@ -589,7 +587,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
                 <div className="absolute top-0 inset-x-0 h-24 z-10" style={{ background: `linear-gradient(to bottom, ${data.theme.surface} 0%, transparent 100%)` }}></div>
                 
                 <img 
-                  src={data.images.footer} 
+                  src={data.images.footer || undefined} 
                   alt="Footer" 
                   className="w-full h-full object-cover"
                 />
@@ -610,6 +608,13 @@ export default function Invitation({ data }: { data: InvitationData }) {
           </div>
         </div>
       </div>
+
+      {data.isEvaluationCopy && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-red-600 text-white text-center py-2 px-4 shadow-lg pointer-events-none opacity-90">
+          <p className="text-xs sm:text-sm font-bold uppercase tracking-wider">Cópia de Avaliação</p>
+          <p className="text-[10px] sm:text-xs">Aguardando pagamento para liberação da versão final.</p>
+        </div>
+      )}
     </div>
   );
 }

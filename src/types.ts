@@ -38,6 +38,7 @@ export interface InvitationData {
   whatsappNumber?: string;
   pixKey?: string;
   finalMessage: string;
+  isEvaluationCopy?: boolean;
   
   // Global visual adjustments
   decorationType?: string;
