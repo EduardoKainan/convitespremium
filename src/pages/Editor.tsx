@@ -1042,14 +1042,29 @@ export default function Editor() {
                     </button>
                   </div>
                   
-                  <a 
-                    href={shareLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full flex items-center justify-center bg-gray-100 text-gray-700 px-4 py-3 rounded-xl hover:bg-gray-200 transition-colors font-medium"
-                  >
-                    Abrir Convite
-                  </a>
+                  <div className="flex flex-col gap-3">
+                    <button 
+                      onClick={() => {
+                        const formattedDate = data.date ? data.date.split('-').reverse().join('/') : '';
+                        const text = `✨ *VOCÊ FOI CONVIDADO!* ✨\n\n*${data.title}*\n${data.name}\n\n📅 *Data:* ${formattedDate} às ${data.time}\n📍 *Local:* ${data.locationName}\n\nAbra seu convite interativo no link abaixo para ver todos os detalhes e confirmar sua presença:\n🔗 ${shareLink}`;
+                        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                      }}
+                      className="w-full flex items-center justify-center gap-2 bg-[#25D366] text-white px-4 py-3.5 rounded-xl hover:bg-[#1EBE5D] transition-colors font-medium shadow-sm"
+                    >
+                      <MessageCircle size={20} />
+                      Compartilhar no WhatsApp
+                    </button>
+
+                    <a 
+                      href={shareLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full flex items-center justify-center gap-2 bg-gray-100 text-gray-700 px-4 py-3 rounded-xl hover:bg-gray-200 transition-colors font-medium"
+                    >
+                      <LinkIcon size={20} />
+                      Abrir Convite
+                    </a>
+                  </div>
                 </div>
               )}
             </div>

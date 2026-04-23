@@ -24,6 +24,26 @@ export default function InviteView() {
         if (decodedString) {
           const decodedData = JSON.parse(decodedString);
           setData(decodedData);
+
+          // Update Open Graph tags dynamically
+          document.title = `Convite de ${decodedData.title} - ${decodedData.name}`;
+            
+          const setMeta = (name: string, property: string, content: string) => {
+            let meta = document.querySelector(`meta[property="${property}"]`);
+            if (!meta) {
+              meta = document.createElement('meta');
+              meta.setAttribute('property', property);
+              document.head.appendChild(meta);
+            }
+            meta.setAttribute('content', content);
+          };
+
+          setMeta('og:title', 'og:title', `Convite: ${decodedData.title} de ${decodedData.name}`);
+          setMeta('og:description', 'og:description', `Você foi convidado! Data: ${decodedData.date.split('-').reverse().join('/')} às ${decodedData.time}. Toque para abrir o convite interativo.`);
+          if (decodedData.images?.cover) {
+            setMeta('og:image', 'og:image', decodedData.images.cover);
+          }
+
         } else {
           throw new Error("Failed to decompress");
         }

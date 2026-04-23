@@ -48,9 +48,31 @@ export default function CustomInviteView() {
 
         if (docSnap.exists()) {
           const docData = docSnap.data();
-          setData(docData.data as InvitationData);
+          const inviteData = docData.data as InvitationData;
+          setData(inviteData);
           setStatus(docData.status || 'draft');
           setOwnerUid(docData.ownerUid);
+
+          // Update Open Graph tags dynamically for crawlers/messengers that support CSR evaluation
+          if (inviteData) {
+            document.title = `Convite de ${inviteData.title} - ${inviteData.name}`;
+            
+            const setMeta = (name: string, property: string, content: string) => {
+              let meta = document.querySelector(`meta[property="${property}"]`);
+              if (!meta) {
+                meta = document.createElement('meta');
+                meta.setAttribute('property', property);
+                document.head.appendChild(meta);
+              }
+              meta.setAttribute('content', content);
+            };
+
+            setMeta('og:title', 'og:title', `Convite: ${inviteData.title} de ${inviteData.name}`);
+            setMeta('og:description', 'og:description', `Você foi convidado! Data: ${inviteData.date.split('-').reverse().join('/')} às ${inviteData.time}. Toque para abrir o convite interativo.`);
+            if (inviteData.images?.cover) {
+              setMeta('og:image', 'og:image', inviteData.images.cover);
+            }
+          }
         } else {
           setError(true);
         }
