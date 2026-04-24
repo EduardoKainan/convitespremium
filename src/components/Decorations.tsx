@@ -138,6 +138,63 @@ export default function Decorations({ type = 'none', color, scale = 1, offsetX =
     );
   }
 
+  // Dry Branches
+  if (type === 'dry-branches') {
+    const BranchesSVG = () => (
+      <svg className="w-24 h-24 md:w-32 md:h-32" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M0,0 Q30,10 80,80" strokeOpacity="0.8"/>
+        <path d="M20,20 Q40,10 60,15" strokeOpacity="0.7"/>
+        <path d="M40,15 Q45,5 50,5" strokeOpacity="0.6"/>
+        <path d="M40,45 Q60,30 80,35" strokeOpacity="0.7"/>
+        <path d="M60,38 Q65,25 75,25" strokeOpacity="0.6"/>
+        <path d="M10,8 Q20,0 35,5" strokeOpacity="0.7"/>
+      </svg>
+    );
+    return (
+      <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+        <Corner className="top-0 left-0"><BranchesSVG /></Corner>
+        <Corner className="top-0 right-0 scale-x-[-1]"><BranchesSVG /></Corner>
+        <Corner className="bottom-0 left-0 scale-y-[-1]"><BranchesSVG /></Corner>
+        <Corner className="bottom-0 right-0 scale-x-[-1] scale-y-[-1]"><BranchesSVG /></Corner>
+      </div>
+    );
+  }
+
+  // Wheat Straw
+  if (type === 'wheat-straw') {
+    const WheatSVG = () => (
+      <svg className="w-24 h-24 md:w-32 md:h-32" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M0,0 Q40,30 90,90" strokeOpacity="0.8"/>
+        {/* Grain 1 */}
+        <path d="M70,70 Q60,85 90,90" fill="currentColor" fillOpacity="0.5" stroke="none" />
+        <path d="M70,70 Q85,60 90,90" fill="currentColor" fillOpacity="0.5" stroke="none" />
+        {/* Grain 2 */}
+        <path d="M50,50 Q40,65 70,70" fill="currentColor" fillOpacity="0.5" stroke="none" />
+        <path d="M50,50 Q65,40 70,70" fill="currentColor" fillOpacity="0.5" stroke="none" />
+        {/* Grain 3 */}
+        <path d="M30,30 Q20,45 50,50" fill="currentColor" fillOpacity="0.5" stroke="none" />
+        <path d="M30,30 Q45,20 50,50" fill="currentColor" fillOpacity="0.5" stroke="none" />
+        {/* Grain 4 */}
+        <path d="M10,10 Q0,25 30,30" fill="currentColor" fillOpacity="0.5" stroke="none" />
+        <path d="M10,10 Q25,0 30,30" fill="currentColor" fillOpacity="0.5" stroke="none" />
+        {/* Whisker lines (Awns) */}
+        <path d="M90,90 L95,100" strokeOpacity="0.4" strokeWidth="0.5"/>
+        <path d="M70,70 L80,95" strokeOpacity="0.4" strokeWidth="0.5"/>
+        <path d="M70,70 L95,80" strokeOpacity="0.4" strokeWidth="0.5"/>
+        <path d="M50,50 L65,80" strokeOpacity="0.4" strokeWidth="0.5"/>
+        <path d="M50,50 L80,65" strokeOpacity="0.4" strokeWidth="0.5"/>
+      </svg>
+    );
+    return (
+      <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+        <Corner className="top-0 left-0"><WheatSVG /></Corner>
+        <Corner className="top-0 right-0 scale-x-[-1]"><WheatSVG /></Corner>
+        <Corner className="bottom-0 left-0 scale-y-[-1]"><WheatSVG /></Corner>
+        <Corner className="bottom-0 right-0 scale-x-[-1] scale-y-[-1]"><WheatSVG /></Corner>
+      </div>
+    );
+  }
+
   // Stars (Sparkles)
   if (type === 'stars') {
     const StarSVG = () => (

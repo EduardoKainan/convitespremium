@@ -64,7 +64,8 @@ service cloud.firestore {
              data.uid is string &&
              data.email is string &&
              data.role in ['user', 'admin'] &&
-             data.createdAt is timestamp;
+             data.createdAt is timestamp &&
+             (data.get('credits', 0) is number);
     }
     
     function isValidInvitation(data) {
@@ -78,11 +79,17 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
-      // Users can create/update their own profile, but cannot elevate their role unless they are admin.
-      allow create: if isAuthenticated() && isValidUser(request.resource.data) && request.auth.uid == userId && 
-                    ((request.resource.data.role == 'user') || isAdmin());
-      allow update: if isAuthenticated() && isValidUser(request.resource.data) && request.auth.uid == userId && 
-                    ((request.resource.data.role == resource.data.role) || isAdmin());
+      // Users can create/update their own profile, but cannot elevate their role or credits unless they are admin.
+      allow create: if isAuthenticated() && isValidUser(request.resource.data) && 
+                    (
+                      (request.auth.uid == userId && request.resource.data.role == 'user' && request.resource.data.get('credits', 0) == 0)
+                      || isAdmin()
+                    );
+      allow update: if isAuthenticated() && isValidUser(request.resource.data) && 
+                    (
+                      (request.auth.uid == userId && request.resource.data.role == resource.data.role && request.resource.data.get('credits', 0) == resource.data.get('credits', 0))
+                      || isAdmin()
+                    );
       allow delete: if isAdmin();
     }
 

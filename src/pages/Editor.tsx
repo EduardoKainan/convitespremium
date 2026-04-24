@@ -643,6 +643,8 @@ export default function Editor() {
                   <option value="floral">Floral (Cachos)</option>
                   <option value="roses">Rosas Clássicas</option>
                   <option value="leaves">Folhas Soltas</option>
+                  <option value="dry-branches">Galhos Secos</option>
+                  <option value="wheat-straw">Ramos de Trigo</option>
                   <option value="flower-borders">Flores nas Bordas</option>
                   <option value="leafy-borders">Folhagens nas Bordas</option>
                   <option value="geometric">Geométrico (Art Deco)</option>
