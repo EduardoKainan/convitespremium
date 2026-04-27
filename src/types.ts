@@ -17,7 +17,7 @@ export interface ThemeConfig {
   fontBody: string;
 }
 
-export type DecorationType = 'floral' | 'geometric' | 'minimalist' | 'classic' | 'stars' | 'butterflies' | 'leaves' | 'none';
+export type DecorationType = 'floral' | 'geometric' | 'minimalist' | 'classic' | 'stars' | 'butterflies' | 'leaves' | 'elegant' | 'roses' | 'dry-branches' | 'wheat-straw' | 'delicate-flowers' | 'flower-borders' | 'leafy-borders' | '3d-rings' | '3d-diamonds' | '3d-spheres' | '3d-ribbons' | '3d-crystals' | '3d-confetti' | '3d-pyramids' | '3d-dodecahedrons' | 'none';
 export type OrnamentPackId = 'none' | 'pearls-premium' | 'rings-metallic' | 'crystals-elegant' | 'floral-2d' | 'geometric-2d' | 'stars-2d' | 'elegant-2d' | 'butterflies-2d' | 'delicate-flowers-2d';
 export type OccasionPresetId = 'wedding-classic' | 'wedding-modern' | 'sweet-16' | 'baby-shower' | 'birthday-luxe' | 'custom';
 
@@ -48,6 +48,7 @@ export interface InvitationData {
   giftSuggestions?: string;
   finalMessage: string;
   isEvaluationCopy?: boolean;
+  disableCover?: boolean;
   
   // Section Ordering and Custom Styles
   sectionOrder?: SectionId[];
@@ -60,6 +61,7 @@ export interface InvitationData {
   decorationScale?: number;
   decorationOffsetX?: number;
   decorationOffsetY?: number;
+  ornamentConfig?: OrnamentConfig;
 
   occasionPresetId?: OccasionPresetId;
   

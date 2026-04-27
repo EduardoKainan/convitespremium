@@ -11,7 +11,7 @@ interface FloralVectorProps {
 export default function FloralVectorDrawing({ type, color, scale = 1, offsetX = 0, offsetY = 0 }: FloralVectorProps) {
   if (!type || type === 'none') return null;
 
-  const draw = {
+  const draw: any = {
     hidden: { pathLength: 0, opacity: 0 },
     visible: (i: number) => {
       const delay = 0.5 + i * 0.5;
@@ -26,7 +26,7 @@ export default function FloralVectorDrawing({ type, color, scale = 1, offsetX = 
     }
   };
 
-  const sway = {
+  const sway: any = {
     animate: {
       rotate: [-1.5, 1.5, -1.5],
       transition: { repeat: Infinity, duration: 6, ease: "easeInOut" }

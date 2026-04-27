@@ -6,7 +6,7 @@ const LOTTIE_URLS = {
   'opening-rose': 'https://lottie.host/beee02ec-f04b-4fd5-8a2b-2a29addec9fa/0y8E1cK76M.json' // rose
 };
 
-export default function LottieCover({ type }: { type: 'watercolor-flowers' | 'gold-mandala' | 'opening-rose' }) {
+export default function LottieCover({ type }: { type: 'watercolor-flowers' | 'gold-mandala' | 'opening-rose' | 'none' }) {
   if (!type || type === 'none') return null;
   
   const src = LOTTIE_URLS[type];

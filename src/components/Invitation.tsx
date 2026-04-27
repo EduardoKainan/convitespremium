@@ -137,6 +137,7 @@ const Countdown = ({ targetDateStr, color }: { targetDateStr: string, color: str
 
 export default function Invitation({ data, isEditable, onUpdateData }: { data: InvitationData, isEditable?: boolean, onUpdateData?: (newData: Partial<InvitationData>) => void }) {
   const [isOpened, setIsOpened] = useState(false);
+  const [envelopeOpening, setEnvelopeOpening] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isGiftListModalOpen, setIsGiftListModalOpen] = useState(false);
   const [activeEditKey, setActiveEditKey] = useState<string | null>(null);
@@ -214,7 +215,10 @@ export default function Invitation({ data, isEditable, onUpdateData }: { data: I
   const directMusicUrl = getDirectAudioUrl(data.musicUrl);
 
   const handleOpen = () => {
-    setIsOpened(true);
+    if (envelopeOpening) return;
+    setEnvelopeOpening(true);
+    
+    // Play audio immediately
     if (audioRef.current && !isPlaying) {
       const playPromise = audioRef.current.play();
       if (playPromise !== undefined) {
@@ -223,6 +227,10 @@ export default function Invitation({ data, isEditable, onUpdateData }: { data: I
         });
       }
     }
+
+    setTimeout(() => {
+      setIsOpened(true);
+    }, 1200); // Wait 1.2s for envelope flap and sparkles to animate
   };
 
   useEffect(() => {
@@ -358,35 +366,39 @@ export default function Invitation({ data, isEditable, onUpdateData }: { data: I
                 </svg>
               </div>
 
-              {/* Hero Section on Cover */}
-              <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] shrink-0">
-                <img src={data.images.cover || undefined} className="w-full h-full object-cover" alt="Cover" />
-                
-                {data.premiumEffects?.coverLottie && data.premiumEffects.coverLottie !== 'none' && (
-                  <LottieCover type={data.premiumEffects.coverLottie as any} />
-                )}
+              {!data.disableCover && (
+                <>
+                  {/* Hero Section on Cover */}
+                  <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] shrink-0">
+                    <img src={data.images.cover || undefined} className="w-full h-full object-cover" alt="Cover" />
+                    
+                    {data.premiumEffects?.coverLottie && data.premiumEffects.coverLottie !== 'none' && (
+                      <LottieCover type={data.premiumEffects.coverLottie as any} />
+                    )}
 
-                {/* Bottom fade gradient */}
-                <div className="absolute bottom-0 inset-x-0 h-48 z-10" style={{ background: `linear-gradient(to top, ${data.theme.surface} 0%, transparent 100%)` }}></div>
+                    {/* Bottom fade gradient */}
+                    <div className="absolute bottom-0 inset-x-0 h-48 z-10" style={{ background: `linear-gradient(to top, ${data.theme.surface} 0%, transparent 100%)` }}></div>
 
-                {/* Play Button */}
-                <div className="absolute bottom-16 left-6 z-20 flex flex-col items-center">
-                  <button onClick={(e) => { e.stopPropagation(); toggleAudio(); }} className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm transition-transform hover:scale-105" style={{ backgroundColor: `${data.theme.primary}cc`, color: data.theme.surface }}>
-                    {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-1" />}
-                  </button>
-                  <span className="text-[10px] mt-2 font-serif italic font-medium" style={{ color: data.theme.primary }}>Tocar música</span>
-                </div>
-              </div>
+                    {/* Play Button */}
+                    <div className="absolute bottom-16 left-6 z-20 flex flex-col items-center">
+                      <button onClick={(e) => { e.stopPropagation(); toggleAudio(); }} className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm transition-transform hover:scale-105" style={{ backgroundColor: `${data.theme.primary}cc`, color: data.theme.surface }}>
+                        {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-1" />}
+                      </button>
+                      <span className="text-[10px] mt-2 font-serif italic font-medium" style={{ color: data.theme.primary }}>Tocar música</span>
+                    </div>
+                  </div>
 
-              {/* Center Title (Name + Heart + Category) */}
-              <div className="relative z-20 flex items-center justify-center gap-3 px-4 -mt-12 mb-12">
-                <span className="text-5xl drop-shadow-md" style={{ fontFamily: 'var(--font-script)', color: data.theme.primary }}>{data.name}</span>
-                <Heart size={32} strokeWidth={1} style={{ color: data.theme.primary }} className="opacity-70 mt-2" />
-                <span className="text-4xl drop-shadow-md mt-3" style={{ fontFamily: 'var(--font-script)', color: data.theme.primary }}>{data.category}</span>
-              </div>
+                  {/* Center Title (Name + Heart + Category) */}
+                  <div className="relative z-20 flex items-center justify-center gap-3 px-4 -mt-12 mb-12">
+                    <span className="text-5xl drop-shadow-md" style={{ fontFamily: 'var(--font-script)', color: data.theme.primary }}>{data.name}</span>
+                    <Heart size={32} strokeWidth={1} style={{ color: data.theme.primary }} className="opacity-70 mt-2" />
+                    <span className="text-4xl drop-shadow-md mt-3" style={{ fontFamily: 'var(--font-script)', color: data.theme.primary }}>{data.category}</span>
+                  </div>
+                </>
+              )}
 
               {/* Premium Envelope */}
-              <div className="relative z-20 flex flex-col items-center pb-12 cursor-pointer group mt-8" onClick={handleOpen}>
+              <div className={`relative z-20 flex flex-col items-center pb-12 cursor-pointer group ${data.disableCover ? 'my-auto justify-center flex-1' : 'mt-8'}`} onClick={handleOpen}>
                 <div className="relative w-80 h-52 shadow-2xl transition-transform duration-300 group-hover:scale-105 rounded-sm" style={{ backgroundColor: data.theme.primary }}>
                   {/* Texture */}
                   <div className="absolute inset-0 opacity-30 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/paper-fibers.png')]"></div>
@@ -402,10 +414,39 @@ export default function Invitation({ data, isEditable, onUpdateData }: { data: I
                   <div className="absolute inset-0 origin-bottom" style={{ backgroundColor: data.theme.primary, clipPath: 'polygon(0 100%, 50% 55%, 100% 100%)', filter: 'brightness(0.85)' }}></div>
                   
                   {/* Top Flap */}
-                  <div className="absolute inset-0 origin-top transition-transform duration-700 ease-in-out group-hover:rotate-x-180 z-30" style={{ backgroundColor: data.theme.primary, clipPath: 'polygon(0 0, 100% 0, 50% 60%)', filter: 'brightness(1.05)' }}></div>
+                  <div className="absolute inset-0 origin-top transition-transform duration-1000 ease-in-out z-30 group-hover:rotate-x-180" style={{ backgroundColor: data.theme.primary, clipPath: 'polygon(0 0, 100% 0, 50% 60%)', filter: 'brightness(1.05)', transformStyle: 'preserve-3d', backfaceVisibility: 'hidden', transform: envelopeOpening ? 'rotateX(180deg)' : undefined }}></div>
+
+                  {/* Envelope Interior Glow / Sparkles */}
+                  {envelopeOpening && (
+                    <motion.div 
+                      className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center"
+                    >
+                      {[...Array(15)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 1, scale: 0, x: 0, y: 0 }}
+                          animate={{ 
+                            opacity: 0, 
+                            scale: Math.random() * 2 + 1,
+                            x: (Math.random() - 0.5) * 400,
+                            y: (Math.random() - 0.5) * 400 - 150,
+                          }}
+                          transition={{ duration: 1.2, ease: "easeOut" }}
+                          className="absolute w-3 h-3 rounded-full"
+                          style={{ backgroundColor: i % 2 === 0 ? '#FFD700' : '#ffffff', boxShadow: '0 0 15px 5px rgba(255, 215, 0, 0.8)' }}
+                        />
+                      ))}
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: [0, 1, 0], scale: [0.5, 2, 4] }}
+                        transition={{ duration: 1 }}
+                        className="absolute w-20 h-20 bg-white rounded-full blur-2xl"
+                      />
+                    </motion.div>
+                  )}
 
                   {/* Brooch / Wax Seal */}
-                  <div className="absolute top-[55%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 w-20 h-20 rounded-full shadow-2xl flex items-center justify-center transition-transform duration-700 group-hover:scale-0 group-hover:opacity-0" style={{ background: 'linear-gradient(135deg, #FFDF73 0%, #B8860B 50%, #8B6508 100%)', padding: '4px' }}>
+                  <div className={`absolute top-[55%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 w-20 h-20 rounded-full shadow-2xl flex items-center justify-center transition-all duration-700 ${envelopeOpening ? 'scale-0 opacity-0' : 'group-hover:scale-0 group-hover:opacity-0'}`} style={{ background: 'linear-gradient(135deg, #FFDF73 0%, #B8860B 50%, #8B6508 100%)', padding: '4px' }}>
                     <div className="w-full h-full rounded-full border-2 border-[#FFDF73] flex items-center justify-center" style={{ background: 'radial-gradient(circle, #ffffff 0%, #f0f0f0 100%)', boxShadow: 'inset 0 0 10px rgba(0,0,0,0.3)' }}>
                       <div className="w-14 h-14 rounded-full border border-gray-200 flex items-center justify-center" style={{ background: 'radial-gradient(ellipse at top left, #FFD700 0%, #B8860B 100%)' }}>
                         <span className="text-white font-serif text-3xl opacity-90 drop-shadow-md">{data.name.charAt(0)}</span>
@@ -420,11 +461,13 @@ export default function Invitation({ data, isEditable, onUpdateData }: { data: I
               </div>
               
               {/* Intro Message on Cover */}
-              <div className="relative z-20 text-center px-8 pb-20 w-full max-w-sm mx-auto">
-                <p className="text-xl leading-relaxed" style={{ fontFamily: 'var(--font-title)', color: data.theme.text }}>
-                  {data.message}
-                </p>
-              </div>
+              {!data.disableCover && (
+                <div className="relative z-20 text-center px-8 pb-20 w-full max-w-sm mx-auto">
+                  <p className="text-xl leading-relaxed" style={{ fontFamily: 'var(--font-title)', color: data.theme.text }}>
+                    {data.message}
+                  </p>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

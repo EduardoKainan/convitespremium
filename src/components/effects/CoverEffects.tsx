@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 
-export default function CoverEffects({ type, color }: { type: 'watercolor-flowers' | 'gold-mandala' | 'opening-rose', color: string }) {
+export default function CoverEffects({ type, color }: { type: 'watercolor-flowers' | 'gold-mandala' | 'opening-rose' | 'none', color: string }) {
   if (!type || type === 'none') return null;
 
   if (type === 'gold-mandala') {
