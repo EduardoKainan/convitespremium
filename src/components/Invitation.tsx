@@ -136,7 +136,7 @@ const Countdown = ({ targetDateStr, color }: { targetDateStr: string, color: str
 };
 
 export default function Invitation({ data, isEditable, onUpdateData }: { data: InvitationData, isEditable?: boolean, onUpdateData?: (newData: Partial<InvitationData>) => void }) {
-  const [isOpened, setIsOpened] = useState(false);
+  const [isOpened, setIsOpened] = useState(!!data.disableCover);
   const [envelopeOpening, setEnvelopeOpening] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isGiftListModalOpen, setIsGiftListModalOpen] = useState(false);
@@ -144,6 +144,16 @@ export default function Invitation({ data, isEditable, onUpdateData }: { data: I
   const audioRef = useRef<HTMLAudioElement>(null);
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 1000], [0, 250]);
+
+  useEffect(() => {
+    if (data.disableCover) {
+      setIsOpened(true);
+      setEnvelopeOpening(false);
+    } else if (isOpened && !envelopeOpening) {
+      // If we are opened but not opening the envelope, and cover is suddenly enabled
+      setIsOpened(false);
+    }
+  }, [data.disableCover]);
 
   // Helpers to modify section and styles
   const moveSection = (idx: number, dir: 1 | -1) => {
