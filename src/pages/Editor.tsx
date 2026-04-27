@@ -776,6 +776,23 @@ export default function Editor() {
               </div>
 
               <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700">Animação Livre do Envelope</label>
+                <select 
+                  name="envelopeAnimation" 
+                  value={data.premiumEffects?.envelopeAnimation || 'none'} 
+                  onChange={handlePremiumEffectsChange} 
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border bg-white"
+                >
+                  <option value="none">Nenhuma</option>
+                  <option value="float">Flutuando</option>
+                  <option value="pulse">Pulsando</option>
+                  <option value="glow">Brilhando (Glow)</option>
+                  <option value="bounce">Pulinhos (Bounce)</option>
+                </select>
+                <p className="mt-1 text-xs text-gray-500">Se o convite usar tela de capa, define o comportamento do envelope antes de ser aberto.</p>
+              </div>
+
+              <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700">Lottie Animado (Exclusivo da Capa)</label>
                 <select 
                   name="coverLottie" 

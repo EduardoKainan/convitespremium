@@ -409,7 +409,23 @@ export default function Invitation({ data, isEditable, onUpdateData }: { data: I
 
               {/* Premium Envelope */}
               <div className={`relative z-20 flex flex-col items-center pb-12 cursor-pointer group ${data.disableCover ? 'my-auto justify-center flex-1' : 'mt-8'}`} onClick={handleOpen}>
-                <div className="relative w-80 h-52 shadow-2xl transition-transform duration-300 group-hover:scale-105 rounded-sm" style={{ backgroundColor: data.theme.primary }}>
+                <motion.div 
+                  animate={
+                    envelopeOpening ? {} :
+                    data.premiumEffects?.envelopeAnimation === 'float' ? { y: [0, -15, 0] } :
+                    data.premiumEffects?.envelopeAnimation === 'pulse' ? { scale: [1, 1.05, 1] } :
+                    data.premiumEffects?.envelopeAnimation === 'bounce' ? { y: [0, -20, 0] } :
+                    data.premiumEffects?.envelopeAnimation === 'glow' ? { boxShadow: ['0 25px 50px -12px rgba(0,0,0,0.25)', `0 0 40px 10px ${data.theme.primary}80`, '0 25px 50px -12px rgba(0,0,0,0.25)'] } :
+                    {}
+                  }
+                  transition={
+                    envelopeOpening ? {} :
+                    data.premiumEffects?.envelopeAnimation === 'bounce' ? { repeat: Infinity, duration: 0.6, repeatType: 'reverse', ease: "easeOut" } : 
+                    { repeat: Infinity, duration: 3, ease: 'easeInOut' }
+                  }
+                  className="relative w-80 h-52 shadow-2xl transition-transform duration-300 group-hover:scale-105 rounded-sm" 
+                  style={{ backgroundColor: data.theme.primary }}
+                >
                   {/* Texture */}
                   <div className="absolute inset-0 opacity-30 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/paper-fibers.png')]"></div>
                   
@@ -463,7 +479,7 @@ export default function Invitation({ data, isEditable, onUpdateData }: { data: I
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
                 
                 <p className="mt-8 text-sm font-medium tracking-widest" style={{ color: data.theme.text, fontFamily: 'var(--font-title)' }}>
                   Clique no envelope para abrir

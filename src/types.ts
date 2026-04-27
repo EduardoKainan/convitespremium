@@ -69,6 +69,7 @@ export interface InvitationData {
     floralDrawing?: 'none' | 'gold-arabesque' | 'boho-leaves' | 'heart-flowers' | 'vine-leaves' | 'spring-flowers' | 'elegant-swirls';
     particles?: 'none' | 'rose-petals' | 'sparkles' | 'snow' | 'rain' | 'confetti' | 'stardust' | 'sakura';
     coverLottie?: 'none' | 'watercolor-flowers' | 'gold-mandala' | 'opening-rose';
+    envelopeAnimation?: 'none' | 'float' | 'pulse' | 'glow' | 'bounce';
   };
 
   pageBackground?: PageBackground;
