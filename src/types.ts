@@ -37,6 +37,7 @@ export interface InvitationData {
   rsvpLink: string;
   whatsappNumber?: string;
   pixKey?: string;
+  giftSuggestions?: string;
   finalMessage: string;
   isEvaluationCopy?: boolean;
   

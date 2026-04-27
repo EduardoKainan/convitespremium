@@ -522,27 +522,48 @@ export default function Invitation({ data }: { data: InvitationData }) {
                   </a>
                 </div>
                 
-                {/* Gift PIX Button */}
-                {data.pixKey && data.pixKey.trim() !== '' && (
-                  <div className="flex justify-center border-t border-b py-8" style={{ borderColor: `${data.theme.primary}30` }}>
-                    <button 
-                      onClick={() => {
-                        const textToCopy = data.pixKey || '';
-                        navigator.clipboard.writeText(textToCopy);
-                        alert('Chave PIX copiada para a Área de Transferência!');
-                      }}
-                      className="flex flex-col items-center group hover:scale-105 transition-transform w-full"
-                    >
-                      <div className="w-20 h-20 flex items-center justify-center mb-4 rounded-full shadow-md" style={{ backgroundColor: `${data.theme.primary}15` }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill={data.theme.primary} stroke="currentColor" strokeWidth="0" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
-                      </div>
-                      <div className="text-center">
-                        <span className="block text-sm font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Lista de Presentes (PIX)</span>
-                        <span className="block text-xs uppercase tracking-widest opacity-60 mt-2" style={{ color: data.theme.text }}>Toque para Copiar a Chave</span>
-                      </div>
-                    </button>
-                  </div>
-                )}
+                {/* Give Buttons (PIX & Suggestions) */}
+                <div className="flex flex-col gap-6 border-t border-b py-8" style={{ borderColor: `${data.theme.primary}30` }}>
+                  {data.giftSuggestions && data.giftSuggestions.trim() !== '' && (
+                    <div className="flex justify-center w-full">
+                      <a 
+                        href={data.giftSuggestions}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex flex-col items-center group hover:scale-105 transition-transform w-full max-w-[280px]"
+                      >
+                        <div className="w-20 h-20 flex items-center justify-center mb-4 rounded-full shadow-md" style={{ backgroundColor: `${data.theme.primary}15` }}>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={data.theme.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 12A8 8 0 0 0 4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6z"/><line x1="12" y1="22" x2="12" y2="15"/><path d="M12 15a3 3 0 0 0 3-3V7a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3z"/></svg>
+                        </div>
+                        <div className="text-center">
+                          <span className="block text-sm font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Lista de Presentes</span>
+                          <span className="block text-xs uppercase tracking-widest opacity-60 mt-2" style={{ color: data.theme.text }}>Toque para Ver a Lista</span>
+                        </div>
+                      </a>
+                    </div>
+                  )}
+
+                  {data.pixKey && data.pixKey.trim() !== '' && (
+                    <div className="flex justify-center w-full mt-4">
+                      <button 
+                        onClick={() => {
+                          const textToCopy = data.pixKey || '';
+                          navigator.clipboard.writeText(textToCopy);
+                          alert('Chave PIX copiada para a Área de Transferência!');
+                        }}
+                        className="flex flex-col items-center group hover:scale-105 transition-transform w-full max-w-[280px]"
+                      >
+                        <div className="w-20 h-20 flex items-center justify-center mb-4 rounded-full shadow-md" style={{ backgroundColor: `${data.theme.primary}15` }}>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill={data.theme.primary} stroke="currentColor" strokeWidth="0" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+                        </div>
+                        <div className="text-center">
+                          <span className="block text-sm font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Vale Presente</span>
+                          <span className="block text-xs uppercase tracking-widest opacity-60 mt-2" style={{ color: data.theme.text }}>Toque para Copiar a Chave PIX</span>
+                        </div>
+                      </button>
+                    </div>
+                  )}
+                </div>
                 
                 {/* Click Icon Bottom Center */}
                 <div className="mt-16 flex justify-center">

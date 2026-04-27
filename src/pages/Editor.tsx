@@ -504,9 +504,14 @@ export default function Editor() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-pink-700 flex items-center gap-1 mt-4"><Sparkles size={14}/> Chave PIX para Presente (Opcional)</label>
+                <label className="block text-sm font-medium text-pink-700 flex items-center gap-1 mt-4"><Sparkles size={14}/> Lista de Presentes (Opcional)</label>
+                <input type="text" name="giftSuggestions" value={data.giftSuggestions || ''} onChange={handleChange} placeholder="Link da lista virtual ou sugestão de presente" className="mt-1 block w-full rounded-md border-pink-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm p-2 border" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-pink-700 flex items-center gap-1 mt-4"><Sparkles size={14}/> Chave PIX (Vale Presente)</label>
                 <input type="text" name="pixKey" value={data.pixKey || ''} onChange={handleChange} placeholder="Chave celular, CPF ou email" className="mt-1 block w-full rounded-md border-pink-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm p-2 border" />
-                <p className="mt-1 text-xs text-gray-500">Adiciona o botão "Presentear os Noivos/Aniversariante" no final do convite.</p>
+                <p className="mt-1 text-xs text-gray-500">Adiciona o botão "Vale Presente" no final do convite com a chave PIX.</p>
               </div>
               
               <div className="mt-4">
