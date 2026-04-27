@@ -505,7 +505,8 @@ export default function Editor() {
 
               <div>
                 <label className="block text-sm font-medium text-pink-700 flex items-center gap-1 mt-4"><Sparkles size={14}/> Lista de Presentes (Opcional)</label>
-                <input type="text" name="giftSuggestions" value={data.giftSuggestions || ''} onChange={handleChange} placeholder="Link da lista virtual ou sugestão de presente" className="mt-1 block w-full rounded-md border-pink-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm p-2 border" />
+                <textarea name="giftSuggestions" value={data.giftSuggestions || ''} onChange={handleChange as any} placeholder="Descreva aqui sua lista de presentes ou sugestões para os convidados..." rows={4} className="mt-1 block w-full rounded-md border-pink-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm p-2 border" />
+                <p className="mt-1 text-xs text-gray-500">Quando o convidado clicar em 'Lista de Presentes', esse texto aparecerá na tela.</p>
               </div>
 
               <div>

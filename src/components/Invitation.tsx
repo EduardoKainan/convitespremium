@@ -138,6 +138,7 @@ const Countdown = ({ targetDateStr, color }: { targetDateStr: string, color: str
 export default function Invitation({ data }: { data: InvitationData }) {
   const [isOpened, setIsOpened] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isGiftListModalOpen, setIsGiftListModalOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 1000], [0, 250]);
@@ -526,10 +527,8 @@ export default function Invitation({ data }: { data: InvitationData }) {
                 <div className="flex flex-col gap-6 border-t border-b py-8" style={{ borderColor: `${data.theme.primary}30` }}>
                   {data.giftSuggestions && data.giftSuggestions.trim() !== '' && (
                     <div className="flex justify-center w-full">
-                      <a 
-                        href={data.giftSuggestions}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button 
+                        onClick={() => setIsGiftListModalOpen(true)}
                         className="flex flex-col items-center group hover:scale-105 transition-transform w-full max-w-[280px]"
                       >
                         <div className="w-20 h-20 flex items-center justify-center mb-4 rounded-full shadow-md" style={{ backgroundColor: `${data.theme.primary}15` }}>
@@ -539,7 +538,7 @@ export default function Invitation({ data }: { data: InvitationData }) {
                           <span className="block text-sm font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Lista de Presentes</span>
                           <span className="block text-xs uppercase tracking-widest opacity-60 mt-2" style={{ color: data.theme.text }}>Toque para Ver a Lista</span>
                         </div>
-                      </a>
+                      </button>
                     </div>
                   )}
 
@@ -628,6 +627,41 @@ export default function Invitation({ data }: { data: InvitationData }) {
             <div className="h-16"></div> {/* Spacer for floating button */}
           </div>
         </div>
+        
+        {/* Modal Lista de Presentes */}
+        <AnimatePresence>
+          {isGiftListModalOpen && (
+            <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setIsGiftListModalOpen(false)}>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden relative"
+                style={{ backgroundColor: data.theme.surface, color: data.theme.text }}
+              >
+                <div className="p-6">
+                  <div className="flex justify-between items-center mb-6 border-b pb-4" style={{ borderColor: `${data.theme.primary}30` }}>
+                    <h3 className="text-xl font-bold tracking-widest uppercase" style={{ color: data.theme.primary, fontFamily: 'var(--font-title)' }}>
+                      Lista de Presentes
+                    </h3>
+                    <button 
+                      onClick={() => setIsGiftListModalOpen(false)}
+                      className="p-2 rounded-full hover:bg-black/5 transition-colors"
+                      style={{ color: data.theme.primary }}
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                  </div>
+                  
+                  <div className="max-h-[60vh] overflow-y-auto pr-2 whitespace-pre-wrap leading-relaxed text-sm">
+                    {data.giftSuggestions}
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
 
       {data.isEvaluationCopy && (
