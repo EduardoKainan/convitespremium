@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
-import { MapPin, Clock, Calendar, Music, Pause, Play, Heart, Navigation, Info, MessageCircle, MousePointerClick, GlassWater, Volume2, VolumeX } from 'lucide-react';
-import { InvitationData } from '../types';
+import { MapPin, Clock, Calendar, Music, Pause, Play, Heart, Navigation, Info, MessageCircle, MousePointerClick, GlassWater, Volume2, VolumeX, Settings2, X, Edit2, ChevronUp, ChevronDown } from 'lucide-react';
+import { InvitationData, CustomTextStyle } from '../types';
 import Decorations from './Decorations';
 import OrnamentCanvas from './ornaments/OrnamentCanvas';
 import ParticlesBackground from './effects/ParticlesBackground';
@@ -135,13 +135,61 @@ const Countdown = ({ targetDateStr, color }: { targetDateStr: string, color: str
   );
 };
 
-export default function Invitation({ data }: { data: InvitationData }) {
+export default function Invitation({ data, isEditable, onUpdateData }: { data: InvitationData, isEditable?: boolean, onUpdateData?: (newData: Partial<InvitationData>) => void }) {
   const [isOpened, setIsOpened] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isGiftListModalOpen, setIsGiftListModalOpen] = useState(false);
+  const [activeEditKey, setActiveEditKey] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 1000], [0, 250]);
+
+  // Helpers to modify section and styles
+  const moveSection = (idx: number, dir: 1 | -1) => {
+    if (!onUpdateData) return;
+    const arr = [...(data.sectionOrder || ["header", "countdown", "interactive", "dressCode", "footer"])];
+    const newIdx = idx + dir;
+    if (newIdx < 0 || newIdx >= arr.length) return;
+    [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+    onUpdateData({ sectionOrder: arr });
+  };
+
+  const updateStyle = (key: string, field: string, val: any) => {
+    if (!onUpdateData) return;
+    const newStyles = { ...(data.textStyles || {}) };
+    newStyles[key] = { ...(newStyles[key] || {}), [field]: val };
+    onUpdateData({ textStyles: newStyles });
+  };
+
+  const EditWrapper = ({ editKey, children, label, className }: { editKey: string, children: React.ReactNode, label: string, className?: string }) => {
+    if (!isEditable) return <div className={className}>{children}</div>;
+    return (
+      <div className={`relative group/edit inline-block w-full ${className || ''}`}>
+         <div className="absolute inset-0 border-2 border-dashed border-transparent group-hover/edit:border-indigo-500/50 rounded pointer-events-none transition-colors z-40"></div>
+         <button 
+           onClick={() => setActiveEditKey(editKey)}
+           className="absolute -top-6 right-0 z-50 hidden group-hover/edit:flex items-center gap-1 bg-indigo-600 text-white text-[10px] uppercase font-bold px-2 py-1 rounded shadow-lg"
+         >
+           <Edit2 size={10} /> Editar {label}
+         </button>
+         {children}
+      </div>
+    );
+  };
+
+  const SectionWrapper = ({ idx, total, children }: { idx: number, total: number, children: React.ReactNode }) => {
+    return (
+      <div className="relative group/section">
+        {isEditable && (
+          <div className="absolute top-2 right-2 z-50 flex flex-col gap-1 opacity-0 group-hover/section:opacity-100 transition-opacity">
+            <button onClick={() => moveSection(idx, -1)} className="p-2 bg-white shadow rounded text-gray-700 hover:text-indigo-600 border border-gray-200" disabled={idx === 0}><ChevronUp size={16}/></button>
+            <button onClick={() => moveSection(idx, 1)} className="p-2 bg-white shadow rounded text-gray-700 hover:text-indigo-600 border border-gray-200" disabled={idx === total - 1}><ChevronDown size={16}/></button>
+          </div>
+        )}
+        {children}
+      </div>
+    );
+  };
 
   // Helper to convert sharing links to direct downloading/streaming links
   const getDirectAudioUrl = (url: string) => {
@@ -390,244 +438,373 @@ export default function Invitation({ data }: { data: InvitationData }) {
             <div className="absolute bottom-0 inset-x-0 h-48" style={{ background: `linear-gradient(to top, ${data.theme.surface} 0%, transparent 100%)` }}></div>
           </div>
 
-          {/* Inside Header */}
-          <div className="pt-12 pb-12 px-8 text-center relative z-10">
-            <Reveal direction="up">
-              <h2 className="text-xl mb-12 leading-relaxed" style={{ fontFamily: 'var(--font-title)', color: data.theme.text }}>
-                {data.message}
-              </h2>
-            </Reveal>
-              
-            <Reveal direction="up" delay={0.2}>
-              {/* Date/Time Arch */}
-              <div className="relative w-64 h-96 mx-auto mb-16 rounded-t-full shadow-xl overflow-hidden flex flex-col items-center justify-center" style={{ backgroundColor: data.theme.primary }}>
-                {/* Texture */}
-                <div className="absolute inset-0 opacity-20 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/paper-fibers.png')]"></div>
+          {
+            (data.sectionOrder || ["header", "countdown", "interactive", "dressCode", "footer"]).map((sectionId, idx) => {
+              if (sectionId === 'header') {
+                return (
+                  <SectionWrapper key="header" idx={idx} total={(data.sectionOrder || ["header", "countdown", "interactive", "dressCode", "footer"]).length}>
+                    <div className="pt-12 pb-12 px-8 text-center relative z-10">
+                      <Reveal direction="up">
+                        <EditWrapper editKey="message" label="Mensagem Inicial">
+                          <h2 
+                            className="text-xl mb-12 leading-relaxed" 
+                            style={{ 
+                              fontFamily: data.textStyles?.message?.fontFamily || 'var(--font-title)', 
+                              color: data.textStyles?.message?.color || data.theme.text,
+                              transform: `scale(${data.textStyles?.message?.fontSize || 1})`
+                            }}
+                          >
+                            {data.message}
+                          </h2>
+                        </EditWrapper>
+                      </Reveal>
+                        
+                      <Reveal direction="up" delay={0.2}>
+                        {/* Date/Time Arch */}
+                        <EditWrapper editKey="dateArch" label="Card de Data/Hora">
+                          <div className="relative w-64 h-96 mx-auto mb-16 rounded-t-full shadow-xl overflow-hidden flex flex-col items-center justify-center" style={{ backgroundColor: data.theme.primary }}>
+                            {/* Texture */}
+                            <div className="absolute inset-0 opacity-20 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/paper-fibers.png')]"></div>
 
-                {/* Animated Particles */}
-                <div className="absolute inset-0 pointer-events-none">
-                  {[...Array(8)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      className="absolute"
-                      style={{
-                        top: `${Math.random() * 80 + 10}%`,
-                        left: `${Math.random() * 80 + 10}%`,
-                      }}
-                      animate={{
-                        y: [0, -30, 0],
-                        opacity: [0, 0.6, 0],
-                        scale: [0.5, 1, 0.5],
-                        rotate: [0, 90]
-                      }}
-                      transition={{
-                        duration: 4 + Math.random() * 3,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: Math.random() * 3
-                      }}
-                    >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="white" fillOpacity="0.6"/>
-                      </svg>
-                    </motion.div>
-                  ))}
-                </div>
+                            {/* Animated Particles */}
+                            <div className="absolute inset-0 pointer-events-none">
+                              {[...Array(8)].map((_, i) => (
+                                <motion.div
+                                  key={i}
+                                  className="absolute"
+                                  style={{
+                                    top: `${Math.random() * 80 + 10}%`,
+                                    left: `${Math.random() * 80 + 10}%`,
+                                  }}
+                                  animate={{
+                                    y: [0, -30, 0],
+                                    opacity: [0, 0.6, 0],
+                                    scale: [0.5, 1, 0.5],
+                                    rotate: [0, 90]
+                                  }}
+                                  transition={{
+                                    duration: 4 + Math.random() * 3,
+                                    repeat: Infinity,
+                                    ease: "easeInOut",
+                                    delay: Math.random() * 3
+                                  }}
+                                >
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="white" fillOpacity="0.6"/>
+                                  </svg>
+                                </motion.div>
+                              ))}
+                            </div>
 
-                {/* Animated Inner Border */}
-                <motion.div 
-                  className="absolute inset-3 border border-white opacity-20 rounded-t-full pointer-events-none"
-                  animate={{ opacity: [0.1, 0.4, 0.1], scale: [0.98, 1, 0.98] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                />
+                            {/* Animated Inner Border */}
+                            <motion.div 
+                              className="absolute inset-3 border border-white opacity-20 rounded-t-full pointer-events-none"
+                              animate={{ opacity: [0.1, 0.4, 0.1], scale: [0.98, 1, 0.98] }}
+                              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                            />
 
-                <div className="relative z-10 flex flex-col items-center text-white drop-shadow-md">
-                  <span className="text-8xl font-bold leading-none" style={{ fontFamily: 'var(--font-title)' }}>
-                    {data.date.split('-')[2]}
-                  </span>
-                  <span className="text-4xl mt-2 mb-4" style={{ fontFamily: 'var(--font-script)' }}>
-                    {new Date(data.date).toLocaleString('pt-BR', { month: 'long' })}
-                  </span>
-                  <span className="text-2xl font-medium tracking-widest mb-6" style={{ fontFamily: 'var(--font-title)' }}>
-                    {data.date.split('-')[0]}
-                  </span>
-                  <span className="text-3xl" style={{ fontFamily: 'var(--font-script)' }} translate="no">
-                    às
-                  </span>
-                  <span className="text-3xl font-bold mt-2" style={{ fontFamily: 'var(--font-title)' }}>
-                    {data.time}
-                  </span>
-                </div>
-              </div>
-            </Reveal>
-          </div>
-
-          {/* Info Section */}
-          <div className="py-12 px-8 text-center relative z-10">
-            <Reveal direction="up">
-              <Countdown targetDateStr={data.date} color={data.theme.primary} />
-            </Reveal>
-          </div>
-
-          {/* Interactive Section */}
-          <div className="py-20 px-8 text-center relative z-10">
-            <Reveal direction="up">
-              <div className="mb-16">
-                <h2 className="text-2xl tracking-widest uppercase mb-4" style={{ fontFamily: 'var(--font-title)', color: data.theme.text }}>
-                  Clique para
-                </h2>
-                <h3 className="text-6xl" style={{ fontFamily: 'var(--font-script)', color: data.theme.text }}>
-                  Interagir
-                </h3>
-              </div>
-            </Reveal>
-
-            <Reveal direction="up" delay={0.2}>
-              {/* Interactive Buttons Layout */}
-              <div className="w-full max-w-sm mx-auto mb-12">
-                <p className="text-sm italic mb-10 max-w-xs mx-auto" style={{ color: data.theme.text, opacity: 0.8 }}>
-                  "Sua presença é muito importante. Por favor, confirme se poderá comparecer e veja como chegar:"
-                </p>
-
-                <div className="flex flex-row justify-center gap-8 mb-12">
-                  {/* RSVP Button */}
-                  <a 
-                    href={getWhatsAppLink()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex flex-col items-center group hover:scale-105 transition-transform w-[120px]"
-                  >
-                    <div className="w-20 h-20 flex items-center justify-center mb-4 rounded-full shadow-md" style={{ backgroundColor: `${data.theme.primary}15` }}>
-                      <Heart size={36} fill={data.theme.primary} strokeWidth={0} />
+                            <div className="relative z-10 flex flex-col items-center text-white drop-shadow-md">
+                              <span className="text-8xl font-bold leading-none" style={{ fontFamily: data.textStyles?.dateArch?.fontFamily || 'var(--font-title)' }}>
+                                {data.date.split('-')[2]}
+                              </span>
+                              <span className="text-4xl mt-2 mb-4" style={{ fontFamily: data.textStyles?.dateArch?.fontFamily || 'var(--font-script)' }}>
+                                {new Date(data.date).toLocaleString('pt-BR', { month: 'long' })}
+                              </span>
+                              <span className="text-2xl font-medium tracking-widest mb-6" style={{ fontFamily: data.textStyles?.dateArch?.fontFamily || 'var(--font-title)' }}>
+                                {data.date.split('-')[0]}
+                              </span>
+                              <span className="text-3xl" style={{ fontFamily: 'var(--font-script)' }} translate="no">
+                                às
+                              </span>
+                              <span className="text-3xl font-bold mt-2" style={{ fontFamily: data.textStyles?.dateArch?.fontFamily || 'var(--font-title)' }}>
+                                {data.time}
+                              </span>
+                            </div>
+                          </div>
+                        </EditWrapper>
+                      </Reveal>
                     </div>
-                    <div className="text-center">
-                      <span className="block text-[11px] font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Confirmar</span>
-                      <span className="block text-[11px] font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Presença</span>
-                    </div>
-                  </a>
+                  </SectionWrapper>
+                );
+              }
 
-                  {/* Location Button */}
-                  <a 
-                    href={data.locationUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex flex-col items-center group hover:scale-105 transition-transform w-[120px]"
-                  >
-                    <div className="w-20 h-20 flex items-center justify-center mb-4 rounded-full shadow-md" style={{ backgroundColor: `${data.theme.primary}15` }}>
-                      <MapPin size={36} fill={data.theme.primary} strokeWidth={0} />
+              if (sectionId === 'countdown') {
+                return (
+                  <SectionWrapper key="countdown" idx={idx} total={(data.sectionOrder || ["header", "countdown", "interactive", "dressCode", "footer"]).length}>
+                    <div className="py-12 px-8 text-center relative z-10">
+                      <Reveal direction="up">
+                        <Countdown targetDateStr={data.date} color={data.theme.primary} />
+                      </Reveal>
                     </div>
-                    <div className="text-center">
-                      <span className="block text-[11px] font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Local do</span>
-                      <span className="block text-[11px] font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Evento</span>
-                    </div>
-                  </a>
-                </div>
-                
-                {/* Give Buttons (PIX & Suggestions) */}
-                <div className="flex flex-col gap-6 border-t border-b py-8" style={{ borderColor: `${data.theme.primary}30` }}>
-                  {data.giftSuggestions && data.giftSuggestions.trim() !== '' && (
-                    <div className="flex justify-center w-full">
-                      <button 
-                        onClick={() => setIsGiftListModalOpen(true)}
-                        className="flex flex-col items-center group hover:scale-105 transition-transform w-full max-w-[280px]"
-                      >
-                        <div className="w-20 h-20 flex items-center justify-center mb-4 rounded-full shadow-md" style={{ backgroundColor: `${data.theme.primary}15` }}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={data.theme.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 12A8 8 0 0 0 4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6z"/><line x1="12" y1="22" x2="12" y2="15"/><path d="M12 15a3 3 0 0 0 3-3V7a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3z"/></svg>
+                  </SectionWrapper>
+                );
+              }
+
+              if (sectionId === 'interactive') {
+                return (
+                  <SectionWrapper key="interactive" idx={idx} total={(data.sectionOrder || ["header", "countdown", "interactive", "dressCode", "footer"]).length}>
+                    <div className="py-20 px-8 text-center relative z-10">
+                      <Reveal direction="up">
+                        <div className="mb-16">
+                          <EditWrapper editKey="interactiveTitle" label="Títulos Interativos">
+                            <div style={{ transform: `scale(${data.textStyles?.interactiveTitle?.fontSize || 1})` }}>
+                              <h2 className="text-2xl tracking-widest uppercase mb-4" style={{ fontFamily: data.textStyles?.interactiveTitle?.fontFamily || 'var(--font-title)', color: data.textStyles?.interactiveTitle?.color || data.theme.text }}>
+                                Clique para
+                              </h2>
+                              <h3 className="text-6xl" style={{ fontFamily: data.textStyles?.interactiveTitle?.fontFamily || 'var(--font-script)', color: data.textStyles?.interactiveTitle?.color || data.theme.text }}>
+                                Interagir
+                              </h3>
+                            </div>
+                          </EditWrapper>
                         </div>
-                        <div className="text-center">
-                          <span className="block text-sm font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Lista de Presentes</span>
-                          <span className="block text-xs uppercase tracking-widest opacity-60 mt-2" style={{ color: data.theme.text }}>Toque para Ver a Lista</span>
-                        </div>
-                      </button>
-                    </div>
-                  )}
+                      </Reveal>
 
-                  {data.pixKey && data.pixKey.trim() !== '' && (
-                    <div className="flex justify-center w-full mt-4">
-                      <button 
-                        onClick={() => {
-                          const textToCopy = data.pixKey || '';
-                          navigator.clipboard.writeText(textToCopy);
-                          alert('Chave PIX copiada para a Área de Transferência!');
-                        }}
-                        className="flex flex-col items-center group hover:scale-105 transition-transform w-full max-w-[280px]"
-                      >
-                        <div className="w-20 h-20 flex items-center justify-center mb-4 rounded-full shadow-md" style={{ backgroundColor: `${data.theme.primary}15` }}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill={data.theme.primary} stroke="currentColor" strokeWidth="0" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
-                        </div>
-                        <div className="text-center">
-                          <span className="block text-sm font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Vale Presente</span>
-                          <span className="block text-xs uppercase tracking-widest opacity-60 mt-2" style={{ color: data.theme.text }}>Toque para Copiar a Chave PIX</span>
-                        </div>
-                      </button>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Click Icon Bottom Center */}
-                <div className="mt-16 flex justify-center">
-                  <MousePointerClick size={32} strokeWidth={1} style={{ color: data.theme.primary, opacity: 0.4 }} />
-                </div>
-              </div>
-            </Reveal>
-          </div>
+                    <Reveal direction="up" delay={0.2}>
+                      {/* Interactive Buttons Layout */}
+                      <div className="w-full max-w-sm mx-auto mb-12">
+                        <p className="text-sm italic mb-10 max-w-xs mx-auto" style={{ color: data.theme.text, opacity: 0.8 }}>
+                          "Sua presença é muito importante. Por favor, confirme se poderá comparecer e veja como chegar:"
+                        </p>
 
-          {/* Dress Code Section */}
-          {data.dressCode && data.dressCode.trim() !== '' && (
-            <div className="py-20 px-8 text-center relative z-10" style={{ backgroundColor: data.theme.background, color: data.theme.surface }}>
-              <BackgroundOverlay type={data.pageBackground} color={data.theme.primary} />
-              <Reveal direction="up">
-                <h2 className="text-3xl mb-8" style={{ fontFamily: 'var(--font-title)', color: data.theme.primary }}>Dress Code</h2>
-                <div className="flex justify-center mb-6">
-                  <div 
-                    className="w-16 h-16 rounded-full flex items-center justify-center shadow-inner"
-                    style={{ border: `1px solid ${data.theme.primary}50`, backgroundColor: `${data.theme.surface}10` }}
-                  >
-                    <Info size={28} style={{ color: data.theme.primary }} />
+                        <div className="flex flex-row justify-center gap-8 mb-12">
+                          {/* RSVP Button */}
+                          <a 
+                            href={getWhatsAppLink()}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex flex-col items-center group hover:scale-105 transition-transform w-[120px]"
+                          >
+                            <div className="w-20 h-20 flex items-center justify-center mb-4 rounded-full shadow-md" style={{ backgroundColor: `${data.theme.primary}15` }}>
+                              <Heart size={36} fill={data.theme.primary} strokeWidth={0} />
+                            </div>
+                            <div className="text-center">
+                              <span className="block text-[11px] font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Confirmar</span>
+                              <span className="block text-[11px] font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Presença</span>
+                            </div>
+                          </a>
+
+                          {/* Location Button */}
+                          <a 
+                            href={data.locationUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex flex-col items-center group hover:scale-105 transition-transform w-[120px]"
+                          >
+                            <div className="w-20 h-20 flex items-center justify-center mb-4 rounded-full shadow-md" style={{ backgroundColor: `${data.theme.primary}15` }}>
+                              <MapPin size={36} fill={data.theme.primary} strokeWidth={0} />
+                            </div>
+                            <div className="text-center">
+                              <span className="block text-[11px] font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Local do</span>
+                              <span className="block text-[11px] font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Evento</span>
+                            </div>
+                          </a>
+                        </div>
+                        
+                        {/* Give Buttons (PIX & Suggestions) */}
+                        <div className="flex flex-col gap-6 border-t border-b py-8" style={{ borderColor: `${data.theme.primary}30` }}>
+                          {data.giftSuggestions && data.giftSuggestions.trim() !== '' && (
+                            <div className="flex justify-center w-full">
+                              <button 
+                                onClick={() => setIsGiftListModalOpen(true)}
+                                className="flex flex-col items-center group hover:scale-105 transition-transform w-full max-w-[280px]"
+                              >
+                                <div className="w-20 h-20 flex items-center justify-center mb-4 rounded-full shadow-md" style={{ backgroundColor: `${data.theme.primary}15` }}>
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={data.theme.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 12A8 8 0 0 0 4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6z"/><line x1="12" y1="22" x2="12" y2="15"/><path d="M12 15a3 3 0 0 0 3-3V7a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3z"/></svg>
+                                </div>
+                                <div className="text-center">
+                                  <span className="block text-sm font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Lista de Presentes</span>
+                                  <span className="block text-xs uppercase tracking-widest opacity-60 mt-2" style={{ color: data.theme.text }}>Toque para Ver a Lista</span>
+                                </div>
+                              </button>
+                            </div>
+                          )}
+
+                          {data.pixKey && data.pixKey.trim() !== '' && (
+                            <div className="flex justify-center w-full mt-4">
+                              <button 
+                                onClick={() => {
+                                  const textToCopy = data.pixKey || '';
+                                  navigator.clipboard.writeText(textToCopy);
+                                  alert('Chave PIX copiada para a Área de Transferência!');
+                                }}
+                                className="flex flex-col items-center group hover:scale-105 transition-transform w-full max-w-[280px]"
+                              >
+                                <div className="w-20 h-20 flex items-center justify-center mb-4 rounded-full shadow-md" style={{ backgroundColor: `${data.theme.primary}15` }}>
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill={data.theme.primary} stroke="currentColor" strokeWidth="0" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+                                </div>
+                                <div className="text-center">
+                                  <span className="block text-sm font-bold uppercase tracking-widest" style={{ color: data.theme.primary }}>Vale Presente</span>
+                                  <span className="block text-xs uppercase tracking-widest opacity-60 mt-2" style={{ color: data.theme.text }}>Toque para Copiar a Chave PIX</span>
+                                </div>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Click Icon Bottom Center */}
+                        <div className="mt-16 flex justify-center">
+                          <MousePointerClick size={32} strokeWidth={1} style={{ color: data.theme.primary, opacity: 0.4 }} />
+                        </div>
+                      </div>
+                    </Reveal>
                   </div>
-                </div>
-                <p className="text-sm leading-relaxed max-w-xs mx-auto" style={{ opacity: 0.8 }}>
-                  {data.dressCode}
-                </p>
-              </Reveal>
-            </div>
-          )}
+                </SectionWrapper>
+                );
+              }
 
-          {/* Footer RSVP Section */}
-          <div className="pt-10 pb-32 px-6 text-center relative z-10 flex flex-col items-center" style={{ color: data.theme.text }}>
-            <Reveal direction="up">
-              <p className="text-lg leading-relaxed max-w-sm mx-auto mb-12" style={{ fontFamily: 'var(--font-title)' }}>
-                {data.finalMessage}
-              </p>
-            </Reveal>
+              if (sectionId === 'dressCode' && data.dressCode && data.dressCode.trim() !== '') {
+                return (
+                  <SectionWrapper key="dressCode" idx={idx} total={(data.sectionOrder || ["header", "countdown", "interactive", "dressCode", "footer"]).length}>
+                    <div className="py-20 px-8 text-center relative z-10" style={{ backgroundColor: data.theme.background, color: data.theme.surface }}>
+                      <BackgroundOverlay type={data.pageBackground} color={data.theme.primary} />
+                      <Reveal direction="up">
+                        <EditWrapper editKey="dressCode" label="Textos Dress Code">
+                          <div style={{ transform: `scale(${data.textStyles?.dressCode?.fontSize || 1})` }}>
+                            <h2 className="text-3xl mb-8" style={{ fontFamily: data.textStyles?.dressCode?.fontFamily || 'var(--font-title)', color: data.textStyles?.dressCode?.color || data.theme.primary }}>Dress Code</h2>
+                            <div className="flex justify-center mb-6">
+                              <div 
+                                className="w-16 h-16 rounded-full flex items-center justify-center shadow-inner"
+                                style={{ border: `1px solid ${data.theme.primary}50`, backgroundColor: `${data.theme.surface}10` }}
+                              >
+                                <Info size={28} style={{ color: data.theme.primary }} />
+                              </div>
+                            </div>
+                            <p className="text-sm leading-relaxed max-w-xs mx-auto" style={{ opacity: 0.8, fontFamily: data.textStyles?.dressCode?.fontFamily || 'var(--font-body)', color: data.textStyles?.dressCode?.color || data.theme.primary }}>
+                              {data.dressCode}
+                            </p>
+                          </div>
+                        </EditWrapper>
+                      </Reveal>
+                    </div>
+                  </SectionWrapper>
+                );
+              }
 
-            <Reveal direction="up" delay={0.2}>
-              <div className="relative w-full max-w-md mx-auto aspect-[3/4] mb-8">
-                {/* Top fade gradient */}
-                <div className="absolute top-0 inset-x-0 h-24 z-10" style={{ background: `linear-gradient(to bottom, ${data.theme.surface} 0%, transparent 100%)` }}></div>
-                
-                <img 
-                  src={data.images.footer || undefined} 
-                  alt="Footer" 
-                  className="w-full h-full object-cover"
-                />
-                
-                {/* Bottom fade gradient */}
-                <div className="absolute bottom-0 inset-x-0 h-32 z-10" style={{ background: `linear-gradient(to top, ${data.theme.surface} 0%, transparent 100%)` }}></div>
+              if (sectionId === 'footer') {
+                return (
+                  <SectionWrapper key="footer" idx={idx} total={(data.sectionOrder || ["header", "countdown", "interactive", "dressCode", "footer"]).length}>
+                    <div className="pt-10 pb-32 px-6 text-center relative z-10 flex flex-col items-center" style={{ color: data.theme.text }}>
+                      <Reveal direction="up">
+                        <EditWrapper editKey="finalMessage" label="Mensagem Final">
+                          <p 
+                            className="text-lg leading-relaxed max-w-sm mx-auto mb-12" 
+                            style={{ 
+                              fontFamily: data.textStyles?.finalMessage?.fontFamily || 'var(--font-title)',
+                              color: data.textStyles?.finalMessage?.color || data.theme.text,
+                              transform: `scale(${data.textStyles?.finalMessage?.fontSize || 1})`
+                            }}
+                          >
+                            {data.finalMessage}
+                          </p>
+                        </EditWrapper>
+                      </Reveal>
 
-                {/* Espero por você Text */}
-                <div className="absolute bottom-4 right-4 z-20">
-                  <h2 className="text-4xl sm:text-5xl drop-shadow-md" style={{ fontFamily: 'var(--font-script)', color: data.theme.primary }}>
-                    Espero por você!
-                  </h2>
-                </div>
-              </div>
-            </Reveal>
-            
-            <div className="h-16"></div> {/* Spacer for floating button */}
-          </div>
+                      <Reveal direction="up" delay={0.2}>
+                        <div className="relative w-full max-w-md mx-auto aspect-[3/4] mb-8">
+                          {/* Top fade gradient */}
+                          <div className="absolute top-0 inset-x-0 h-24 z-10" style={{ background: `linear-gradient(to bottom, ${data.theme.surface} 0%, transparent 100%)` }}></div>
+                          
+                          <img 
+                            src={data.images.footer || undefined} 
+                            alt="Footer" 
+                            className="w-full h-full object-cover"
+                          />
+                          
+                          {/* Bottom fade gradient */}
+                          <div className="absolute bottom-0 inset-x-0 h-32 z-10" style={{ background: `linear-gradient(to top, ${data.theme.surface} 0%, transparent 100%)` }}></div>
+
+                          {/* Espero por você Text */}
+                          <div className="absolute bottom-4 right-4 z-20">
+                            <EditWrapper editKey="footerText" label="Frase do Rodapé">
+                              <h2 
+                                className="text-4xl sm:text-5xl drop-shadow-md" 
+                                style={{ 
+                                  fontFamily: data.textStyles?.footerText?.fontFamily || 'var(--font-script)', 
+                                  color: data.textStyles?.footerText?.color || data.theme.primary,
+                                  transform: `scale(${data.textStyles?.footerText?.fontSize || 1})`
+                                }}
+                              >
+                                Espero por você!
+                              </h2>
+                            </EditWrapper>
+                          </div>
+                        </div>
+                      </Reveal>
+                      
+                      <div className="h-16"></div> {/* Spacer for floating button */}
+                    </div>
+                  </SectionWrapper>
+                );
+              }
+              
+              return null;
+            })
+          }
         </div>
         
+        {/* Inline Style Editor Popup */}
+        {activeEditKey && isEditable && onUpdateData && (
+          <div 
+            className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur rounded-xl shadow-2xl z-[200] p-4 text-black border border-gray-200"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center border-b pb-2 mb-3">
+              <h4 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                <Settings2 size={16} className="text-indigo-600" /> Editar Estilo
+              </h4>
+              <button onClick={() => setActiveEditKey(null)} className="p-1 rounded text-red-500 hover:bg-red-50">
+                <X size={16} />
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Cor do Texto</label>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="color" 
+                    value={data.textStyles?.[activeEditKey]?.color || data.theme.text} 
+                    onChange={(e) => updateStyle(activeEditKey, 'color', e.target.value)} 
+                    className="h-8 w-12 border-0 rounded p-0 cursor-pointer" 
+                  />
+                  <button 
+                    onClick={() => updateStyle(activeEditKey, 'color', undefined)}
+                    className="text-[10px] bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 font-medium"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Zoom do Texto</label>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="range" 
+                    min="0.5" max="2.0" step="0.1" 
+                    value={data.textStyles?.[activeEditKey]?.fontSize || 1} 
+                    onChange={(e) => updateStyle(activeEditKey, 'fontSize', parseFloat(e.target.value))} 
+                    className="flex-1 accent-indigo-500"
+                  />
+                  <span className="text-xs font-mono w-8">{data.textStyles?.[activeEditKey]?.fontSize || 1}x</span>
+                </div>
+              </div>
+              <div className="col-span-2">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Família da Fonte</label>
+                <select 
+                  value={data.textStyles?.[activeEditKey]?.fontFamily || ''} 
+                  onChange={(e) => updateStyle(activeEditKey, 'fontFamily', e.target.value || undefined)}
+                  className="block w-full border border-gray-300 rounded p-2 text-sm bg-gray-50 focus:bg-white"
+                >
+                  <option value="">-- Padrão Global --</option>
+                  <option value="var(--font-title)">Fonte de Título (Destaque)</option>
+                  <option value="var(--font-script)">Fonte Manuscrita (Elegante)</option>
+                  <option value="var(--font-body)">Fonte de Leitura (Comum)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Modal Lista de Presentes */}
         <AnimatePresence>
           {isGiftListModalOpen && (

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { templates } from '../data/templates';
 import { InvitationData } from '../types';
 import Invitation from '../components/Invitation';
-import { ArrowLeft, Share2, Smartphone, Copy, Check, Link as LinkIcon, LogIn, Loader2, Save, ChevronDown, ChevronUp, Sparkles, Palette, Type, Image as ImageIcon, Music, MapPin, Calendar, MessageCircle, Lock } from 'lucide-react';
+import { ArrowLeft, Share2, Smartphone, Copy, Check, Link as LinkIcon, LogIn, Loader2, Save, ChevronDown, ChevronUp, Sparkles, Palette, Type, Image as ImageIcon, Music, MapPin, Calendar, MessageCircle, Lock, GripVertical } from 'lucide-react';
 import LZString from 'lz-string';
 import { auth, db, saveUserToDb, storage } from '../firebase';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User } from 'firebase/auth';
@@ -629,6 +629,149 @@ export default function Editor() {
             </AccordionSection>
 
             <AccordionSection 
+              title="Ordem e Estilos Avançados" 
+              icon={Type} 
+              isOpen={activeSection === 'styles-adv'} 
+              onToggle={() => setActiveSection(activeSection === 'styles-adv' ? '' : 'styles-adv')}
+            >
+              <div className="flex flex-col gap-6">
+                
+                {/* Reordenação de Sessões e Estilos */}
+                <div>
+                  <h4 className="text-sm font-bold text-gray-800 mb-2 border-b pb-1">Ordem e Estilos das Sessões</h4>
+                  <p className="text-xs text-gray-500 mb-3">Arraste pelo ícone para reordenar. Clique em "Editar Estilos" para mudar fontes e cores independentes.</p>
+                  <div className="bg-gray-50 p-2 rounded-lg border border-gray-200 flex flex-col gap-2">
+                    {(data.sectionOrder || ["header", "countdown", "interactive", "dressCode", "footer"]).map((sectionId, idx, arr) => {
+                      const sectionsConfig: Record<string, { label: string, styleKeys: {key: string, label: string}[] }> = { 
+                        header: { label: "Mensagem e Data", styleKeys: [{key: 'message', label: 'Mensagem Inicial'}, {key: 'dateArch', label: 'Card de Data/Hora'}] }, 
+                        countdown: { label: "Contagem", styleKeys: [] }, 
+                        interactive: { label: "Ações", styleKeys: [{key: 'interactiveTitle', label: 'Títulos Interativos'}] }, 
+                        dressCode: { label: "Dress Code", styleKeys: [{key: 'dressCode', label: 'Textos Dress Code'}] }, 
+                        footer: { label: "Rodapé", styleKeys: [{key: 'finalMessage', label: 'Mensagem Final'}, {key: 'footerText', label: 'Frase do Rodapé'}] }
+                      };
+                      const config = sectionsConfig[sectionId];
+                      if (!config) return null;
+
+                      return (
+                        <div 
+                          key={sectionId} 
+                          className="bg-white rounded border shadow-sm text-sm overflow-hidden group"
+                          draggable
+                          onDragStart={(e) => {
+                            e.dataTransfer.effectAllowed = 'move';
+                            e.dataTransfer.setData('text/plain', idx.toString());
+                          }}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            e.dataTransfer.dropEffect = 'move';
+                          }}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            const draggedIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+                            if (draggedIdx === idx || isNaN(draggedIdx)) return;
+                            const newOrder = [...arr];
+                            const draggedItem = newOrder[draggedIdx];
+                            newOrder.splice(draggedIdx, 1);
+                            newOrder.splice(idx, 0, draggedItem);
+                            handleChange({ target: { name: 'sectionOrder', value: newOrder } } as any);
+                          }}
+                        >
+                          <div className="flex items-center justify-between p-2">
+                            <div className="flex items-center gap-2">
+                              <div className="cursor-grab text-gray-400 hover:text-gray-600 active:cursor-grabbing p-1">
+                                <GripVertical size={16} />
+                              </div>
+                              <span className="font-medium text-gray-700">{config.label}</span>
+                            </div>
+                            {config.styleKeys.length > 0 && (
+                              <button
+                                onClick={(e) => {
+                                  const target = e.currentTarget.parentElement?.nextElementSibling;
+                                  if (target) {
+                                    target.classList.toggle('hidden');
+                                  }
+                                }}
+                                className="text-[10px] bg-indigo-50 px-2 py-1 rounded text-indigo-600 hover:bg-indigo-100 font-medium"
+                              >
+                                Editar Estilos
+                              </button>
+                            )}
+                          </div>
+                          
+                          {/* Inner styles accordion */}
+                          {config.styleKeys.length > 0 && (
+                            <div className="hidden border-t bg-gray-50 p-3 flex-col gap-4">
+                              {config.styleKeys.map(item => {
+                                const currentStyles = data.textStyles?.[item.key] || {};
+                                const updateStyle = (field: string, val: any) => {
+                                  const newStyles = { ...(data.textStyles || {}) };
+                                  newStyles[item.key] = { ...(newStyles[item.key] || {}), [field]: val };
+                                  handleChange({ target: { name: 'textStyles', value: newStyles } } as any);
+                                };
+
+                                return (
+                                  <div key={item.key} className="bg-white p-3 rounded border border-gray-200 text-xs">
+                                    <label className="block font-semibold text-gray-800 mb-2">{item.label}</label>
+                                    <div className="grid grid-cols-2 gap-3 mb-2">
+                                      <div>
+                                        <label className="block text-gray-500 mb-1">Cor</label>
+                                        <div className="flex items-center">
+                                          <input 
+                                            type="color" 
+                                            value={currentStyles.color || data.theme.text} 
+                                            onChange={(e) => updateStyle('color', e.target.value)} 
+                                            className="h-6 w-6 border-0 rounded-md p-0" 
+                                          />
+                                          <button 
+                                            onClick={() => updateStyle('color', undefined)}
+                                            className="ml-2 text-[10px] text-red-500 hover:underline"
+                                          >
+                                            Reset
+                                          </button>
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <label className="block text-gray-500 mb-1">Tamanho (Zoom)</label>
+                                        <div className="flex items-center gap-2">
+                                          <input 
+                                            type="range" 
+                                            min="0.5" max="2.0" step="0.1" 
+                                            value={currentStyles.fontSize || 1} 
+                                            onChange={(e) => updateStyle('fontSize', parseFloat(e.target.value))} 
+                                            className="flex-1"
+                                          />
+                                          <span className="text-[10px] w-6">{currentStyles.fontSize || 1}x</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <label className="block text-gray-500 mb-1">Fonte</label>
+                                      <select 
+                                        value={currentStyles.fontFamily || ''} 
+                                        onChange={(e) => updateStyle('fontFamily', e.target.value || undefined)}
+                                        className="block w-full border-gray-300 rounded-md shadow-sm sm:text-xs p-1 border bg-white text-xs"
+                                      >
+                                        <option value="">-- Padrão Global --</option>
+                                        <option value="var(--font-title)">Fonte de Título (Destaque)</option>
+                                        <option value="var(--font-script)">Fonte Manuscrita (Elegante)</option>
+                                        <option value="var(--font-body)">Fonte de Leitura (Comum)</option>
+                                      </select>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+              </div>
+            </AccordionSection>
+
+            <AccordionSection 
               title="Ornamentos Premium" 
               icon={Sparkles} 
               isOpen={activeSection === 'ornaments'} 
@@ -839,7 +982,14 @@ export default function Editor() {
             
             {/* Invitation Component */}
             <div className="w-full h-full overflow-y-auto overflow-x-hidden no-scrollbar bg-white shadow-xl md:shadow-none relative outline outline-1 outline-gray-200">
-              <Invitation data={data} key={mobileView} />
+              <Invitation 
+                data={data} 
+                key={mobileView} 
+                isEditable={true}
+                onUpdateData={(newData: Partial<InvitationData>) => {
+                  setData(prev => ({ ...prev, ...newData }));
+                }}
+              />
             </div>
           </div>
         </div>

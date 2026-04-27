@@ -1,3 +1,11 @@
+export type SectionId = "header" | "countdown" | "interactive" | "dressCode" | "footer";
+
+export interface CustomTextStyle {
+  fontFamily?: string;
+  color?: string;
+  fontSize?: number; // Scale multiplier (e.g., 1.2)
+}
+
 export interface ThemeConfig {
   primary: string;
   secondary: string;
@@ -40,6 +48,12 @@ export interface InvitationData {
   giftSuggestions?: string;
   finalMessage: string;
   isEvaluationCopy?: boolean;
+  
+  // Section Ordering and Custom Styles
+  sectionOrder?: SectionId[];
+  textStyles?: {
+    [key: string]: CustomTextStyle;
+  };
   
   // Global visual adjustments
   decorationType?: string;
